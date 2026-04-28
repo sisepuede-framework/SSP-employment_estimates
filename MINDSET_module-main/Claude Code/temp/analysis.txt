@@ -1,0 +1,100 @@
+================================================================================
+UNDERSTANDING THE STRUCTURE
+================================================================================
+
+Shape: (121, 26)
+
+Column names (these should be the Eora26 sectors):
+  Column 0: 'GLORIA - Eora26 concordance'
+  Column 1: 'Unnamed: 1'
+  Column 2: 'Unnamed: 2'
+  Column 3: 'Unnamed: 3'
+  Column 4: 'Unnamed: 4'
+  Column 5: 'Unnamed: 5'
+  Column 6: 'Unnamed: 6'
+  Column 7: 'Unnamed: 7'
+  Column 8: 'Unnamed: 8'
+  Column 9: 'Unnamed: 9'
+  Column 10: 'Unnamed: 10'
+  Column 11: 'Unnamed: 11'
+  Column 12: 'Unnamed: 12'
+  Column 13: 'Unnamed: 13'
+  Column 14: 'Unnamed: 14'
+  Column 15: 'Unnamed: 15'
+  Column 16: 'Unnamed: 16'
+  Column 17: 'Unnamed: 17'
+  Column 18: 'Unnamed: 18'
+  Column 19: 'Unnamed: 19'
+  Column 20: 'Unnamed: 20'
+  Column 21: 'Unnamed: 21'
+  Column 22: 'Unnamed: 22'
+  Column 23: 'Unnamed: 23'
+  Column 24: 'Unnamed: 24'
+  Column 25: 'Unnamed: 25'
+
+================================================================================
+GLORIA PRODUCTS (Column A / first column)
+================================================================================
+0                                                   NaN
+1                                         Growing wheat
+2                                         Growing maize
+3                                 Growing cereals n.e.c
+4                Growing leguminous crops and oil seeds
+5                                          Growing rice
+6                     Growing vegetables, roots, tubers
+7                           Growing sugar beet and cane
+8                                       Growing tobacco
+9                                   Growing fibre crops
+10                                 Growing crops n.e.c.
+11                                       Growing grapes
+12                              Growing fruits and nuts
+13             Growing beverage crops (coffee, tea etc)
+14    Growing spices, aromatic, drug and pharmaceuti...
+15                          Seeds and plant propagation
+16                                    Raising of cattle
+17                           Raising of sheep and goats
+18                                Raising of swine/pigs
+19                                   Raising of poultry
+Name: GLORIA - Eora26 concordance, dtype: str
+
+================================================================================
+SAMPLE OF CURRENT DATA (first 10 rows, first 10 columns)
+================================================================================
+              GLORIA - Eora26 concordance  ...                Unnamed: 9
+0                                     NaN  ...  Electrical and machinery
+1                           Growing wheat  ...                       NaN
+2                           Growing maize  ...                       NaN
+3                   Growing cereals n.e.c  ...                       NaN
+4  Growing leguminous crops and oil seeds  ...                       NaN
+5                            Growing rice  ...                       NaN
+6       Growing vegetables, roots, tubers  ...                       NaN
+7             Growing sugar beet and cane  ...                       NaN
+8                         Growing tobacco  ...                       NaN
+9                     Growing fibre crops  ...                       NaN
+
+[10 rows x 10 columns]
+
+================================================================================
+DATA TYPES
+================================================================================
+GLORIA - Eora26 concordance    str
+Unnamed: 1                     str
+Unnamed: 2                     str
+Unnamed: 3                     str
+Unnamed: 4                     str
+Unnamed: 5                     str
+Unnamed: 6                     str
+Unnamed: 7                     str
+Unnamed: 8                     str
+Unnamed: 9                     str
+dtype: object
+
+================================================================================
+CHECK: Are there any 1s or 0s already filled?
+================================================================================
+Unique values in column 2: <ArrowStringArray>
+['Agriculture', nan]
+Length: 2, dtype: str
+Unique values in column 3: <ArrowStringArray>
+['Fishing', nan]
+Length: 2, dtype: str

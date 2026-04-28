@@ -1,0 +1,62 @@
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+================================================================================
+LABOR_BASE STRUCTURE CHECK
+================================================================================
+
+LABOR_BASE shape: (960, 10)
+LABOR_BASE columns: ['REG_imp', 'PROD_COMM', 'vol_Fem_low', 'vol_Fem_high', 'vol_Male_low', 'vol_Male_high', 'wage_Fem_low', 'wage_Fem_high', 'wage_Male_low', 'wage_Male_high']
+
+Sample data (first 10 rows):
+--------------------------------------------------------------------------------
+  REG_imp  PROD_COMM  vol_Fem_low  ...  wage_Fem_high  wage_Male_low  wage_Male_high
+0     BGR          1  5296.668852  ...    6926.758527    5465.152721     5962.270934
+1     BGR          2  2272.178461  ...    6825.413619    5477.378429     5943.932348
+2     BGR          3   758.131643  ...    6825.413619    5477.378429     5943.932348
+3     BGR          4  3389.488841  ...    6611.198766    5493.519533     5919.720694
+4     BGR          5   281.850164  ...    6538.224447    5450.356042     5984.465946
+5     BGR          6   551.817194  ...    7000.088372    5547.480814     5838.778775
+6     BGR          7     0.003518  ...    7422.991219    5477.918440     5943.122362
+7     BGR          8   942.395796  ...    6913.904121    5472.366841     5951.449722
+8     BGR          9   163.631895  ...    6917.923612    5392.723503     6070.914746
+9     BGR         10   199.989929  ...    6913.904121    5472.366841     5951.449722
+
+[10 rows x 10 columns]
+
+Countries in LABOR_BASE:
+<ArrowStringArray>
+['BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'ROW', 'UGA']
+Length: 8, dtype: str
+
+Products per country:
+  EGY: 120 products
+  MEX: 120 products
+
+================================================================================
+CHECKING PRODUCT 90 DATA
+================================================================================
+
+EGY - Product 90:
+REG_imp  PROD_COMM  vol_Fem_low  vol_Fem_high  vol_Male_low  vol_Male_high  wage_Fem_low  wage_Fem_high  wage_Male_low  wage_Male_high
+    EGY         90  3748.860286    9447.51925  36360.637155    83961.10236   2517.192672    3749.588439    2643.052305     3282.238236
+
+MEX - Product 90:
+REG_imp  PROD_COMM  vol_Fem_low  vol_Fem_high  vol_Male_low  vol_Male_high  wage_Fem_low  wage_Fem_high  wage_Male_low  wage_Male_high
+    MEX         90 37653.261753 285052.745288 137591.273469  410973.439138   2405.461987    5794.546025    5385.365003     9504.201956
+
+================================================================================
+CHECKING IF LABOR_BASE IS ORIGINAL GLORIA DATA OR AGGREGATED
+================================================================================
+
+Expected for 8-country MRIO: 8 countries × 120 products = 960 rows
+Actual LABOR_BASE rows: 960
+
+[OK] LABOR_BASE matches expected 8-country structure
+
+Checking Variable_list to see where LABOR_BASE comes from:
+[ERROR] Could not read Variable_list: [Errno 2] No such file or directory: 'GLORIA_db/Variable_list_MINDSET_SSP.xlsx'

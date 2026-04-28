@@ -1,0 +1,53 @@
+================================================================================
+PRODUCT 90 REALISM CHECK
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+Product 90: Renting of construction equipment with operator
+
+================================================================================
+EGY vs MEX COMPARISON FOR PRODUCT 90
+================================================================================
+
+EGY:
+  Total country employment:         29,715,964 workers
+  Total country output:            442,604,686 kUSD
+  Country intensity:                    0.0671 workers/kUSD
+
+  Product 90 employment:               133,518 workers (0.45% of country)
+  Product 90 output:                 1,415,995 kUSD (0.32% of country)
+  Product 90 intensity:                 0.0943 workers/kUSD
+
+MEX:
+  Total country employment:         55,827,457 workers
+  Total country output:          2,256,923,256 kUSD
+  Country intensity:                    0.0247 workers/kUSD
+
+  Product 90 employment:               871,271 workers (1.56% of country)
+  Product 90 output:                67,761,053 kUSD (3.00% of country)
+  Product 90 intensity:                 0.0129 workers/kUSD
+
+================================================================================
+ANALYSIS
+================================================================================
+
+Employment ratio (MEX/EGY): 6.53x
+Output ratio (MEX/EGY):     47.85x
+
+If MEX has 6.5x more workers AND 48x more output, then MEX's Product 90
+is MUCH more capital-intensive (mechanized) than EGY's.
+
+This is plausible IF:
+- MEX has highly mechanized construction equipment industry
+- EGY has labor-intensive construction equipment sector
+
+HOWEVER, the 7.3x intensity difference seems extreme. This might indicate:
+1. Data quality issue in original GLORIA for Product 90
+2. Aggregation issue specific to this product
+3. Very different industrial structures (plausible but unusual)

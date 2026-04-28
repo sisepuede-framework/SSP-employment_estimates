@@ -1,0 +1,93 @@
+================================================================================
+EORA26 SECTORS (from row 0 / header row)
+================================================================================
+
+Sector names from B2:Z2 (columns 1-25):
+  Column B2 (pandas col 1): Agriculture
+  Column C2 (pandas col 2): Fishing
+  Column D2 (pandas col 3): Mining and quarrying
+  Column E2 (pandas col 4): Food and beverages
+  Column F2 (pandas col 5): Textiles and wearing apparel
+  Column G2 (pandas col 6): Wood and paper
+  Column H2 (pandas col 7): Petroleum, chemical and non-metallic mineral products
+  Column I2 (pandas col 8): Metal products
+  Column J2 (pandas col 9): Electrical and machinery
+  Column K2 (pandas col 10): Transport equipment
+  Column L2 (pandas col 11): Other manufacturing
+  Column M2 (pandas col 12): Recycling
+  Column N2 (pandas col 13): Electricity, gas and water
+  Column O2 (pandas col 14): Construction
+  Column P2 (pandas col 15): Maintenance and repair
+  Column Q2 (pandas col 16): Wholesale trade
+  Column R2 (pandas col 17): Retail trade
+  Column S2 (pandas col 18): Hotels and restaurants
+  Column T2 (pandas col 19): Transport
+  Column U2 (pandas col 20): Post and telecommunications
+  Column V2 (pandas col 21): Financial intermediation and business activities
+  Column W2 (pandas col 22): Public administration
+  Column X2 (pandas col 23): Education, health and other services
+  Column Y2 (pandas col 24): Private households
+  Column Z2 (pandas col 25): Other
+
+================================================================================
+GLORIA PRODUCTS (120 products)
+================================================================================
+
+First 30 products:
+  Row 2: Growing wheat
+  Row 3: Growing maize
+  Row 4: Growing cereals n.e.c
+  Row 5: Growing leguminous crops and oil seeds
+  Row 6: Growing rice
+  Row 7: Growing vegetables, roots, tubers
+  Row 8: Growing sugar beet and cane
+  Row 9: Growing tobacco
+  Row 10: Growing fibre crops
+  Row 11: Growing crops n.e.c.
+  Row 12: Growing grapes
+  Row 13: Growing fruits and nuts
+  Row 14: Growing beverage crops (coffee, tea etc)
+  Row 15: Growing spices, aromatic, drug and pharmaceutical crops
+  Row 16: Seeds and plant propagation
+  Row 17: Raising of cattle
+  Row 18: Raising of sheep and goats
+  Row 19: Raising of swine/pigs
+  Row 20: Raising of poultry
+  Row 21: Raising of animals n.e.c.; services to agriculture
+  Row 22: Forestry and logging
+  Row 23: Fishing
+  Row 24: Crustaceans and molluscs
+  Row 25: Hard coal
+  Row 26: Lignite and peat
+  Row 27: Petroleum extraction
+  Row 28: Gas extraction
+  Row 29: Iron ores
+  Row 30: Uranium ores
+  Row 31: Aluminium ore
+
+... (showing 30 of 120 products)
+
+================================================================================
+CURRENT STATE OF MATRIX
+================================================================================
+
+Sample values (row 1-5, columns 1-5):
+  Unnamed: 1 Unnamed: 2 Unnamed: 3 Unnamed: 4 Unnamed: 5
+1        NaN        NaN        NaN        NaN        NaN
+2        NaN        NaN        NaN        NaN        NaN
+3        NaN        NaN        NaN        NaN        NaN
+4        NaN        NaN        NaN        NaN        NaN
+5        NaN        NaN        NaN        NaN        NaN
+
+================================================================================
+TASK UNDERSTANDING
+================================================================================
+
+The task is to create a concordance matrix where:
+- Rows = 120 GLORIA products (rows 2-121 in Excel, or indices 1-120 in pandas)
+- Columns = 25 Eora26 sectors (columns B-Z in Excel, or indices 1-25 in pandas)
+- Values = 1 if GLORIA product maps to Eora sector, 0 otherwise
+
+Currently the matrix has text values or NaN. We need to fill it with 1s and 0s
+based on the logical mapping between GLORIA products and Eora26 sectors.
+

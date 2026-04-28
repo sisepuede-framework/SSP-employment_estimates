@@ -1,0 +1,684 @@
+---
+title: "Crosswalk Eora26 - GLORIA (SSP)"
+author: "Fernando Esteves"
+date: "2026-03-14"
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE,warning=FALSE}
+
+library(rstudioapi)
+library(reshape)
+library(dplyr)
+library(data.table)
+library(tidyverse)
+library(ggplot2)
+library(openxlsx)
+library(readxl)
+library(writexl)
+library(tabr)
+library(stringr)
+library(summarytools)
+library(gridExtra)
+library(broom)
+library(modelsummary)
+library(rlang)
+library(tidyxl)
+library(unpivotr)
+library(purrr)
+library(knitr)
+
+# Working directory: go up 3 levels from temp folder
+wd <- dirname(dirname(rstudioapi::getActiveDocumentContext()$path))
+knitr::opts_knit$set(root.dir= wd, include=FALSE, echo = TRUE)
+
+st_options(descr.silent = TRUE)
+```
+
+## Crosswalk: Eora26 to GLORIA MRIO dataset
+
+This document develops a new crosswalk linking the SSP cost structure to the GLORIA MRIO dataset.
+
+A previous version established correspondence between SSP transformation costs and the Eora26‑sector classification.
+
+Building on that work, the present script remaps those same SSP cost items to the GLORIA framework of 120 products, producing an updated structure for use in GLORIA‑based analyses and model integration.
+
+In this script, we focus on **7 countries** (BGR, BLZ, EGY, LBY, MAR, MEX, UGA).
+
+
+# 1. Generate the Cost Structure of Transformations for selected countries
+
+```{r transformations,include=TRUE,message=FALSE}
+
+# Cost Structure - Transformations ----
+
+countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+transf_sheets <- c("Synthetic_ind_energy","AGRC","CCSQ","EN","ENTC","FGTV","FRST","INEN","LNDU","LSMM","LVST","IPPU","SCOE","TRNS","TRWW","WALI","WASO")
+
+for(i in 1:7){
+
+for(k in 1:17){
+  
+  eval(parse(text=paste0("cost_str_",countries[i],"_",transf_sheets[k]," <- read_excel('Data/ATTRIBUTE_STRATEGY_transformations_vectors.xlsx',sheet ='",transf_sheets[k],"',n_max=26)")))
+  
+}
+
+# All transformations in a single data frame
+
+eval(parse(text=paste0("cost_str_",countries[i],"<- merge(cost_str_",countries[i],"_AGRC,cost_str_",countries[i],"_CCSQ,all.x = T,by='Sector')")))
+}
+
+
+for(i in 1:7){
+for(m in 4:17){
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",cost_str_",countries[i],"_",transf_sheets[m],",all.x = T,by='Sector')")))
+
+}}
+
+
+for(i in 1:7){
+
+eval(parse(text = paste0("rm('costr_str_",countries[i],"_AGRC','costr_str_",countries[i],"_CCSQ','costr_str_",countries[i],"_EN','costr_str_",countries[i],"_ENTC','costr_str_",countries[i],"_FGTV','costr_str_",countries[i],"_FRST','costr_str_",countries[i],"_INEN','costr_str_",countries[i],"_IPPU','costr_str_",countries[i],"_LNDU','costr_str_",countries[i],"_LSMM','costr_str_",countries[i],"_LVST','costr_str_",countries[i],"_PFLO','costr_str_",countries[i],"_SCOE','costr_str_",countries[i],"_SOIL','costr_str_",countries[i],"_TRDE','costr_str_",countries[i],"_TRNS','costr_str_",countries[i],"_TRWW','costr_str_",countries[i],"_WALI','costr_str_",countries[i],"_WASO')")))
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>%  mutate(across(2:ncol(cost_str_",countries[i],"), function(x) ifelse(is.na(x),0,x)))")))
+
+eval(parse(text = paste0("synthetic_ind_",countries[i]," <- cost_str_",countries[i],"_Synthetic_ind_energy"))) # Consolidating synthetic sectors
+
+}
+
+# BAU Electricity Generation (IEA data) 
+
+bau_electricity <- read.csv("Data/electricity-prod-source-stacked.csv")
+bau_electricity <- bau_electricity %>% filter(Code %in% c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA"), Year %in% 2019)
+
+bau_electricity <- setorder(bau_electricity,Code,-Year)
+
+bau_electricity <- bau_electricity %>% mutate(order= sequence(rle(Code)$length)) %>% filter(order==1) %>% select(-order) %>%
+                  mutate(across(4:ncol(bau_electricity), function(x) ifelse(is.na(x),0,x))) %>%
+                  mutate(total_prod = rowSums(.[4:12]),
+                  Bioenergy= Electricity.from.bioenergy..TWh./total_prod,Solar=Electricity.from.solar..TWh./total_prod,
+                  Wind=Electricity.from.wind..TWh./total_prod,Hydro=Electricity.from.hydro..TWh./total_prod,
+                  Nuclear=Electricity.from.nuclear..TWh./total_prod,
+                  "Oil and Gas"=(Electricity.from.oil..TWh.+Electricity.from.gas..TWh.)/total_prod,
+                  Coal=Electricity.from.coal..TWh./total_prod,Geothermal=1-Bioenergy-Solar-Wind-Hydro-Nuclear-`Oil and Gas`-Coal) %>%
+                mutate(across(where(is.numeric), function(x) round(x,digits = 2))) %>%
+                  select(Code,Bioenergy,Solar,Wind,Hydro,Nuclear,`Oil and Gas`,Coal,Geothermal)
+
+# Calculating each country BAU Electricity SS ---- 
+
+# "Renewable Energy" shares are taken from IEA's report "Energy Technology Perspectives 2023" (Global net-zero scenario)
+
+for(i in 1:7){
+
+eval(parse(text = paste0("bau_electricity_",countries[i]," <- bau_electricity %>% filter(Code=='",countries[i],"')")))
+
+eval(parse(text = paste0("synthetic_ind_",countries[i]," <- synthetic_ind_",countries[i]," %>%    
+  
+  mutate(BAU_Electricity_",countries[i],"=Bioenergy*abs(bau_electricity_",countries[i],"$Bioenergy)+Solar*abs(bau_electricity_",countries[i],"$Solar)+
+  
+  Wind*abs(bau_electricity_",countries[i],"$Wind)+Hydro*abs(bau_electricity_",countries[i],"$Hydro)+Nuclear*abs(bau_electricity_",countries[i],"$Nuclear)+`Oil and Gas`*abs(bau_electricity_",countries[i],"$`Oil and Gas`)+
+  
+  Coal*abs(bau_electricity_",countries[i],"$Coal)+
+  
+  Geothermal*abs(bau_electricity_",countries[i],"$Geothermal),
+  
+  Renewable_Energy=0.2*Wind+Solar*0.2+Bioenergy*0.15+Hydro*0.1+`Green Hydrogen`*0.08+`Oil and Gas`*0.13+Coal*0.02+Nuclear*0.12,
+  
+  'Energy Efficiency'=0.5*Weatherization+0.25*`Industrial EE`+0.25*`Grid Upgrades`,
+  
+  'Fossil Fuels'=0.5*Coal+0.5*`Oil and Gas`) %>%
+  
+  mutate(across(where(is.numeric), function(x) round(x,digits = 2)))")))
+
+# Consolidating synthetic sectors ---- 
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",synthetic_ind_",countries[i],",by='Sector',all.x = T)")))
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>%  mutate(across(where(is.numeric), function(x) round(x,digits = 2))) %>%
+  mutate(`3001`=`3001`+0.12*BAU_Electricity_",countries[i],",
+                                        `3002`=`3002`+0.12*Renewable_Energy,
+                                        `3059`= `Energy Efficiency`,
+                                        `3060`= 0.5*Renewable_Energy+0.5*`Energy Efficiency`,
+                                        `3061`= 0.7*BAU_Electricity_",countries[i],"+0.3*Hydrogen,
+                                        `3062`=0.7*Renewable_Energy+0.3*`Green Hydrogen`,
+                                        `3003`=0.95*Renewable_Energy+0.05*BAU_Electricity_",countries[i],",
+                                        `3005`=`Grid Upgrades`,
+                                        `3006`=0.5*Renewable_Energy+0.5*`Grid Upgrades`,
+                                        `3010`= `3010`+0.3*Renewable_Energy,
+                                        `3012`= `3010`,
+                                        `3015`=`3015`+0.50*BAU_Electricity_",countries[i],",
+                                        `3016`= `3016`+0.50*Renewable_Energy,
+                                        `3017`=`3015`,
+                                        `3018`=`3016`,
+                                        `3019`=`Industrial EE`,
+                                        `3020`=0.51*Renewable_Energy+0.51*`Industrial EE`,
+                                        `3021`=`Industrial EE`,
+                                        `3022`=0.51*Renewable_Energy+0.51*`Industrial EE`,
+                                        `4002`=`4002`+0.21*BAU_Electricity_",countries[i],"+0.08*Coal,
+                                        `3025`=`3025`+0.1*BAU_Electricity_",countries[i],",
+                                        `3026`=`3026`+0.1*Renewable_Energy,
+                                        `3028`=`3027`*0.8+0.2*Renewable_Energy,
+                                        `3029`=BAU_Electricity_",countries[i],",
+                                        `3030`=Renewable_Energy,
+                                        `3035`=`3035`+0.1*BAU_Electricity_",countries[i],",
+                                        `3036`=`3036`+0.1*Renewable_Energy,
+                                        `3039`=`3039`+0.16*BAU_Electricity_",countries[i],",
+                                        `3040`=`3040`+0.16*Renewable_Energy,
+                                        `3041`=`3041`+0.44*Hydrogen,
+                                        `3042`=`3042`+0.44*`Green Hydrogen`,
+                                        `3043`=`3039`,
+                                        `3044`=`3040`,
+                                        `2014`= `2014`+0.103*BAU_Electricity_",countries[i],") %>% 
+        
+        select(-Bioenergy,-Solar,-Wind,-Hydro,-Nuclear,-`Oil and Gas`,-Coal,-Geothermal,-`Grid Upgrades`,-Weatherization,-Renewable_Energy,-`Energy Efficiency`,-`Fossil Fuels`,-`Industrial EE`,-Hydrogen,-`Green Hydrogen`,-`BAU_Electricity_",countries[i],"`) %>%
+  
+  mutate(across(where(is.numeric), function(x) round(x,digits = 2)))")))
+
+
+# Scaling weights to sum 1
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- data.table(cost_str_",countries[i],")")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- melt.data.table(cost_str_",countries[i],",id.vars = 'Sector')")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>% rename(strategy_id=variable)")))
+
+eval(parse(text = paste0("sum_check <- cost_str_",countries[i]," %>% group_by(strategy_id) %>% mutate(weight_sum=sum(value)) %>% slice_max(value,with_ties = F) %>% mutate(value = ifelse(value != 1,value+(1-weight_sum),value)) %>% select(-weight_sum)"))) 
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",sum_check,by=c('Sector','strategy_id'),all.x = T)")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>% mutate(value.x = ifelse(!is.na(value.y),value.y,value.x)) %>% rename(value=value.x) %>% select(-value.y)")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- setorder(cost_str_",countries[i],",strategy_id,Sector)")))
+
+}
+
+
+rm(list = setdiff(ls(),c("wd","cost_str_LBY","cost_str_BGR","cost_str_BLZ","cost_str_EGY","cost_str_MAR","cost_str_MEX","cost_str_UGA")))
+
+cost <- c("cost_str_LBY", "cost_str_BGR", "cost_str_BLZ","cost_str_EGY", 
+          "cost_str_MAR", "cost_str_MEX","cost_str_UGA")
+
+export_dir <- "Data/Cost Structure"
+
+for(i in seq_along(cost)){
+
+  obj_name <- cost[i]
+  obj <- get(obj_name)
+  
+  file_name <- paste0(obj_name,".xlsx")
+  file_path <- file.path(export_dir,file_name)
+  
+openxlsx::write.xlsx(obj, file = file_path)
+}
+
+```
+
+# 2. Building dataset crosswalking cost structure files to 120 GLORIA products
+
+## A.1 Load Country Distribution Files
+
+```{r load-country-files}
+# Define data paths
+data_path <- "Data/Cost Structure"
+crosswalk_path <- "Data"
+
+# Country codes
+countries <- c("BGR", "BLZ", "EGY", "LBY", "MAR", "MEX", "UGA")
+
+# Load all country files
+country_data_list <- list()
+for (country in countries) {
+  file_path <- file.path(data_path, paste0("cost_str_", country, ".xlsx"))
+  cat("Loading:", country, "\n")
+
+  df <- read_excel(file_path)
+  df$Country <- country
+
+  # Validate structure
+  expected_cols <- c("Sector", "strategy_id", "value")
+  if (!all(expected_cols %in% names(df))) {
+    stop(paste("Missing columns in", country, "file"))
+  }
+
+  country_data_list[[country]] <- df
+
+  # Print summary
+  cat("  Rows:", nrow(df),
+      "| Sectors:", length(unique(df$Sector)),
+      "| Strategies:", length(unique(df$strategy_id)), "\n")
+}
+
+# Combine all countries
+all_countries <- bind_rows(country_data_list)
+cat("\n✓ Total combined rows:", nrow(all_countries), "\n")
+```
+
+## A.2 Validate Country Data
+
+```{r validate-country-data}
+# Check that all files have same structure
+validation <- all_countries %>%
+  group_by(Country) %>%
+  summarise(
+    n_rows = n(),
+    n_sectors = n_distinct(Sector),
+    n_strategies = n_distinct(strategy_id),
+    min_value = min(value, na.rm = TRUE),
+    max_value = max(value, na.rm = TRUE)
+  )
+
+kable(validation, caption = "Country File Validation")
+
+# Check if values sum to 1 per strategy per country
+sum_check <- all_countries %>%
+  group_by(Country, strategy_id) %>%
+  summarise(total_value = sum(value), .groups = "drop") %>%
+  mutate(valid = abs(total_value - 1.0) < 1e-10)
+
+if (any(!sum_check$valid)) {
+  warning("Some strategy_id sums do not equal 1!")
+  print(sum_check %>% filter(!valid))
+} else {
+  cat("\n✓ All strategies sum to 1.0 (within tolerance)\n")
+}
+
+# List all unique sectors
+cat("\nUnique sectors (", length(unique(all_countries$Sector)), "):\n")
+cat(paste(sort(unique(all_countries$Sector)), collapse = "\n"))
+```
+
+## A.3 Load Crosswalk Matrix
+
+```{r load-crosswalk}
+# Load crosswalk
+crosswalk_file <- file.path(crosswalk_path, "GLORIA-Eora26 - Crosswalk.xlsx")
+crosswalk_raw <- read_excel(crosswalk_file, sheet = "Eora26 - GLORIA")
+
+cat("Crosswalk dimensions:", nrow(crosswalk_raw), "×", ncol(crosswalk_raw), "\n")
+cat("Column names:", paste(names(crosswalk_raw)[1:5], collapse = ", "), "...\n")
+cat("Total products:", nrow(crosswalk_raw), "\n")
+```
+
+
+### Step B: Transform Crosswalk to Long Form
+
+```{r transform-crosswalk}
+
+# Get product column name (first column) and sector columns (remaining)
+
+product_col <- names(crosswalk_raw)[1]
+sector_cols <- names(crosswalk_raw)[-1]
+
+cat("Product column:", product_col, "\n")
+cat("Number of sector columns:", length(sector_cols), "\n")
+
+# Pivot to long format (Product-Sector pairs where value = 1)
+crosswalk_long <- crosswalk_raw %>%
+  pivot_longer(
+    cols = all_of(sector_cols),
+    names_to = "Sector",
+    values_to = "linked"
+  ) %>%
+  filter(linked == 1) %>%
+  select(-linked) %>%
+  rename(Product = all_of(product_col))
+
+cat("\n✓ Long format crosswalk:", nrow(crosswalk_long), "Product-Sector pairs\n")
+head(crosswalk_long, 10) %>% kable(caption = "First 10 Product-Sector Links")
+```
+
+### Step B.5: Verify Multi-Sector Products
+
+```{r verify-multi-sector}
+# Count how many sectors each product is linked to
+multi_sector_check <- crosswalk_long %>%
+  group_by(Product) %>%
+  summarise(n_sectors = n(), sectors = paste(Sector, collapse = " + ")) %>%
+  arrange(desc(n_sectors))
+
+cat("\nDistribution of products by number of linked sectors:\n")
+print(table(multi_sector_check$n_sectors))
+
+cat("\nProducts linked to multiple sectors:\n")
+multi_sector_products <- multi_sector_check %>% filter(n_sectors > 1)
+print(multi_sector_products)
+
+if (nrow(multi_sector_products) == 0) {
+  cat("\n✓ No products linked to multiple sectors\n")
+} else {
+  cat("\n⚠ Found", nrow(multi_sector_products), "product(s) linked to multiple sectors\n")
+}
+```
+
+### Step C: Compute Products-Per-Sector
+
+```{r products-per-sector}
+# Count number of products per sector
+products_per_sector <- crosswalk_long %>%
+  group_by(Sector) %>%
+  summarise(n_products_in_sector = n()) %>%
+  arrange(desc(n_products_in_sector))
+
+cat("Products per sector:\n")
+print(products_per_sector)
+
+# Visualization
+ggplot(products_per_sector, aes(x = reorder(Sector, n_products_in_sector),
+                                 y = n_products_in_sector)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Number of GLORIA Products per Eora26 Sector",
+       x = "Sector", y = "Number of Products") +
+  theme_minimal()
+```
+
+### Step C.5: Check for Sectors with Zero Products
+
+```{r check-zero-products}
+# Get all sectors from country files
+all_sectors_in_data <- unique(all_countries$Sector)
+
+# Check if any sector has zero products
+sectors_with_products <- unique(products_per_sector$Sector)
+sectors_without_products <- setdiff(all_sectors_in_data, sectors_with_products)
+
+if (length(sectors_without_products) > 0) {
+  cat("⚠ WARNING: Sectors with NO products assigned:\n")
+  print(sectors_without_products)
+} else {
+  cat("✓ All sectors in the data have at least one product\n")
+}
+
+# Add zero check
+if (any(products_per_sector$n_products_in_sector == 0)) {
+  stop("ERROR: Found sectors with zero products - would cause division by zero!")
+}
+```
+
+#### Step D: Merge and Allocate
+
+##### D.1 Join Crosswalk with Country Data
+
+```{r merge-data}
+# Merge crosswalk with country distribution data
+merged_data <- all_countries %>%
+  left_join(crosswalk_long, by = "Sector") %>%
+  left_join(products_per_sector, by = "Sector")
+
+cat("Merged data rows:", nrow(merged_data), "\n")
+cat("Unique combinations:\n")
+cat("  Countries:", n_distinct(merged_data$Country), "\n")
+cat("  Strategies:", n_distinct(merged_data$strategy_id), "\n")
+cat("  Products:", n_distinct(merged_data$Product), "\n")
+cat("  Sectors:", n_distinct(merged_data$Sector), "\n")
+```
+
+##### D.2 Calculate Product Allocations
+
+```{r calculate-allocations}
+# Calculate Value_Product for each product
+# For products linked to multiple sectors, this will create multiple rows
+# which we'll sum in the next step
+allocated_data <- merged_data %>%
+  mutate(
+    Value_Sector = value,
+    Value_Product_per_sector = Value_Sector / n_products_in_sector
+  ) %>%
+  select(Country, strategy_id, Product, Sector,
+         Value_Sector, n_products_in_sector, Value_Product_per_sector)
+
+cat("Allocated data (before aggregation):", nrow(allocated_data), "rows\n")
+head(allocated_data, 10) %>% kable(caption = "First 10 Allocated Rows")
+```
+
+#### D.3 Aggregate Multi-Sector Products
+
+```{r aggregate-multi-sector}
+# For products linked to multiple sectors, sum their allocations
+final_allocation <- allocated_data %>%
+  group_by(Country, strategy_id, Product) %>%
+  summarise(
+    Sectors = paste(unique(Sector), collapse = " + "),
+    n_sectors_linked = n_distinct(Sector),
+    Value_Product = sum(Value_Product_per_sector),
+    .groups = "drop"
+  ) %>%
+  
+  mutate(Value_Product=ifelse(is.na(Value_Product),0,Value_Product))
+
+cat("\n✓ Final allocation:", nrow(final_allocation), "rows\n")
+cat("  Unique products:", n_distinct(final_allocation$Product), "\n")
+
+# Show multi-sector products
+multi_sector_final <- final_allocation %>%
+  filter(n_sectors_linked > 1) %>%
+  arrange(Country, strategy_id)
+
+if (nrow(multi_sector_final) > 0) {
+  cat("\nMulti-sector product allocations (first 10):\n")
+  print(head(multi_sector_final, 10))
+}
+
+# Prepare final output as demand vectors to run GLORIA ($1M allocated to each strategy in each country) ----
+
+product_number <- read.xlsx("Data/Gloria - Product list number.xlsx")
+
+output_data <- final_allocation %>%
+  select(Country, strategy_id, Product, Value_Product) %>%
+  filter(!is.na(Product)) %>%
+  left_join(product_number,by=c("Product"="Sector_names")) %>%
+  arrange(Country, strategy_id, Product) %>%
+  rename("Country ISO*"=Country,"Sector investing"=Product,"Sector investing code*"=Lfd_Nr,
+         "Value*"=Value_Product) %>%
+  mutate(`Value*`=`Value*`*1000000,`Type*`="abs-b",
+         Country=ifelse(`Country ISO*`=="BGR","Bulgaria",
+                        ifelse(`Country ISO*`=="BLZ","Belize",
+                               ifelse(`Country ISO*`=="EGY","Egypt",
+                                      ifelse(`Country ISO*`=="UGA","Uganda",
+                                             ifelse(`Country ISO*`=="LBY","Libya",
+                                                    ifelse(`Country ISO*`=="MAR","Morocco",
+                                                           ifelse(`Country ISO*`=="MEX","Mexico",NA)))))))) %>%
+  relocate(Country,.before = `Country ISO*`) %>% relocate(`Sector investing code*`,.after=`Sector investing`)
+  
+# Exporting files as to be used by MINDSET ----
+
+export_dir <- "Mindset - WB/MINDSET_module-main/MINDSET_module-main/GLORIA_template/Scenarios"
+if (!dir.exists(export_dir)) dir.create(export_dir, recursive = TRUE)
+
+# Get unique combinations of Country, Country ISO*, and strategy_id
+unique_pairs <- output_data %>%
+  distinct(`Country ISO*`, Country, strategy_id)
+
+for (i in seq_len(nrow(unique_pairs))) {
+
+  iso    <- unique_pairs$`Country ISO*`[i]
+  ctry   <- unique_pairs$Country[i]
+  strat  <- unique_pairs$strategy_id[i]
+
+  # Filter the dataset and drop the strategy_id column
+  subset_df <- output_data %>%
+    filter(`Country ISO*` == iso, strategy_id == strat) %>%
+    select(-strategy_id)
+
+  # Build file name, cleaning invalid characters if needed
+  file_name <- paste0("Strategy_", strat, "_", iso, ".xlsx")
+  file_path <- file.path(export_dir, file_name)
+
+  # Export file
+  openxlsx::write.xlsx(subset_df, file = file_path,sheetName="Investment by")
+
+  cat("✓ Exported strategy", strat, "for", ctry, "(", iso, ") →", file_name, "\n")
+}
+
+rm(list = setdiff(ls(),c("wd","output_data")))
+
+
+```
+
+#### Step D.5: Verify No Negative or NA Values
+
+```{r verify-values}
+# Check for NA values
+na_check <- final_allocation %>%
+  summarise(
+    na_products = sum(is.na(Product)),
+    na_values = sum(is.na(Value_Product))
+  )
+
+if (na_check$na_products > 0 | na_check$na_values > 0) {
+  warning("Found NA values in final allocation!")
+  print(na_check)
+} else {
+  cat("✓ No NA values found\n")
+}
+
+# Check for negative values
+negative_check <- final_allocation %>%
+  filter(Value_Product < 0)
+
+if (nrow(negative_check) > 0) {
+  warning("Found negative values!")
+  print(negative_check)
+} else {
+  cat("✓ No negative values found\n")
+}
+
+# Summary statistics
+cat("\nValue_Product summary:\n")
+print(summary(final_allocation$Value_Product))
+```
+
+### Step E: Final Validation
+
+#### E.1 Verify Sums Equal 1
+
+```{r validate-sums}
+# Check that Value_Product sums to 1 per country per strategy
+sum_validation <- final_allocation %>%
+  group_by(Country, strategy_id) %>%
+  summarise(
+    total_value = sum(Value_Product),
+    difference_from_1 = abs(total_value - 1.0),
+    valid = difference_from_1 < 1e-10,
+    .groups = "drop"
+  )
+
+# Overall validation
+valid_count <- sum(sum_validation$valid)
+total_count <- nrow(sum_validation)
+
+cat("\nValidation results:\n")
+cat("  Valid sums:", valid_count, "/", total_count,
+    "(", round(100 * valid_count / total_count, 2), "%)\n")
+
+if (valid_count < total_count) {
+  cat("\n⚠ WARNING: Some sums do not equal 1.0\n")
+  invalid_sums <- sum_validation %>%
+    filter(!valid) %>%
+    arrange(desc(difference_from_1))
+  print(head(invalid_sums, 20))
+} else {
+  cat("\n✓ All strategy sums equal 1.0 (within tolerance 1e-10)\n")
+}
+
+# Histogram of differences
+ggplot(sum_validation, aes(x = difference_from_1)) +
+  geom_histogram(bins = 50, fill = "steelblue") +
+  scale_x_log10() +
+  labs(title = "Distribution of Sum Deviations from 1.0",
+       x = "Absolute Difference from 1.0 (log scale)",
+       y = "Count") +
+  theme_minimal()
+```
+
+#### E.2 Product Coverage Check
+
+```{r product-coverage}
+# Verify all 120 products appear in output
+products_in_crosswalk <- unique(crosswalk_long$Product)
+products_in_output <- unique(final_allocation$Product)
+
+cat("Products in crosswalk:", length(products_in_crosswalk), "\n")
+cat("Products in output:", length(products_in_output), "\n")
+
+missing_products <- setdiff(products_in_crosswalk, products_in_output)
+if (length(missing_products) > 0) {
+  cat("\n⚠ Missing products:\n")
+  print(missing_products)
+} else {
+  cat("\n✓ All products from crosswalk appear in output\n")
+}
+```
+
+#### E.3 Strategy Coverage Check
+
+```{r strategy-coverage}
+# Check strategies per country
+strategy_summary <- final_allocation %>%
+  group_by(Country) %>%
+  summarise(
+    n_strategies = n_distinct(strategy_id),
+    n_products = n_distinct(Product),
+    n_rows = n()
+  )
+
+kable(strategy_summary, caption = "Strategy and Product Coverage by Country")
+
+# Expected: 7 countries × 67 strategies × 120 products = ~56,280 rows
+expected_rows <- 7 * 67 * 120
+cat("\nExpected rows:", expected_rows, "\n")
+cat("Actual rows:", nrow(final_allocation), "\n")
+```
+
+# Summary Statistics
+
+```{r summary-stats}
+# Overall statistics
+cat("=== FINAL DATASET SUMMARY ===\n\n")
+cat("Dimensions:", nrow(output_data), "rows ×", ncol(output_data), "columns\n\n")
+
+cat("Coverage:\n")
+cat("  Countries:", n_distinct(output_data$Country), "-",
+    paste(unique(output_data$Country), collapse = ", "), "\n")
+cat("  Strategies:", n_distinct(output_data$strategy_id), "\n")
+cat("  Products:", n_distinct(output_data$Product), "\n\n")
+
+cat("Value_Product statistics:\n")
+print(summary(output_data$Value_Product))
+
+# Distribution by country
+country_stats <- output_data %>%
+  group_by(Country) %>%
+  summarise(
+    n_rows = n(),
+    mean_value = mean(Value_Product),
+    median_value = median(Value_Product),
+    min_value = min(Value_Product),
+    max_value = max(Value_Product)
+  )
+
+cat("\n")
+kable(country_stats, caption = "Value Distribution by Country", digits = 6)
+```
+
+---
+
+# Diagnostic Plots
+
+```{r diagnostic-plots, fig.width=10, fig.height=6}
+# Value distribution
+ggplot(output_data, aes(x = Value_Product)) +
+  geom_histogram(bins = 50, fill = "steelblue", alpha = 0.7) +
+  facet_wrap(~ Country, ncol = 2) +
+  labs(title = "Distribution of Product Values by Country",
+       x = "Value_Product", y = "Count") +
+  theme_minimal()
+
+# Box plot by country
+ggplot(output_data, aes(x = Country, y = Value_Product, fill = Country)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  labs(title = "Product Value Distribution by Country (log scale)",
+       y = "Value_Product (log scale)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```

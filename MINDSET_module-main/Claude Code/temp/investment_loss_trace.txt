@@ -1,0 +1,40 @@
+================================================================================
+TRACING INVESTMENT LOSS
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.3 s ---
+STEP 1: Initial Investment (inv_exog)
+--------------------------------------------------------------------------------
+Total investment: $1,000.00 kUSD
+Non-zero products: 40
+
+STEP 2: After INV_CONV Conversion
+--------------------------------------------------------------------------------
+Before conversion: $1,000.00 kUSD
+
+After INV_CONV: $1,000.00 kUSD
+Loss at INV_CONV: $0.00 kUSD
+
+STEP 3: After fcf_share Distribution
+--------------------------------------------------------------------------------
+Before fcf_share merge: $1,000.00 kUSD
+Unique products: 120
+
+After fcf_share merge: $4,091.17 kUSD
+Products after merge: 117
+Loss at fcf_share: $-3,091.17 kUSD
+
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\trace_investment_loss.py", line 99, in <module>
+    print(f"\u26a0 Products dropped by fcf_share merge: {len(dropped_products)}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u26a0' in position 0: character maps to <undefined>

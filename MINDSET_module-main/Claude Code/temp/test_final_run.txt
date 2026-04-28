@@ -1,0 +1,169 @@
+MINDSET root directory: C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main
+Current working directory: C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main
+
+================================================================================
+TEST: SINGLE SCENARIO EMPLOYMENT ESTIMATION
+================================================================================
+
+Test scenario: Strategy_1004_MEX
+Scenario file: C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\GLORIA_template\Scenarios\Strategy_1004_MEX.xlsx
+File exists: True
+
+--------------------------------------------------------------------------------
+STEP 1: Loading MRIO Data
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+L_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found.
+Y_BASE file is not found, will be parsed in IO module.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 3.7 s ---
+OK - MRIO data loaded in 3.7 seconds
+OK - Countries: 164, Sectors: 120
+
+Note: Using mock logger (this is OK)
+--------------------------------------------------------------------------------
+STEP 2: Loading Investment Scenario
+--------------------------------------------------------------------------------
+OK - Investment loaded: $910,548
+OK - Investment entries: 117
+
+Investment breakdown:
+  MEX - Sector 1.0: $20,952
+  MEX - Sector 10.0: $20,952
+  MEX - Sector 100.0: $0
+  MEX - Sector 101.0: $0
+  MEX - Sector 102.0: $0
+  MEX - Sector 103.0: $0
+  MEX - Sector 104.0: $0
+  MEX - Sector 105.0: $0
+  MEX - Sector 106.0: $0
+  MEX - Sector 107.0: $0
+  MEX - Sector 108.0: $0
+  MEX - Sector 109.0: $0
+  MEX - Sector 11.0: $20,952
+  MEX - Sector 110.0: $0
+  MEX - Sector 111.0: $0
+  MEX - Sector 112.0: $0
+  MEX - Sector 113.0: $0
+  MEX - Sector 114.0: $0
+  MEX - Sector 115.0: $0
+  MEX - Sector 116.0: $0
+  MEX - Sector 117.0: $0
+  MEX - Sector 118.0: $0
+  MEX - Sector 119.0: $0
+  MEX - Sector 12.0: $20,952
+  MEX - Sector 120.0: $0
+  MEX - Sector 13.0: $20,952
+  MEX - Sector 14.0: $20,952
+  MEX - Sector 15.0: $20,952
+  MEX - Sector 16.0: $20,952
+  MEX - Sector 18.0: $20,952
+  MEX - Sector 19.0: $20,952
+  MEX - Sector 2.0: $20,952
+  MEX - Sector 20.0: $20,952
+  MEX - Sector 21.0: $20,952
+  MEX - Sector 22.0: $0
+  MEX - Sector 23.0: $0
+  MEX - Sector 24.0: $0
+  MEX - Sector 25.0: $0
+  MEX - Sector 26.0: $0
+  MEX - Sector 27.0: $0
+  MEX - Sector 28.0: $0
+  MEX - Sector 29.0: $0
+  MEX - Sector 3.0: $20,952
+  MEX - Sector 30.0: $0
+  MEX - Sector 31.0: $0
+  MEX - Sector 32.0: $0
+  MEX - Sector 33.0: $0
+  MEX - Sector 34.0: $0
+  MEX - Sector 35.0: $0
+  MEX - Sector 36.0: $0
+  MEX - Sector 37.0: $0
+  MEX - Sector 38.0: $0
+  MEX - Sector 39.0: $0
+  MEX - Sector 4.0: $20,952
+  MEX - Sector 40.0: $0
+  MEX - Sector 41.0: $0
+  MEX - Sector 42.0: $0
+  MEX - Sector 43.0: $0
+  MEX - Sector 44.0: $0
+  MEX - Sector 45.0: $0
+  MEX - Sector 46.0: $0
+  MEX - Sector 47.0: $0
+  MEX - Sector 48.0: $0
+  MEX - Sector 49.0: $0
+  MEX - Sector 5.0: $20,952
+  MEX - Sector 50.0: $0
+  MEX - Sector 51.0: $0
+  MEX - Sector 52.0: $0
+  MEX - Sector 53.0: $0
+  MEX - Sector 54.0: $0
+  MEX - Sector 55.0: $0
+  MEX - Sector 56.0: $0
+  MEX - Sector 57.0: $0
+  MEX - Sector 58.0: $0
+  MEX - Sector 59.0: $0
+  MEX - Sector 6.0: $20,952
+  MEX - Sector 60.0: $0
+  MEX - Sector 61.0: $0
+  MEX - Sector 62.0: $26,000
+  MEX - Sector 63.0: $26,000
+  MEX - Sector 64.0: $26,000
+  MEX - Sector 65.0: $26,000
+  MEX - Sector 66.0: $26,000
+  MEX - Sector 67.0: $26,000
+  MEX - Sector 68.0: $26,000
+  MEX - Sector 69.0: $26,000
+  MEX - Sector 7.0: $20,952
+  MEX - Sector 70.0: $26,000
+  MEX - Sector 71.0: $26,000
+  MEX - Sector 72.0: $26,000
+  MEX - Sector 73.0: $26,000
+  MEX - Sector 75.0: $26,000
+  MEX - Sector 76.0: $26,000
+  MEX - Sector 77.0: $0
+  MEX - Sector 78.0: $0
+  MEX - Sector 79.0: $0
+  MEX - Sector 8.0: $20,952
+  MEX - Sector 80.0: $0
+  MEX - Sector 81.0: $0
+  MEX - Sector 82.0: $0
+  MEX - Sector 83.0: $0
+  MEX - Sector 84.0: $0
+  MEX - Sector 85.0: $0
+  MEX - Sector 86.0: $42,500
+  MEX - Sector 87.0: $0
+  MEX - Sector 88.0: $0
+  MEX - Sector 9.0: $20,952
+  MEX - Sector 90.0: $42,500
+  MEX - Sector 91.0: $42,500
+  MEX - Sector 92.0: $0
+  MEX - Sector 93.0: $0
+  MEX - Sector 94.0: $0
+  MEX - Sector 95.0: $0
+  MEX - Sector 96.0: $0
+  MEX - Sector 97.0: $0
+  MEX - Sector 98.0: $0
+  MEX - Sector 99.0: $0
+
+--------------------------------------------------------------------------------
+STEP 3: Converting Investment to Product Demand
+--------------------------------------------------------------------------------
+OK - Investment converted to product demand
+OK - Initial final demand (dy): $187,270
+OK - Time: 2.1 seconds
+
+--------------------------------------------------------------------------------
+STEP 4: Calculating Output Changes (IO Model)
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\TEST_ONE_SCENARIO.py", line 165, in <module>
+    IO_model.build_L_mat()
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'IO' object has no attribute 'build_L_mat'. Did you mean: 'build_A_base'?

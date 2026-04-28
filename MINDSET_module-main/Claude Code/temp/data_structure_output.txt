@@ -1,0 +1,35 @@
+=== ATTRIBUTE_STRATEGY.csv ===
+Shape: (92, 2)
+Columns: ['strategy_id', 'strategy']
+
+First 5 rows:
+   strategy_id                                    strategy
+0            0                                Baseline NDP
+1            1                                  Test AFOLU
+2            2                                 Test Energy
+3         1001             AFOLU Specific Strategies Start
+4         2001  Circular Economy Specific Strategies Start
+
+=== GLORIA-Eora26 - Crosswalk.xlsx ===
+Sheet names: ['GLORIA (v60) - ISIC concordance', 'Eora - ISIC Rev. 3', 'Eora26 - GLORIA']
+
+=== GLORIA (v60) - ISIC concordance ===
+Shape: (121, 21)
+Columns: ['GLORIA ISIC Rev. 4 concordance', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
+
+First 10 rows:
+           GLORIA ISIC Rev. 4 concordance  ...                                                  T
+0                                     NaN  ...  Activities of households as employers; undiffe...
+1                           Growing wheat  ...                                                  0
+2                           Growing maize  ...                                                  0
+3                   Growing cereals n.e.c  ...                                                  0
+4  Growing leguminous crops and oil seeds  ...                                                  0
+5                            Growing rice  ...                                                  0
+6       Growing vegetables, roots, tubers  ...                                                  0
+7             Growing sugar beet and cane  ...                                                  0
+8                         Growing tobacco  ...                                                  0
+9                     Growing fibre crops  ...                                                  0
+
+[10 rows x 21 columns]
+
+Unique ISIC sectors: Column not found

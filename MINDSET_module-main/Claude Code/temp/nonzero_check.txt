@@ -1,0 +1,52 @@
+================================================================================
+CHECKING NON-ZERO INVESTMENT VALUES
+================================================================================
+
+Total rows: 120
+Columns: ['Country', 'Country ISO*', 'Sector investing', 'Sector investing code*', 'Value*', 'Type*']
+
+Non-zero values: 40
+Zero values: 80
+
+NON-ZERO ENTRIES:
+--------------------------------------------------------------------------------
+Row 9: Country=MEX, Sector=67.0, Value=$26,000.00, Type=absolute
+Row 14: Country=MEX, Sector=68.0, Value=$26,000.00, Type=absolute
+Row 15: Country=MEX, Sector=66.0, Value=$26,000.00, Type=absolute
+Row 19: Country=MEX, Sector=75.0, Value=$26,000.00, Type=absolute
+Row 23: Country=MEX, Sector=73.0, Value=$26,000.00, Type=absolute
+Row 24: Country=MEX, Sector=62.0, Value=$26,000.00, Type=absolute
+Row 25: Country=MEX, Sector=90.0, Value=$42,500.00, Type=absolute
+Row 30: Country=MEX, Sector=70.0, Value=$26,000.00, Type=absolute
+Row 33: Country=MEX, Sector=91.0, Value=$42,500.00, Type=absolute
+Row 40: Country=MEX, Sector=21.0, Value=$20,952.38, Type=absolute
+Row 44: Country=MEX, Sector=nan, Value=$26,000.00, Type=absolute
+Row 47: Country=MEX, Sector=13.0, Value=$20,952.38, Type=absolute
+Row 48: Country=MEX, Sector=3.0, Value=$20,952.38, Type=absolute
+Row 49: Country=MEX, Sector=10.0, Value=$20,952.38, Type=absolute
+Row 50: Country=MEX, Sector=9.0, Value=$20,952.38, Type=absolute
+Row 51: Country=MEX, Sector=12.0, Value=$20,952.38, Type=absolute
+Row 52: Country=MEX, Sector=11.0, Value=$20,952.38, Type=absolute
+Row 53: Country=MEX, Sector=4.0, Value=$20,952.38, Type=absolute
+Row 54: Country=MEX, Sector=2.0, Value=$20,952.38, Type=absolute
+Row 55: Country=MEX, Sector=5.0, Value=$20,952.38, Type=absolute
+Row 56: Country=MEX, Sector=14.0, Value=$20,952.38, Type=absolute
+Row 57: Country=MEX, Sector=7.0, Value=$20,952.38, Type=absolute
+Row 58: Country=MEX, Sector=8.0, Value=$20,952.38, Type=absolute
+Row 59: Country=MEX, Sector=6.0, Value=$20,952.38, Type=absolute
+Row 60: Country=MEX, Sector=1.0, Value=$20,952.38, Type=absolute
+Row 69: Country=MEX, Sector=86.0, Value=$42,500.00, Type=absolute
+Row 74: Country=MEX, Sector=64.0, Value=$26,000.00, Type=absolute
+Row 75: Country=MEX, Sector=65.0, Value=$26,000.00, Type=absolute
+Row 78: Country=MEX, Sector=76.0, Value=$26,000.00, Type=absolute
+Row 82: Country=MEX, Sector=69.0, Value=$26,000.00, Type=absolute
+Row 83: Country=MEX, Sector=72.0, Value=$26,000.00, Type=absolute
+Row 94: Country=MEX, Sector=20.0, Value=$20,952.38, Type=absolute
+Row 95: Country=MEX, Sector=16.0, Value=$20,952.38, Type=absolute
+Row 96: Country=MEX, Sector=19.0, Value=$20,952.38, Type=absolute
+Row 97: Country=MEX, Sector=nan, Value=$20,952.38, Type=absolute
+Row 98: Country=MEX, Sector=18.0, Value=$20,952.38, Type=absolute
+Row 99: Country=MEX, Sector=63.0, Value=$26,000.00, Type=absolute
+Row 100: Country=MEX, Sector=nan, Value=$42,500.00, Type=absolute
+Row 102: Country=MEX, Sector=71.0, Value=$26,000.00, Type=absolute
+Row 104: Country=MEX, Sector=15.0, Value=$20,952.38, Type=absolute

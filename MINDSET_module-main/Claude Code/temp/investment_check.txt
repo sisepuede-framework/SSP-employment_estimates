@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\check_investment_data.py", line 23, in <module>
+    print(f"\u2713 'Country ISO*' column found")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 0: character maps to <undefined>
+================================================================================
+CHECKING INVESTMENT DATA IN SCENARIO FILE
+================================================================================
+
+Reading 'Investment by' sheet (no skiprows)...
+
+Columns: ['Country', 'Country ISO*', 'Sector investing', 'Sector investing code*', 'Value*', 'Type*']
+Shape: (120, 6)
+
+All data:
+    Country Country ISO*  ... Value*     Type*
+0    Mexico          MEX  ...    0.0  absolute
+1    Mexico          MEX  ...    0.0  absolute
+2    Mexico          MEX  ...    0.0  absolute
+3    Mexico          MEX  ...    0.0  absolute
+4    Mexico          MEX  ...    0.0  absolute
+..      ...          ...  ...    ...       ...
+115  Mexico          MEX  ...    0.0  absolute
+116  Mexico          MEX  ...    0.0  absolute
+117  Mexico          MEX  ...    0.0  absolute
+118  Mexico          MEX  ...    0.0  absolute
+119  Mexico          MEX  ...    0.0  absolute
+
+[120 rows x 6 columns]
+
+Error reading file: 'charmap' codec can't encode character '\u2713' in position 0: character maps to <undefined>

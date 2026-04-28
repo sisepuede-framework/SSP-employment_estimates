@@ -1,0 +1,111 @@
+================================================================================
+TEST: Employment Analysis with ISIC Sectors and Strategy Attributes
+================================================================================
+
+STEP 1: Loading ISIC Crosswalk and Strategy Attributes
+--------------------------------------------------------------------------------
+Crosswalk loaded: (121, 21)
+Columns: ['GLORIA ISIC Rev. 4 concordance', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
+
+ISIC sections found: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
+
+ISIC Section Descriptions:
+  A: Agriculture, forestry and fishing
+  B: Mining and quarrying
+  C: Manufacturing
+  D: Electricity, gas, steam and air conditioning supply
+  E: Water supply; sewerage, waste management and remediation activities
+  F: Construction
+  G: Wholesale and retail trade; repair of motor vehicles
+  H: Transportation and storage
+  I: Accommodation and food service activities
+  J: Information and communication
+  K: Financial and insurance activities
+  L: Real estate activities
+  M: Professional, scientific and technical activities
+  N: Administrative and support services
+  O: Public administration and defence; compulsory social security
+  P: Education
+  Q: Human health and social work activities
+  R: Arts, entertainment and recreation
+  S: Other service activities
+  T: Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use
+
+Products in crosswalk: 120
+
+Sample mappings:
+  Product 1: ['A']
+  Product 2: ['A']
+  Product 3: ['A']
+  Product 86: ['C']
+  Product 89: ['C']
+  Product 90: ['C']
+
+Strategy attributes loaded: (92, 2)
+Columns: ['strategy_id', 'strategy']
+
+First 5 rows:
+   strategy_id                                    strategy
+0            0                                Baseline NDP
+1            1                                  Test AFOLU
+2            2                                 Test Energy
+3         1001             AFOLU Specific Strategies Start
+4         2001  Circular Economy Specific Strategies Start
+
+Strategy ID column: 'strategy_id'
+
+STEP 2: Loading MRIO Base Data
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.3 s ---
+[OK] MRIO loaded
+
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+[OK] Models initialized
+
+STEP 3: Processing Test Strategy
+--------------------------------------------------------------------------------
+Processing: Strategy_1004_EGY
+
+Investing country: EGY (Egypt)
+
+STEP 4: Extracting Product-Level Results
+--------------------------------------------------------------------------------
+Product-level results: 120 products
+Total jobs (sum): 20.93
+
+STEP 5: Aggregating to ISIC Sectors
+--------------------------------------------------------------------------------
+ISIC sector results: 20 sectors
+Total jobs (sum): 20.93
+Share sum check: 1.000000 (should be 1.0)
+
+STEP 6: Merging with Strategy Attributes
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\TEST_ONE_STRATEGY_WITH_SECTORS.py", line 302, in <module>
+    df_final = df_sector.merge(df_attributes_merge, on='strategy_id', how='left')
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\frame.py", line 12884, in merge
+    return merge(
+        self,
+    ...<10 lines>...
+        validate=validate,
+    )
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\reshape\merge.py", line 385, in merge
+    op = _MergeOperation(
+        left_df,
+    ...<10 lines>...
+        validate=validate,
+    )
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\reshape\merge.py", line 1031, in __init__
+    self._maybe_coerce_merge_keys()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\reshape\merge.py", line 1835, in _maybe_coerce_merge_keys
+    raise ValueError(msg)
+ValueError: You are trying to merge on str and int64 columns for key 'strategy_id'. If you wish to proceed you should use pd.concat

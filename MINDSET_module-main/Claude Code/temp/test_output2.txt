@@ -1,0 +1,40 @@
+================================================================================
+TEST: Identity INV_CONV with PROPER Employment Baseline
+================================================================================
+
+STEP 1: Loading MRIO Data
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+[OK] MRIO data loaded
+  Countries: ROW, BGR, BLZ, EGY, LBY, MAR, MEX, UGA
+[OK] LABOR_BASE loaded: (960, 10)
+
+STEP 2: Loading Investment Scenario
+--------------------------------------------------------------------------------
+[OK] Investment loaded: $1,000 kUSD
+
+STEP 3: Converting Investment to Final Demand
+--------------------------------------------------------------------------------
+[OK] Demand created: $979 kUSD
+  Preservation: 97.9%
+
+STEP 4: Calculating Output Changes
+--------------------------------------------------------------------------------
+[OK] Output change: $2,240 kUSD
+  Multiplier: 2.288x
+
+STEP 5: Calculating Employment Baseline (from LABOR_BASE)
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\TEST_WITH_PROPER_EMPLOYMENT.py", line 128, in <module>
+    Prod_cost = prod_cost(MRIO_BASE, Scenario)
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\prod_cost.py", line 14, in __init__
+    self.payr_tax_split = scenario.payr_tax_split
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'scenario' object has no attribute 'payr_tax_split'. Did you mean: 'build_payr_tax_split'?

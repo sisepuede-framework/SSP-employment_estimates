@@ -1,0 +1,62 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+CHECKING EMPLOYMENT MULTIPLIERS
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+Employment Multipliers for invested products:
+================================================================================
+Product        EGY Multiplier     MEX Multiplier        Ratio
+--------------------------------------------------------------------------------
+65                   0.009583           0.000321        29.88x
+66                   0.000924           0.000359         2.57x
+67                   0.014662           0.002629         5.58x
+68                   0.020426           0.005410         3.78x
+69                   0.002006           0.008985         0.22x
+70                   0.006650           0.004589         1.45x
+86                   0.069468           0.007037         9.87x
+89                   0.363064           0.000246      1473.12x
+90                   0.052238           0.005529         9.45x
+91                   0.015976           0.004442         3.60x
+--------------------------------------------------------------------------------
+Average              0.055500           0.003955        14.03x
+
+================================================================================
+BREAKDOWN BY COMPONENT
+================================================================================
+
+Product 90 breakdown:
+--------------------------------------------------------------------------------
+Employment coefficient (empl_coef):
+  EGY: 0.554000
+  MEX: 0.430000
+  Ratio: 1.29x
+
+Employment baseline (empl_base) for Product 90:
+  EGY: 133,518 workers
+  MEX: 871,271 workers
+  Ratio: 0.15x
+
+Baseline output (q_base) for Product 90:
+  EGY: $1,415,995 kUSD
+  MEX: $67,761,053 kUSD
+  Ratio: 0.02x
+
+Employment intensity (empl_base/q_base):
+  EGY: 0.094293 workers/kUSD
+  MEX: 0.012858 workers/kUSD
+  Ratio: 7.33x
+
+Employment multiplier (empl_coef × intensity):
+  EGY: 0.052238
+  MEX: 0.005529
+  Ratio: 9.45x
+
+================================================================================

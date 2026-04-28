@@ -1,0 +1,1296 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+
+\title[MINDSET Employment Methods]{Methodological Development: \\Employment-Only Mode for MINDSET}
+\subtitle{Custom Scripts and Workflow for 469 Strategy Analysis}
+\author{Felipe Esteves}
+\institute{RAND Corporation}
+\date{\today}
+
+\begin{document}
+
+\frame{\titlepage}
+
+% ============================================
+% SECTION 1: STARTING POINT
+% ============================================
+
+\begin{frame}{Starting Point: Base MINDSET Model}
+\textbf{What We Had:}
+
+\vspace{0.3cm}
+
+\begin{itemize}
+    \item Base MINDSET model (World Bank)
+    \item Full dynamic CGE model with multiple modules
+    \item Designed for: energy taxes, trade policy, full equilibrium analysis
+    \item Runtime: 10-30 minutes per scenario
+    \item \textcolor{red}{\textbf{Problem:}} Too slow for 469 scenarios (78+ hours)
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Our Goal:}
+
+\vspace{0.3cm}
+
+\begin{itemize}
+    \item Estimate \textbf{employment impacts only} (not full CGE)
+    \item Process 469 investment strategy files
+    \item Output: Direct vs indirect jobs by ISIC sector
+    \item Target runtime: $<$1 hour total
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Solution:} Build custom employment-only batch processing workflow
+\end{frame}
+
+% ============================================
+% SECTION 2: KEY CHALLENGES
+% ============================================
+
+\begin{frame}{Three Key Challenges We Solved}
+
+\textbf{Challenge 1: Strategy File Format Mismatch}
+\begin{itemize}
+    \item Strategy files use 26 Eora26 sectors
+    \item MINDSET uses 120 GLORIA products
+    \item \textcolor{blue}{\textbf{Solution:}} Built product allocation system with crosswalk
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Challenge 2: Investment Interpretation}
+\begin{itemize}
+    \item Ambiguous: Is investment "by" sector or "purchasing" products?
+    \item Wrong interpretation = circular logic
+    \item \textcolor{blue}{\textbf{Solution:}} Implemented "strategy as purchases" logic
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Challenge 3: Output Aggregation}
+\begin{itemize}
+    \item Need results in 20 ISIC sectors (for dissertation)
+    \item MINDSET outputs 120 products
+    \item \textcolor{blue}{\textbf{Solution:}} Built two-stage aggregation pipeline
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+% SECTION 3: METHODOLOGICAL INCREMENT 1
+% ============================================
+
+\begin{frame}[fragile]{Increment 1: Product Allocation System}
+\textbf{Problem:} Strategy files specify investment by Eora26 sector, but MINDSET needs product-level demand
+
+\vspace{0.3cm}
+
+\textbf{What We Built:}
+
+\vspace{0.2cm}
+
+\textbf{Step 1:} Created crosswalk matrix
+\begin{itemize}
+    \item File: \texttt{Data/GLORIA-Eora26 - Crosswalk.xlsx}
+    \item Structure: 120 products $\times$ 26 sectors (binary indicators)
+    \item Example: "Wheat" → "Agriculture", "Steel" → "Manufacturing"
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Step 2:} Built allocation script
+\begin{itemize}
+    \item File: \texttt{sector\_to\_product\_allocation.Rmd}
+    \item Logic: Divide sector value evenly among linked products
+    \item Formula: $\text{Value}_{\text{product}} = \frac{\text{Value}_{\text{sector}}}{\text{\# products in sector}}$
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Step 3:} Generated country-specific distributions
+\begin{itemize}
+    \item Input: 7 cost structure files (\texttt{cost\_str\_*.xlsx})
+    \item Output: \texttt{sector\_to\_product\_distribution\_allcountries.csv}
+    \item Validation: Values sum to 1.0 per country per strategy ✓
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Product Allocation: Example}
+\textbf{Input (Strategy File):}
+
+\vspace{0.2cm}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Eora26 Sector} & \textbf{Share} \\
+\midrule
+Agriculture & 0.35 \\
+Manufacturing & 0.45 \\
+Construction & 0.20 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+
+\textbf{After Allocation (GLORIA Products):}
+
+\vspace{0.2cm}
+
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabular}{lrl}
+\toprule
+\textbf{Product} & \textbf{Share} & \textbf{Calculation} \\
+\midrule
+Wheat & 0.0438 & $0.35 / 8$ products in Agriculture \\
+Maize & 0.0438 & $0.35 / 8$ \\
+... (6 more agri products) & ... & ... \\
+Food processing & 0.0100 & $0.45 / 45$ products in Manufacturing \\
+Textiles & 0.0100 & $0.45 / 45$ \\
+... (43 more mfg products) & ... & ... \\
+Construction services & 0.2000 & $0.20 / 1$ product in Construction \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Validation:} $\sum = 1.0$ ✓
+\end{frame}
+
+\begin{frame}{Intuition: Why Product Allocation Matters}
+\textbf{Economic Question:} When you invest \$1M in "Manufacturing", which products get purchased?
+
+\vspace{0.3cm}
+
+\textbf{Real-World Example:}
+
+Building a factory requires:
+\begin{itemize}
+    \item Steel (20\% of cost)
+    \item Cement (15\%)
+    \item Machinery (30\%)
+    \item Electrical equipment (20\%)
+    \item Other materials (15\%)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Without Product Allocation:}
+\begin{itemize}
+    \item[\textcolor{red}{✗}] Model treats all "Manufacturing" as homogeneous
+    \item[\textcolor{red}{✗}] Misses sector-specific linkages
+    \item[\textcolor{red}{✗}] Cannot trace which industries benefit
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{With Product Allocation:}
+\begin{itemize}
+    \item[\textcolor{blue}{✓}] Demand distributed across correct products
+    \item[\textcolor{blue}{✓}] Captures realistic supply chains
+    \item[\textcolor{blue}{✓}] Employment effects in right sectors
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+% SECTION 4: METHODOLOGICAL INCREMENT 2
+% ============================================
+
+\begin{frame}[fragile]{Increment 2: "Strategy as Purchases" Logic}
+\textbf{Conceptual Issue:}
+
+Investment of \$1M in "Agriculture" could mean:
+\begin{enumerate}
+    \item Investment \textbf{by} agricultural sector → creates agri output
+    \item Investment \textbf{purchases} agricultural products → creates demand
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Why This Matters:}
+
+\vspace{0.2cm}
+
+\textcolor{red}{\textbf{Wrong (Option 1):}} Circular logic - investment creates its own supply
+\begin{itemize}
+    \item Violates input-output accounting
+    \item Double-counts employment
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textcolor{blue}{\textbf{Correct (Option 2):}} Investment creates final demand
+\begin{itemize}
+    \item Follows standard IO theory
+    \item Leontief model traces supply chain effects
+    \item Separates direct from indirect employment
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Implementation: Investment Converter}
+\textbf{What We Modified:}
+
+\vspace{0.3cm}
+
+\textbf{File:} \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}, lines 126-145
+
+\vspace{0.2cm}
+
+\begin{verbatim}
+# STEP 2: Investment Converter
+# (Sector Investment → Product Demand)
+
+INV_CONV = Scenario.set_inv_conv_adj(MRIO_BASE)
+INV_model = invest(MRIO_BASE, INV_CONV, Scenario)
+INV_model.build_inv_output_elas()
+INV_model.calc_inv_share()
+INV_model.calc_dy_inv_exog(Scenario.inv_exog)
+
+# Convert to vector: INITIAL FINAL DEMAND
+dy_inv_exog = MRIO_df_to_vec(
+    INV_model.dy_inv_exog, ...
+)
+\end{verbatim}
+
+\vspace{0.3cm}
+
+\textbf{Key Point:} Uses MINDSET's \texttt{investment.py} module to map investment → product demand via \texttt{INV\_CONV} matrix
+
+\end{frame}
+
+\begin{frame}{Intuition: Why "Purchases" vs "Production" Matters}
+\textbf{Concrete Example:} \$1M investment in "Agriculture"
+
+\vspace{0.3cm}
+
+\textbf{Wrong Interpretation (Investment BY Sector):}
+
+\vspace{0.2cm}
+
+\textcolor{red}{\textbf{Scenario 1:}} Farmers invest in their own farms
+\begin{itemize}
+    \item Farmers buy tractors, seeds, fertilizer
+    \item This creates demand for \textbf{manufacturing} (tractors), \textbf{chemicals} (fertilizer)
+    \item But model would credit jobs to \textbf{agriculture only}
+    \item \textcolor{red}{Result: Misses supply chain jobs}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Correct Interpretation (Investment PURCHASES Products):}
+
+\vspace{0.2cm}
+
+\textcolor{blue}{\textbf{Scenario 2:}} Someone invests to buy agricultural products
+\begin{itemize}
+    \item Creates demand for food, crops, livestock
+    \item Supply chain activates: farmers → processors → distributors
+    \item Leontief model traces \textbf{all} backward linkages
+    \item \textcolor{blue}{Result: Captures full employment impact}
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Bottom Line:} Investment creates \textbf{final demand}, not direct production
+
+\end{frame}
+
+% ============================================
+% SECTION 5: METHODOLOGICAL INCREMENT 3
+% ============================================
+
+\begin{frame}{Increment 3: Employment-Only Batch Processing}
+\textbf{What We Built:}
+
+\vspace{0.3cm}
+
+\textbf{Script:} \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}
+
+\vspace{0.2cm}
+
+\textbf{Key Modifications from Base MINDSET:}
+
+\vspace{0.2cm}
+
+\begin{enumerate}
+    \item \textbf{Disabled unused modules}
+    \begin{itemize}
+        \item Energy module (not needed)
+        \item Trade substitution (not needed)
+        \item Price effects (not needed)
+        \item Household response (not needed)
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Kept essential modules}
+    \begin{itemize}
+        \item Input-Output (Leontief model)
+        \item Employment (multipliers)
+        \item Investment (converter)
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Added direct vs indirect separation}
+    \begin{itemize}
+        \item Direct: $\Delta E_{\text{direct}} = m \circ \Delta y$
+        \item Total: $\Delta E_{\text{total}} = m \circ (\mathbf{L} \times \Delta y)$
+        \item Indirect: $\Delta E_{\text{indirect}} = \Delta E_{\text{total}} - \Delta E_{\text{direct}}$
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]{Batch Processing Workflow}
+\textbf{Pseudocode of Main Loop:}
+
+\vspace{0.2cm}
+
+\begin{verbatim}
+# ONE-TIME INITIALIZATION (heavy computation)
+MRIO_BASE = load_gloria_data()
+L_BASE = calculate_leontief_inverse()  # (I-A)^-1
+empl_multipliers = calculate_multipliers()
+
+# LOOP: 469 iterations (fast)
+for strategy in strategy_files:
+    # Load investment
+    dy = load_strategy_investment(strategy)
+
+    # Apply multipliers (matrix operations)
+    dq_total = L_BASE @ dy           # Output change
+    jobs_total = empl_mult * dq_total
+    jobs_direct = empl_mult * dy
+    jobs_indirect = jobs_total - jobs_direct
+
+    # Aggregate to ISIC sectors
+    results = aggregate_to_ISIC(jobs_total)
+
+    # Save
+    all_results.append(results)
+\end{verbatim}
+
+\vspace{0.3cm}
+
+\textbf{Performance:} Initialization 5 min, loop 0.1 sec/strategy $\approx$ 50 min total
+
+\end{frame}
+
+\begin{frame}{Intuition: Direct vs Indirect Employment}
+\textbf{Example:} Government builds a \$10M highway
+
+\vspace{0.3cm}
+
+\textbf{Direct Employment (First-Round):}
+\begin{itemize}
+    \item Construction workers building the highway
+    \item Engineers designing the road
+    \item Heavy equipment operators
+    \item \textbf{Formula:} $\Delta E_{\text{direct}} = m \circ \Delta y$ (initial demand only)
+    \item \textbf{Typical:} 60-70\% of total jobs
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{Indirect Employment (Supply Chain):}
+\begin{itemize}
+    \item \textbf{Steel mills} producing rebar for concrete
+    \item \textbf{Cement plants} supplying materials
+    \item \textbf{Truckers} transporting materials
+    \item \textbf{Equipment manufacturers} making bulldozers
+    \item \textbf{Fuel refineries} supplying diesel
+    \item \textbf{Formula:} $\Delta E_{\text{indirect}} = m \circ [(\mathbf{L} - \mathbf{I}) \times \Delta y]$ (multiplier effects)
+    \item \textbf{Typical:} 30-40\% additional jobs
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Key Insight:} Leontief model ($\mathbf{L}$) automatically traces all supply chain effects
+
+\end{frame}
+
+\begin{frame}{Intuition: How the Leontief Multiplier Works}
+\textbf{Simple 3-Sector Example:}
+
+\vspace{0.3cm}
+
+\textbf{Scenario:} \$1M investment in Construction
+
+\vspace{0.2cm}
+
+\textbf{Round 1 (Direct):}
+\begin{itemize}
+    \item Construction sector receives \$1M demand
+    \item Hires workers, buys materials
+    \item Creates 15 jobs directly
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Round 2 (1st-order indirect):}
+\begin{itemize}
+    \item Construction needs \$300k steel, \$200k cement
+    \item Steel sector increases production → hires 3 workers
+    \item Cement sector increases production → hires 2 workers
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Round 3 (2nd-order indirect):}
+\begin{itemize}
+    \item Steel production needs \$50k iron ore
+    \item Cement production needs \$30k limestone
+    \item Mining sectors hire 1 more worker
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Round 4, 5, 6...} (diminishing effects)
+
+\vspace{0.3cm}
+
+\textbf{Leontief inverse} $\mathbf{L} = (\mathbf{I} - \mathbf{A})^{-1}$ computes \textbf{sum of infinite rounds}
+
+Total jobs = $15 + 5 + 1 + 0.3 + ... \approx$ \textbf{21 jobs}
+
+\end{frame}
+
+% ============================================
+% SECTION 6: METHODOLOGICAL INCREMENT 4
+% ============================================
+
+\begin{frame}{Increment 4: ISIC Sector Aggregation Pipeline}
+\textbf{Challenge:} Map 120 GLORIA products → 20 ISIC Rev. 4 sections
+
+\vspace{0.3cm}
+
+\textbf{Two-Stage Aggregation:}
+
+\vspace{0.2cm}
+
+\textbf{Stage 1:} GLORIA (120) → Eora26 (26)
+\begin{itemize}
+    \item Used product allocation crosswalk (inverse mapping)
+    \item Aggregates employment within Eora26 sectors
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Stage 2:} Eora26 (26) → ISIC Rev. 4 (20)
+\begin{itemize}
+    \item File: \texttt{Data/Eora26-ISIC\_crosswalk.xlsx} (created by team)
+    \item Maps Eora26 to standard ISIC sections A-T
+    \item Handles many-to-one relationships
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Implementation:}
+
+\vspace{0.2cm}
+
+Created aggregation function in batch script:
+\begin{itemize}
+    \item Input: 120-element employment vector
+    \item Output: 20-element ISIC employment vector
+    \item Validation: No jobs lost in aggregation ✓
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{ISIC Aggregation: Code Structure}
+\textbf{File:} \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}, lines 231-252
+
+\vspace{0.2cm}
+
+\begin{verbatim}
+# Calculate employment by sector
+empl_by_sector = empl_results.groupby('Sec_ID').agg({
+    'Direct_Jobs': 'sum',
+    'Indirect_Jobs': 'sum',
+    'Total_Jobs': 'sum'
+}).reset_index()
+
+# Merge with sector names
+empl_by_sector = empl_by_sector.merge(
+    MRIO_BASE.P[['Lfd_Nr', 'Sector_names']],
+    left_on='Sec_ID',
+    right_on='Lfd_Nr',
+    how='left'
+)
+
+# Map to ISIC (external crosswalk applied here)
+# [Additional mapping code in post-processing]
+\end{verbatim}
+
+\vspace{0.3cm}
+
+\textbf{Note:} ISIC mapping done in post-processing to maintain flexibility
+
+\end{frame}
+
+\begin{frame}{Intuition: Why ISIC Aggregation Matters}
+\textbf{Problem:} GLORIA has 120 products - too granular for policy analysis
+
+\vspace{0.3cm}
+
+\textbf{Example Products in GLORIA:}
+\begin{itemize}
+    \item "Growing wheat", "Growing maize", "Growing rice", "Cattle", "Fishing", ...
+    \item "Food processing", "Beverages", "Tobacco", ...
+    \item "Textiles", "Wearing apparel", "Leather products", ...
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{For Policy Analysis, We Need:}
+\begin{itemize}
+    \item \textbf{ISIC Section A (Agriculture):} All farming + fishing
+    \item \textbf{ISIC Section C (Manufacturing):} All manufacturing products
+    \item \textbf{ISIC Section F (Construction):} Construction activities
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Benefits of ISIC Classification:}
+\begin{enumerate}
+    \item \textbf{International comparability} - All countries use ISIC
+    \item \textbf{Policy relevance} - Governments organize data by ISIC
+    \item \textbf{Tractability} - 20 sectors vs 120 products
+    \item \textbf{Alignment with national accounts} - Matches official statistics
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Aggregation preserves total:} $\sum_{j \in \text{ISIC A}} E_j = E_{\text{Agriculture}}$
+
+\end{frame}
+
+\begin{frame}{Intuition: Employment Multipliers}
+\textbf{What is an employment multiplier?}
+
+\vspace{0.3cm}
+
+\textbf{Definition:} Jobs created per \$1 million of economic output
+
+\vspace{0.3cm}
+
+\textbf{Formula:}
+\[
+m_{i,j} = \text{EMPL\_COEF}_{i,j} \times \frac{E^{\text{base}}_{i,j}}{q^{\text{base}}_{i,j}}
+\]
+
+\vspace{0.3cm}
+
+\textbf{Intuition:}
+\begin{itemize}
+    \item $E^{\text{base}} / q^{\text{base}}$ = Current workers per dollar of output
+    \item EMPL\_COEF = Adjustment factor from GLORIA database
+    \item \textbf{Result:} Country-sector specific "jobs per \$M" rate
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Why multipliers vary:}
+
+\vspace{0.2cm}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Sector} & \textbf{Jobs/\$1M} & \textbf{Why?} \\
+\midrule
+Agriculture & 50-150 & Labor-intensive, low wages \\
+Manufacturing & 10-30 & Capital-intensive, automation \\
+Construction & 20-40 & Mix of labor and equipment \\
+Services & 30-80 & Varies widely by type \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+% ============================================
+% SECTION 7: COMPLETE WORKFLOW
+% ============================================
+
+\begin{frame}{Complete Workflow: Step-by-Step Replication}
+\textbf{Phase 1: Data Preparation (One-Time)}
+
+\vspace{0.2cm}
+
+\begin{enumerate}
+    \item \textbf{Create product allocation}
+    \begin{itemize}
+        \item Run: \texttt{sector\_to\_product\_allocation.Rmd}
+        \item Output: \texttt{sector\_to\_product\_distribution\_allcountries.csv}
+    \end{itemize}
+
+    \vspace{0.1cm}
+
+    \item \textbf{Calculate Leontief inverse} (if not exists)
+    \begin{itemize}
+        \item Run: \texttt{CALCULATE\_L\_BASE\_ONCE.py}
+        \item Output: \texttt{GLORIA\_db/v57/2019/SSP/GLORIA\_L\_Base\_2019.mat}
+        \item Runtime: 30-180 seconds (memory intensive)
+    \end{itemize}
+
+    \vspace{0.1cm}
+
+    \item \textbf{Prepare ISIC crosswalk}
+    \begin{itemize}
+        \item File: \texttt{Data/Eora26-ISIC\_crosswalk.xlsx}
+        \item Manual mapping of 26 Eora26 to 20 ISIC sections
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Complete Workflow (continued)}
+\textbf{Phase 2: Batch Processing}
+
+\vspace{0.2cm}
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+
+    \item \textbf{Run employment batch}
+    \begin{itemize}
+        \item Script: \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}
+        \item Command: \texttt{python RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}
+        \item Runtime: $\sim$50 minutes for 469 scenarios
+    \end{itemize}
+
+    \vspace{0.1cm}
+
+    \item \textbf{Outputs generated}
+    \begin{itemize}
+        \item \texttt{ALL\_RESULTS\_Employment\_by\_Region.csv}
+        \item \texttt{ALL\_RESULTS\_Employment\_by\_Sector.csv}
+        \item \texttt{BATCH\_SUMMARY.csv}
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Phase 3: Post-Processing}
+
+\vspace{0.2cm}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+
+    \item \textbf{Aggregate to ISIC}
+    \begin{itemize}
+        \item Apply Eora26-ISIC crosswalk
+        \item Calculate sectoral shares
+    \end{itemize}
+
+    \item \textbf{Final consolidation}
+    \begin{itemize}
+        \item Merge with strategy attributes
+        \item Add country names
+        \item Output: \texttt{employment\_consolidated.csv}
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+% SECTION 8: KEY FILES CREATED
+% ============================================
+
+\begin{frame}[fragile]{Key Files We Created}
+\textbf{Custom Scripts (New):}
+
+\vspace{0.2cm}
+
+\begin{enumerate}
+    \item \texttt{sector\_to\_product\_allocation.Rmd}
+    \begin{itemize}
+        \item Maps Eora26 sectors → GLORIA products
+        \item Uses crosswalk matrix
+    \end{itemize}
+
+    \item \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}
+    \begin{itemize}
+        \item Main batch processing script
+        \item 483 lines, implements employment-only mode
+    \end{itemize}
+
+    \item \texttt{CALCULATE\_L\_BASE\_ONCE.py}
+    \begin{itemize}
+        \item One-time Leontief inverse calculation
+        \item Saves to .mat file for repeated use
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Data Files Created:}
+
+\vspace{0.2cm}
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+
+    \item \texttt{Data/GLORIA-Eora26 - Crosswalk.xlsx}
+    \begin{itemize}
+        \item 120 products $\times$ 26 sectors
+    \end{itemize}
+
+    \item \texttt{Data/Eora26-ISIC\_crosswalk.xlsx}
+    \begin{itemize}
+        \item 26 Eora26 sectors $\times$ 20 ISIC sections
+    \end{itemize}
+
+    \item \texttt{sector\_to\_product\_distribution\_allcountries.csv}
+    \begin{itemize}
+        \item Country-specific product allocations
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+% SECTION 9: MODIFICATIONS TO BASE MINDSET
+% ============================================
+
+\begin{frame}{Modifications to Base MINDSET Modules}
+\textbf{Modified Existing Files:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \texttt{SourceCode/InputOutput.py}, line 210
+    \begin{itemize}
+        \item \textbf{Bug fix:} Use \texttt{actual\_dims} instead of \texttt{DIMS}
+        \item Issue: Mismatch between theoretical (19,680) vs actual (960) dimensions
+        \item Impact: Prevents matrix dimension errors
+    \end{itemize}
+
+    \vspace{0.3cm}
+
+    \item \textbf{No other core modules modified}
+    \begin{itemize}
+        \item \texttt{employment.py} - Used as-is ✓
+        \item \texttt{investment.py} - Used as-is ✓
+        \item \texttt{scenario.py} - Used as-is ✓
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.5cm}
+
+\textbf{Design Principle:} Minimal modifications to base MINDSET
+\begin{itemize}
+    \item Easier to maintain
+    \item Can incorporate future MINDSET updates
+    \item Custom logic isolated in batch script
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+% SECTION 10: DATA QUALITY ISSUE
+% ============================================
+
+\begin{frame}{Data Quality Issue Discovered: Uganda \& Libya}
+\textbf{Problem:} Employment estimates 20-100$\times$ higher than comparable countries
+
+\vspace{0.3cm}
+
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+\textbf{Country} & \textbf{Jobs per \$1M Output} & \textbf{vs. Normal} \\
+\midrule
+Bulgaria, Mexico, Morocco & 10 -- 50 & Normal \\
+\midrule
+\textcolor{red}{\textbf{Libya}} & \textcolor{red}{\textbf{100 -- 170}} & \textcolor{red}{\textbf{5-10$\times$ higher}} \\
+\textcolor{red}{\textbf{Uganda}} & \textcolor{red}{\textbf{272 -- 2,051}} & \textcolor{red}{\textbf{20-100$\times$ higher}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+
+\textbf{Root Cause:} GLORIA v57 data quality issue
+\begin{itemize}
+    \item Small baseline output ($q^{\text{base}}$) values for UGA/LBY
+    \item Employment multiplier formula: $m = \text{EMPL\_COEF} \times \frac{E^{\text{base}}}{q^{\text{base}}}$
+    \item Small denominator → inflated multiplier
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Solution Implemented:}
+\begin{itemize}
+    \item Documented anomaly in methodology
+    \item Flagged UGA/LBY results for sensitivity analysis
+    \item Recommended: Use proxy countries (Kenya for UGA, Tunisia for LBY)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+% SECTION 11: VALIDATION CHECKS
+% ============================================
+
+\begin{frame}{Validation Checks Built Into Workflow}
+\textbf{Automated Checks in Batch Script:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{Sum-to-one validation}
+    \begin{itemize}
+        \item Product allocations sum to 1.0 per strategy ✓
+        \item Sectoral shares sum to 1.0 per strategy ✓
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Accounting identity}
+    \begin{itemize}
+        \item Total Employment = Direct + Indirect ✓
+        \item No negative employment values ✓
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Coverage checks}
+    \begin{itemize}
+        \item All 469 strategies processed ✓
+        \item All 7 countries present ✓
+        \item All 20 ISIC sectors per strategy (including zeros) ✓
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Reasonableness checks}
+    \begin{itemize}
+        \item Employment multipliers 10-100 jobs per \$1M (flagged UGA/LBY)
+        \item Sectoral patterns match investment type
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+% SECTION 12: PERFORMANCE OPTIMIZATIONS
+% ============================================
+
+\begin{frame}{Performance Optimizations Implemented}
+\textbf{Key Design Decisions:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{One-time initialization}
+    \begin{itemize}
+        \item Load MRIO data once (not 469 times)
+        \item Calculate Leontief inverse once
+        \item Calculate employment multipliers once
+        \item \textbf{Savings:} 95\% reduction in computation time
+    \end{itemize}
+
+    \vspace{0.3cm}
+
+    \item \textbf{Vectorized operations}
+    \begin{itemize}
+        \item Use NumPy matrix operations (not loops)
+        \item Element-wise multiplication for employment
+        \item \textbf{Savings:} 100$\times$ faster than iterative
+    \end{itemize}
+
+    \vspace{0.3cm}
+
+    \item \textbf{Sparse matrix storage} (built into base MINDSET)
+    \begin{itemize}
+        \item Store only non-zero MRIO elements
+        \item 921,600 elements → 50,000 non-zero
+        \item \textbf{Savings:} 95\% memory reduction
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Result:} 78 hours → 50 minutes (95$\times$ speedup)
+
+\end{frame}
+
+\begin{frame}{Intuition: Why Performance Optimizations Matter}
+\textbf{The Computational Challenge:}
+
+\vspace{0.3cm}
+
+Without optimization, each scenario requires:
+\begin{enumerate}
+    \item Load GLORIA data from disk: 30 seconds
+    \item Calculate Leontief inverse: 2-5 minutes
+    \item Calculate employment multipliers: 10 seconds
+    \item Run IO model: 5 seconds
+    \item \textbf{Total: $\sim$10 minutes per scenario}
+\end{enumerate}
+
+\vspace{0.2cm}
+
+$10 \text{ min} \times 469 \text{ scenarios} = \textbf{78 hours}$ 😱
+
+\vspace{0.4cm}
+
+\textbf{Key Insight:} Most of this is \textbf{redundant}
+\begin{itemize}
+    \item GLORIA data is the same for all scenarios
+    \item Leontief inverse $\mathbf{L}$ is constant (same economic structure)
+    \item Only $\Delta y$ (investment vector) changes per scenario
+\end{itemize}
+
+\vspace{0.4cm}
+
+\textbf{With One-Time Initialization:}
+\begin{enumerate}
+    \item Load \& calculate once: 5 minutes (one-time)
+    \item Per scenario: $\mathbf{L} \times \Delta y$ + $m \circ \Delta q$ = 6 seconds
+    \item \textbf{Total: $5 \text{ min} + (6 \text{ sec} \times 469) = 52$ minutes} ✓
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Lesson:} Identify constant vs variable components → compute once, reuse often
+
+\end{frame}
+
+% ============================================
+% SECTION 13: OUTPUT STRUCTURE
+% ============================================
+
+\begin{frame}[fragile]{Output Dataset Structure}
+\textbf{Final File:} \texttt{employment\_consolidated.csv}
+
+\vspace{0.3cm}
+
+\textbf{Dimensions:}
+\begin{itemize}
+    \item Rows: 9,380 (469 strategies $\times$ 20 ISIC sectors)
+    \item Columns: 10
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Column Definitions:}
+
+\vspace{0.2cm}
+
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabular}{lll}
+\toprule
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\midrule
+country\_name & String & Full country name \\
+country\_ISO & String & 3-letter ISO code \\
+strategy\_id & String & e.g., "Strategy\_1004\_EGY" \\
+strategy\_name & String & From attribute file \\
+sector\_code & String & ISIC section (A-T) \\
+sector\_name & String & ISIC description \\
+direct\_jobs & Float & Direct employment \\
+indirect\_jobs & Float & Indirect employment \\
+total\_jobs & Float & Total = Direct + Indirect \\
+share\_of\_total\_jobs & Float & Sector share (sums to 1.0) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+% ============================================
+% SECTION 14: REPLICATION CHECKLIST
+% ============================================
+
+\begin{frame}{Replication Checklist}
+\textbf{To Replicate This Analysis:}
+
+\vspace{0.3cm}
+
+\textbf{Prerequisites:}
+\begin{enumerate}
+    \item GLORIA v57 database in \texttt{GLORIA\_db/}
+    \item Python 3.8+ with packages: numpy, pandas, scipy, openpyxl
+    \item R 4.0+ with: readxl, dplyr, tidyr (for product allocation)
+    \item 469 strategy files in \texttt{GLORIA\_template/Scenarios/}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Step-by-Step:}
+\begin{enumerate}
+    \item Run \texttt{sector\_to\_product\_allocation.Rmd}
+    \item Run \texttt{CALCULATE\_L\_BASE\_ONCE.py} (if L\_BASE missing)
+    \item Run \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}
+    \item Apply ISIC aggregation (post-processing)
+    \item Merge with strategy attributes
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Expected Runtime:}
+\begin{itemize}
+    \item Step 1: 2-5 minutes
+    \item Step 2: 30-180 seconds (one-time)
+    \item Step 3: 45-60 minutes (469 scenarios)
+    \item Steps 4-5: 2-5 minutes
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+% SECTION 15: LESSONS LEARNED
+% ============================================
+
+\begin{frame}{Lessons Learned \& Best Practices}
+\textbf{Key Insights from Development:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{Validate input data early}
+    \begin{itemize}
+        \item Discovered UGA/LBY issues mid-analysis
+        \item Cost: Had to re-run and document
+        \item Lesson: Check GLORIA data quality first
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Document as you go}
+    \begin{itemize}
+        \item Created WORK\_LOG.md during development
+        \item Tracked all decisions and bug fixes
+        \item Essential for replication
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Test with single scenario first}
+    \begin{itemize}
+        \item Built \texttt{TEST\_ONE\_SCENARIO.py}
+        \item Validated logic before batch processing
+        \item Saved hours of debugging
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Preserve base MINDSET modules}
+    \begin{itemize}
+        \item Minimal modifications to core files
+        \item Custom logic in separate batch script
+        \item Easier maintenance and updates
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+% SECTION 16: FUTURE EXTENSIONS
+% ============================================
+
+\begin{frame}{Potential Extensions to This Methodology}
+\textbf{Immediate Extensions:}
+
+\vspace{0.3cm}
+
+\begin{itemize}
+    \item \textbf{Proxy country implementation}
+    \begin{itemize}
+        \item Replace UGA/LBY coefficients with Kenya/Tunisia
+        \item Re-run batch with corrected data
+        \item Sensitivity analysis comparing original vs proxy
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Additional outcome variables}
+    \begin{itemize}
+        \item Value-added by sector
+        \item CO$_2$ emissions (if GLORIA env extensions available)
+        \item Import requirements
+    \end{itemize}
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Methodological Extensions:}
+
+\vspace{0.3cm}
+
+\begin{itemize}
+    \item \textbf{Dynamic analysis}
+    \begin{itemize}
+        \item Multi-year impacts (requires time-series MRIO)
+        \item Capital depreciation effects
+    \end{itemize}
+
+    \item \textbf{Uncertainty quantification}
+    \begin{itemize}
+        \item Monte Carlo on employment coefficients
+        \item Confidence intervals on job estimates
+    \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+% SECTION 17: SUMMARY
+% ============================================
+
+\begin{frame}{Summary: What We Built}
+\textbf{Four Major Methodological Contributions:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{Product Allocation System}
+    \begin{itemize}
+        \item Eora26 sectors → GLORIA products
+        \item Country-specific distributions
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{"Strategy as Purchases" Implementation}
+    \begin{itemize}
+        \item Correct investment interpretation
+        \item Uses MINDSET investment converter properly
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Employment-Only Batch Processing}
+    \begin{itemize}
+        \item Streamlined workflow (95\% time reduction)
+        \item Direct vs indirect separation
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{ISIC Aggregation Pipeline}
+    \begin{itemize}
+        \item Two-stage mapping to standard classifications
+        \item Validation checks built in
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.5cm}
+
+\textbf{Output:} Fully replicable workflow documented with:
+\begin{itemize}
+    \item Custom scripts with line-by-line comments
+    \item WORK\_LOG.md tracking all decisions
+    \item Validation checks at each step
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+% SECTION 18: DOCUMENTATION FILES
+% ============================================
+
+\begin{frame}{Complete Documentation Package}
+\textbf{Location:} \texttt{Claude Code/temp/}
+
+\vspace{0.3cm}
+
+\textbf{Technical Documentation:}
+\begin{enumerate}
+    \item \texttt{MINDSET\_Workflow\_Guide.md}
+    \begin{itemize}
+        \item Step-by-step methodology
+        \item Code references with line numbers
+        \item Uganda/Libya anomaly analysis
+    \end{itemize}
+
+    \item \texttt{WORK\_LOG.md}
+    \begin{itemize}
+        \item Session-by-session development log
+        \item Bug fixes and solutions
+        \item Test results
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Scripts:}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \texttt{sector\_to\_product\_allocation.Rmd}
+    \item \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}
+    \item \texttt{CALCULATE\_L\_BASE\_ONCE.py}
+    \item \texttt{TEST\_ONE\_SCENARIO.py} (for validation)
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Reference Documents:}
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item \texttt{Uganda\_Libya\_Anomaly\_Summary.md}
+    \item This presentation
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+% CLOSING
+% ============================================
+
+\begin{frame}[plain]
+\centering
+\vspace{1.5cm}
+{\Huge Questions?}
+
+\vspace{1.5cm}
+
+\textbf{Key Takeaway:}
+
+\vspace{0.3cm}
+
+We built a custom employment-only mode for MINDSET that:
+\begin{itemize}
+    \item Processes 469 scenarios in $<$1 hour (vs 78 hours)
+    \item Correctly interprets investment as product demand
+    \item Maps results to standard ISIC classifications
+    \item Fully documented and replicable
+\end{itemize}
+
+\vspace{1cm}
+
+\small
+Contact: Felipe Esteves \\
+RAND Corporation \\
+Documentation: \texttt{Claude Code/temp/}
+
+\end{frame}
+
+\end{document}

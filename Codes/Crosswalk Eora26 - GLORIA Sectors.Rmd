@@ -1,0 +1,179 @@
+---
+title: "Crosswalk Eora26 - GLORIA (SSP)"
+author: "Fernando Esteves"
+date: "2026-03-14"
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE,warning=FALSE}
+
+library(rstudioapi)
+library(reshape)
+library(dplyr)
+library(data.table)
+library(tidyverse)
+library(ggplot2)
+library(openxlsx)
+library(readxl)
+library(writexl)
+library(tabr)
+library(stringr)
+library(summarytools)
+library(gridExtra)
+library(broom)
+library(modelsummary)
+library(rlang)
+library(tidyxl)
+library(unpivotr)
+library(purrr)
+
+# Working directory: go up 3 levels from temp folder
+wd <- dirname(dirname(dirname(rstudioapi::getActiveDocumentContext()$path)))
+knitr::opts_knit$set(root.dir= wd, include=FALSE, echo = TRUE)
+
+st_options(descr.silent = TRUE)
+```
+
+## Crosswalk: Eora26 to GLORIA MRIO dataset
+
+This document develops a new crosswalk linking the SSP cost structure to the GLORIA MRIO dataset.
+
+A previous version established correspondence between SSP transformation costs and the Eora26‑sector classification.
+
+Building on that work, the present script remaps those same SSP cost items to the GLORIA framework of 120 products, producing an updated structure for use in GLORIA‑based analyses and model integration.
+
+```{r transformations,include=TRUE,message=FALSE}
+
+#### 1. Cost Structure of Transformations - Eora26 sectors
+
+# Cost Structure - Transformations ----
+
+countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+transf_sheets <- c("Synthetic_ind_energy","AGRC","CCSQ","EN","ENTC","FGTV","FRST","INEN","LNDU","LSMM","LVST","IPPU","SCOE","TRNS","TRWW","WALI","WASO")
+
+for(i in 1:7){
+
+for(k in 1:17){
+  
+  eval(parse(text=paste0("cost_str_",countries[i],"_",transf_sheets[k]," <- read_excel('Data/Sisepuede - Transformations/ATTRIBUTE_STRATEGY_transformations_vectors.xlsx',sheet ='",transf_sheets[k],"',n_max=26)")))
+  
+}
+
+# All transformations in a single data frame
+
+eval(parse(text=paste0("cost_str_",countries[i],"<- merge(cost_str_",countries[i],"_AGRC,cost_str_",countries[i],"_CCSQ,all.x = T,by='Sector')")))
+}
+
+
+for(i in 1:7){
+for(m in 4:17){
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",cost_str_",countries[i],"_",transf_sheets[m],",all.x = T,by='Sector')")))
+
+}}
+
+
+for(i in 1:7){
+
+eval(parse(text = paste0("rm('costr_str_",countries[i],"_AGRC','costr_str_",countries[i],"_CCSQ','costr_str_",countries[i],"_EN','costr_str_",countries[i],"_ENTC','costr_str_",countries[i],"_FGTV','costr_str_",countries[i],"_FRST','costr_str_",countries[i],"_INEN','costr_str_",countries[i],"_IPPU','costr_str_",countries[i],"_LNDU','costr_str_",countries[i],"_LSMM','costr_str_",countries[i],"_LVST','costr_str_",countries[i],"_PFLO','costr_str_",countries[i],"_SCOE','costr_str_",countries[i],"_SOIL','costr_str_",countries[i],"_TRDE','costr_str_",countries[i],"_TRNS','costr_str_",countries[i],"_TRWW','costr_str_",countries[i],"_WALI','costr_str_",countries[i],"_WASO')")))
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>%  mutate(across(2:ncol(cost_str_",countries[i],"), function(x) ifelse(is.na(x),0,x)))")))
+
+eval(parse(text = paste0("synthetic_ind_",countries[i]," <- cost_str_",countries[i],"_Synthetic_ind_energy"))) # Consolidating synthetic sectors
+
+}
+
+# BAU Electricity Generation (IEA data) 
+
+bau_electricity <- read.csv("Data/Sisepuede - Transformations/electricity-prod-source-stacked.csv")
+bau_electricity <- bau_electricity %>% filter(Code %in% c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA"), Year %in% 2021:2022)
+
+bau_electricity <- setorder(bau_electricity,Code,-Year)
+
+bau_electricity <- bau_electricity %>% mutate(order= sequence(rle(Code)$length)) %>% filter(order==1) %>% select(-order) %>%
+                  mutate(across(4:ncol(bau_electricity), function(x) ifelse(is.na(x),0,x))) %>%
+                  mutate(total_prod = rowSums(.[4:12]),
+                  Bioenergy= Electricity.from.bioenergy..TWh./total_prod,Solar=Electricity.from.solar..TWh./total_prod,
+                  Wind=Electricity.from.wind..TWh./total_prod,Hydro=Electricity.from.hydro..TWh./total_prod,
+                  Nuclear=Electricity.from.nuclear..TWh./total_prod,
+                  "Oil and Gas"=(Electricity.from.oil..TWh.+Electricity.from.gas..TWh.)/total_prod,
+                  Coal=Electricity.from.coal..TWh./total_prod,Geothermal=1-Bioenergy-Solar-Wind-Hydro-Nuclear-`Oil and Gas`-Coal) %>%
+                mutate(across(where(is.numeric), function(x) round(x,digits = 2))) %>%
+                  select(Code,Bioenergy,Solar,Wind,Hydro,Nuclear,`Oil and Gas`,Coal,Geothermal)
+
+# Calculating each country BAU Electricity SS ---- 
+
+# "Renewable Energy" shares are taken from IEA's report "Energy Technology Perspectives 2023" (Global net-zero scenario)
+
+for(i in 1:7){
+
+eval(parse(text = paste0("bau_electricity_",countries[i]," <- bau_electricity %>% filter(Code=='",countries[i],"')")))
+
+eval(parse(text = paste0("synthetic_ind_",countries[i]," <- synthetic_ind_",countries[i]," %>%    
+  mutate(BAU_Electricity_",countries[i],"=Bioenergy*abs(bau_electricity_",countries[i],"$Bioenergy)+Solar*abs(bau_electricity_",countries[i],"$Solar)+               Wind*abs(bau_electricity_",countries[i],"$Wind)+Hydro*abs(bau_electricity_",countries[i],"$Hydro)+Nuclear*abs(bau_electricity_",countries[i],"$Nuclear)+`Oil and Gas`*abs(bau_electricity_",countries[i],"$`Oil and Gas`)+Coal*abs(bau_electricity_",countries[i],"$Coal)+Geothermal*abs(bau_electricity_",countries[i],"$Geothermal),
+                                          Renewable_Energy=0.2*Wind+Solar*0.2+Bioenergy*0.15+Hydro*0.1+`Green Hydrogen`*0.08+`Oil and Gas`*0.13+Coal*0.02+Nuclear*0.12,'Energy Efficiency'=0.5*Weatherization+0.25*`Industrial EE`+0.25*`Grid Upgrades`,'Fossil Fuels'=0.5*Coal+0.5*`Oil and Gas`) %>%
+  mutate(across(where(is.numeric), function(x) round(x,digits = 2)))")))
+
+# Consolidating synthetic sectors ---- 
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",synthetic_ind_",countries[i],",by='Sector',all.x = T)")))
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>%  mutate(across(where(is.numeric), function(x) round(x,digits = 2))) %>%
+  mutate(`3001`=`3001`+0.12*BAU_Electricity_",countries[i],",
+                                        `3002`=`3002`+0.12*Renewable_Energy,
+                                        `3059`= `Energy Efficiency`,
+                                        `3060`= 0.5*Renewable_Energy+0.5*`Energy Efficiency`,
+                                        `3061`= 0.7*BAU_Electricity_",countries[i],"+0.3*Hydrogen,
+                                        `3062`=0.7*Renewable_Energy+0.3*`Green Hydrogen`,
+                                        `3003`=0.95*Renewable_Energy+0.05*BAU_Electricity_",countries[i],",
+                                        `3005`=`Grid Upgrades`,
+                                        `3006`=0.5*Renewable_Energy+0.5*`Grid Upgrades`,
+                                        `3010`= `3010`+0.3*Renewable_Energy,
+                                        `3012`= `3010`,
+                                        `3015`=`3015`+0.50*BAU_Electricity_",countries[i],",
+                                        `3016`= `3016`+0.50*Renewable_Energy,
+                                        `3017`=`3015`,
+                                        `3018`=`3016`,
+                                        `3019`=`Industrial EE`,
+                                        `3020`=0.51*Renewable_Energy+0.51*`Industrial EE`,
+                                        `3021`=`Industrial EE`,
+                                        `3022`=0.51*Renewable_Energy+0.51*`Industrial EE`,
+                                        `4002`=`4002`+0.21*BAU_Electricity_",countries[i],"+0.08*Coal,
+                                        `3025`=`3025`+0.1*BAU_Electricity_",countries[i],",
+                                        `3026`=`3026`+0.1*Renewable_Energy,
+                                        `3028`=`3027`*0.8+0.2*Renewable_Energy,
+                                        `3029`=BAU_Electricity_",countries[i],",
+                                        `3030`=Renewable_Energy,
+                                        `3035`=`3035`+0.1*BAU_Electricity_",countries[i],",
+                                        `3036`=`3036`+0.1*Renewable_Energy,
+                                        `3039`=`3039`+0.16*BAU_Electricity_",countries[i],",
+                                        `3040`=`3040`+0.16*Renewable_Energy,
+                                        `3041`=`3041`+0.44*Hydrogen,
+                                        `3042`=`3042`+0.44*`Green Hydrogen`,
+                                        `3043`=`3039`,
+                                        `3044`=`3040`,
+                                        `2014`= `2014`+0.103*BAU_Electricity_",countries[i],") %>% 
+        select(-Bioenergy,-Solar,-Wind,-Hydro,-Nuclear,-`Oil and Gas`,-Coal,-Geothermal,-`Grid Upgrades`,-Weatherization,-Renewable_Energy,-`Energy Efficiency`,-`Fossil Fuels`,-`Industrial EE`,-Hydrogen,-`Green Hydrogen`,-`BAU_Electricity_",countries[i],"`) %>%
+  mutate(across(where(is.numeric), function(x) round(x,digits = 2)))")))
+
+
+# Scaling weights to sum 1
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- data.table(cost_str_",countries[i],")")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- melt.data.table(cost_str_",countries[i],",id.vars = 'Sector')")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>% rename(strategy_id=variable)")))
+
+eval(parse(text = paste0("sum_check <- cost_str_",countries[i]," %>% group_by(strategy_id) %>% mutate(weight_sum=sum(value)) %>% slice_max(value,with_ties = F) %>% mutate(value = ifelse(value != 1,value+(1-weight_sum),value)) %>% select(-weight_sum)"))) 
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",sum_check,by=c('Sector','strategy_id'),all.x = T)")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>% mutate(value.x = ifelse(!is.na(value.y),value.y,value.x)) %>% rename(value=value.x) %>% select(-value.y)")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- setorder(cost_str_",countries[i],",strategy_id,Sector)")))
+
+}
+
+
+
+
+
+```

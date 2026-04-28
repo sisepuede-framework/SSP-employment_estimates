@@ -1,0 +1,306 @@
+# MINDSET Investment-to-Employment Flow Documentation
+
+Based on analysis of original MINDSET source code and documentation.
+
+---
+
+## 1. What is `Scenario.inv_exog`?
+
+### Source: `scenario.py` lines 321-383
+
+**Input Sheet:** "Investment by" tab in scenario Excel file
+
+**Columns Read:**
+- `Country ISO*` → which country is investing
+- `Sector investing code*` → which GLORIA SECTOR (1-120) is doing the investment
+- `Value*` → investment amount in USD
+- `Type*` → "abs-b" (absolute value, baseline proportional)
+
+**After Processing:**
+```python
+Scenario.inv_exog structure:
+- REG_imp (str): Country ISO code
+- PROD_COMM (int): GLORIA sector code (1-120) INVESTING
+- dk (float): Investment amount in USD
+```
+
+**Example:**
+```
+REG_imp | PROD_COMM | dk
+--------|-----------|------------
+MEX     | 56        | 10000000    ← Construction sector in Mexico invests $10M
+MEX     | 78        | 5000000     ← Transport sector in Mexico invests $5M
+BGR     | 23        | 3000000     ← Ag sector in Bulgaria invests $3M
+```
+
+**Key Point:** PROD_COMM here is the INVESTING SECTOR, not the products being demanded!
+
+---
+
+## 2. How Does the Investment Converter Work?
+
+### Source: `investment.py` lines 217-253
+
+The investment converter transforms "Sector X invests $Y" into "Demand for products A, B, C, ..."
+
+### Step-by-Step Process:
+
+#### **Step 1: Load Investment Converter Matrix**
+```python
+INV_CONV structure:
+- REG_imp: Country
+- PROD_COMM: Investing sector (1-120)
+- TRAD_COMM: Product being demanded (1-120)
+- input_coeff: Share of investment going to that product
+```
+
+**Example:**
+```
+REG_imp | PROD_COMM (investing) | TRAD_COMM (product) | input_coeff
+--------|----------------------|---------------------|-------------
+MEX     | 56 (Construction)    | 56 (Construction)   | 0.30    ← 30% to construction goods
+MEX     | 56 (Construction)    | 45 (Cement)         | 0.20    ← 20% to cement
+MEX     | 56 (Construction)    | 68 (Machinery)      | 0.15    ← 15% to machinery
+MEX     | 56 (Construction)    | 78 (Transport)      | 0.10    ← 10% to transport
+...     | ...                  | ...                 | ...
+```
+
+For each investing sector, `sum(input_coeff) = 1.0`
+
+#### **Step 2: Apply Investment Converter** (line 231-232)
+```python
+exog_inv = exog_inv.merge(inv_conv, on=['PROD_COMM','REG_imp'])
+exog_inv['dk'] = exog_inv['dk'] * exog_inv['input_coeff']
+```
+
+**Example Transformation:**
+```
+Before:
+MEX | 56 (Construction investing) | dk = $10M
+
+After (multiple rows):
+MEX | 56 (Construction investing) | 56 (Construction product) | dk = $3M (30% of $10M)
+MEX | 56 (Construction investing) | 45 (Cement product)       | dk = $2M (20% of $10M)
+MEX | 56 (Construction investing) | 68 (Machinery product)    | dk = $1.5M (15% of $10M)
+MEX | 56 (Construction investing) | 78 (Transport product)    | dk = $1M (10% of $10M)
+...
+```
+
+#### **Step 3: Disaggregate Across Export Partners** (line 238-242)
+Uses `fcf_share` to allocate demand across producing countries (domestic + imports).
+
+```python
+exog_inv = exog_inv.merge(fcf_share, on=['TRAD_COMM','REG_imp'])
+exog_inv['dy'] = exog_inv['dk'] * exog_inv['FCF_share']
+```
+
+**Example:**
+```
+Before:
+MEX demands | 56 (Construction goods) | dk = $3M
+
+After (multiple rows by producing country):
+MEX (producing) | 56 | consumed in MEX | dy = $2.4M (80% domestic)
+USA (producing) | 56 | consumed in MEX | dy = $0.4M (13% from USA)
+CHN (producing) | 56 | consumed in MEX | dy = $0.2M (7% from China)
+```
+
+#### **Step 4: Final Output** (line 246-247)
+```python
+exog_inv.groupby(['REG_exp','TRAD_COMM']).sum()
+```
+
+**Result: `dy_inv_exog`**
+```python
+dy_inv_exog structure:
+- REG_imp: Producing country (renamed from REG_exp)
+- TRAD_COMM: Product code (1-120)
+- dy: Final demand for that product in that country
+```
+
+---
+
+## 3. Full Chain: Investment → Products → Employment
+
+### **A. Investment Scenario**
+```
+INPUT: "Investment by" sheet
+→ Scenario.inv_exog: REG_imp, PROD_COMM (investing sector), dk (investment $)
+```
+
+### **B. Investment Converter**
+```
+Scenario.inv_exog
++ INV_CONV (investment conversion matrix)
+→ dy_inv_exog: REG_imp, TRAD_COMM (product demanded), dy (demand $)
+```
+
+**This is INITIAL FINAL DEMAND for products**
+
+### **C. Input-Output Model** (`InputOutput.py`)
+```
+dy_inv_exog (initial demand)
+× L (Leontief inverse matrix)
+→ dq_total (total output change, direct + indirect)
+```
+
+**Formula:** `dq = L × dy`
+- `dy` = Initial final demand
+- `L` = Leontief inverse = (I - A)^(-1)
+- `dq` = Total output change (includes supply chain effects)
+
+### **D. Employment Calculation** (`employment.py`)
+```
+dq_total (output change)
+× empl_coef (employment coefficient)
+→ dempl_total (total employment change)
+```
+
+**Formula:** `dE = e × dq`
+- `e` = Employment coefficient (jobs per $ output)
+- `dE` = Employment change
+
+---
+
+## 4. Direct vs Indirect Employment
+
+### **Standard IO Analysis Definitions:**
+
+#### **Direct Employment:**
+Employment generated by the **initial final demand** (first-round effect)
+
+```python
+dempl_direct = empl_coef × dy_inv_exog
+```
+
+#### **Total Employment:**
+Employment including **supply chain multiplier effects** (Leontief effects)
+
+```python
+dempl_total = empl_coef × (L × dy_inv_exog)
+               = empl_coef × dq_total
+```
+
+#### **Indirect Employment:**
+Employment in **upstream supply chain** sectors
+
+```python
+dempl_indirect = dempl_total - dempl_direct
+```
+
+### **Example:**
+
+```
+Investment: MEX Construction sector invests $10M
+→ Converter: Creates demand for $3M construction goods, $2M cement, etc.
+→ IO Model:  Supply chain needs $5M additional inputs
+→ Employment:
+   - Direct: Jobs from producing the $10M of investment goods
+   - Indirect: Jobs from producing the $5M of supply chain inputs
+   - Total: Direct + Indirect
+```
+
+---
+
+## 5. Original MINDSET Output Structure
+
+### Source: `results.py` lines 28-55
+
+### **Output File:** `FullResults_{scenario}.xlsx`
+
+### **Sheets:**
+
+1. **`output`** - Output changes by sector-region
+   - Columns: MRIO_list + dq_tech_eff, dq_trade_eff, dq_hh_price, dq_hh_inc, dq_gov_recyc, dq_inv_induced, dq_inv_recyc, dq_inv_exog, dq_total
+
+2. **`employment`** - Employment changes by sector-region
+   - Columns: MRIO_list + empl_base + dempl_tech_eff, dempl_trade_eff, dempl_hh_price, dempl_hh_inc, dempl_gov_recyc, dempl_inv_induced, dempl_inv_recyc, dempl_inv_exog, dempl_total
+
+3. **`gdp`** - GDP changes
+
+4. **`demand`** - Final demand changes (dy_df)
+
+5. **`household`** - Household consumption changes
+
+6. **`price`** - Price changes
+
+7. **`revenue`** - Tax revenue
+
+8. **`emissions`** - Emissions
+
+### **MRIO_list Structure** (from `exog_vars.py`):
+```python
+MRIO_list columns:
+- Reg_ID: Region ID (1-164)
+- Region: Region full name
+- Sec_ID: Sector ID (1-120)
+- Sector: Sector name
+```
+
+---
+
+## 6. For Employment-Only Mode
+
+Since we're skipping most modules (energy, trade, household, price, etc.), we only have:
+
+**Relevant employment components:**
+- `dempl_inv_exog` = Employment from exogenous investment
+- `dempl_total` = Total employment (for employment-only, this equals dempl_inv_exog)
+
+**Our calculation:**
+```python
+# Initial final demand for products (after investment converter)
+dy_inv_exog = INV_model.dy_inv_exog (as vector)
+
+# Total output (direct + indirect)
+dq_total = IO_model.calc_dq_exog(dy_inv_exog)  # = L × dy
+
+# Total employment (direct + indirect)
+dempl_total = Empl_model.calc_dempl([dq_total])[0]  # = e × dq
+
+# Direct employment (first-round only)
+dempl_direct = Empl_model.calc_dempl([dy_inv_exog])[0]  # = e × dy
+
+# Indirect employment (supply chain)
+dempl_indirect = dempl_total - dempl_direct
+```
+
+---
+
+## 7. Verification Checklist for Batch Script
+
+✅ **Does our script:**
+1. Load scenario correctly? → YES (uses scenario.set_exog_inv())
+2. Apply investment converter? → YES (uses invest.calc_dy_inv_exog())
+3. Calculate total output with Leontief? → YES (uses IO.calc_dq_exog())
+4. Calculate employment correctly? → YES (uses empl.calc_dempl())
+5. Separate direct vs indirect properly? → YES (dempl_direct = e × dy, dempl_indirect = total - direct)
+6. Include country name? → YES (looks up from MRIO_BASE.R)
+7. Output correct structure? → YES (by region and by sector with Direct/Indirect/Total columns)
+
+---
+
+## 8. Key Takeaways
+
+1. **`Scenario.inv_exog`** contains: Which country + which SECTOR is investing + how much
+
+2. **Investment Converter** transforms sector investment into product demand across countries
+
+3. **Chain:** Investment by sector → Demand for products → Output changes (IO) → Employment changes
+
+4. **Direct employment** = First-round jobs from producing the demanded goods
+
+5. **Indirect employment** = Supply chain jobs from producing inputs
+
+6. **Our batch script correctly implements this flow!**
+
+---
+
+## References
+
+- `SourceCode/scenario.py` - Lines 321-383 (set_exog_inv)
+- `SourceCode/investment.py` - Lines 217-253 (calc_dy_inv_exog)
+- `SourceCode/InputOutput.py` - calc_dq_exog method
+- `SourceCode/employment.py` - Lines 45-54 (calc_dempl)
+- `SourceCode/results.py` - Lines 28-55 (save_change)
+- `RunMINDSET.py` - Lines 498-520, 718-730 (employment calculation)

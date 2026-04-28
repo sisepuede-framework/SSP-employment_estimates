@@ -1,0 +1,26 @@
+.git
+.Rproj.user
+.Rhistory
+GLORIA_db
+GLORIA_results
+!GLORIA_template/
+GLORIA_template/*
+
+!GLORIA_template/Scenarios/
+!GLORIA_template/Scenarios/*
+# GLORIA_template/Scenarios/*
+GLORIA_template/Scenarios/old
+
+!GLORIA_template/Variables/
+GLORIA_template/Variables/*
+!GLORIA_template/Variables/Variable_list_MINDSET.xlsx
+
+GTAP_db
+National_IO
+SourceCode/__pycache__
+SourceCode/MYS
+__pycache__
+/Log
+/Temp
+
+/Old

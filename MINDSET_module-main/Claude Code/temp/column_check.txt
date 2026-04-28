@@ -1,0 +1,29 @@
+================================================================================
+CHECKING SCENARIO FILE STRUCTURE
+================================================================================
+
+Reading 'Investment by' sheet with skiprows=14...
+
+Columns found: ['Mexico', 'MEX', 'Basic non-ferrous metals n.e.c.', 84, 0, 'absolute']
+
+Number of columns: 6
+Number of rows: 106
+
+First 5 rows:
+   Mexico  MEX Basic non-ferrous metals n.e.c.    84        0  absolute
+0  Mexico  MEX         Basic organic chemicals  68.0  26000.0  absolute
+1  Mexico  MEX    Basic petrochemical products  66.0  26000.0  absolute
+2  Mexico  MEX                       Basic tin  83.0      0.0  absolute
+3  Mexico  MEX                       Beef meat  41.0      0.0  absolute
+4  Mexico  MEX           Building construction  98.0      0.0  absolute
+
+Expected columns: ['Country ISO*', 'Sector investing code*', 'Value*', 'Type*']
+
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\check_scenario_columns.py", line 29, in <module>
+    print(f"  \u2717 Missing: '{col}'")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2717' in position 2: character maps to <undefined>

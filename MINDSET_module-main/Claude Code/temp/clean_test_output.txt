@@ -1,0 +1,151 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+TEST: Employment Analysis with ISIC Sectors and Strategy Attributes
+================================================================================
+
+STEP 1: Loading ISIC Crosswalk and Strategy Attributes
+--------------------------------------------------------------------------------
+Crosswalk loaded: (121, 21)
+ISIC sections found: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
+
+ISIC Sections (20):
+  A: Agriculture, forestry and fishing
+  B: Mining and quarrying
+  C: Manufacturing
+  D: Electricity, gas, steam and air conditioning supply
+  E: Water supply; sewerage, waste management and remediation act
+  F: Construction
+  G: Wholesale and retail trade; repair of motor vehicles
+  H: Transportation and storage
+  I: Accommodation and food service activities
+  J: Information and communication
+  K: Financial and insurance activities
+  L: Real estate activities
+  M: Professional, scientific and technical activities
+  N: Administrative and support services
+  O: Public administration and defence; compulsory social securit
+  P: Education
+  Q: Human health and social work activities
+  R: Arts, entertainment and recreation
+  S: Other service activities
+  T: Activities of households as employers; undifferentiated good
+
+Products mapped: 120
+
+Strategy attributes loaded: (92, 2)
+Columns: ['strategy_id', 'strategy']
+
+First 3 rows:
+   strategy_id      strategy
+0            0  Baseline NDP
+1            1    Test AFOLU
+2            2   Test Energy
+
+STEP 2: Loading MRIO Base Data
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.3 s ---
+[OK] MRIO loaded
+[OK] Models initialized
+
+STEP 3: Processing Test Strategy
+--------------------------------------------------------------------------------
+Processing: Strategy_1004_EGY
+Investing country: EGY (Egypt)
+
+STEP 4: Extracting Product-Level Results
+--------------------------------------------------------------------------------
+Product-level results: 120 products
+Total jobs (sum): 20.93
+
+STEP 5: Aggregating to ISIC Sectors
+--------------------------------------------------------------------------------
+ISIC sector results: 20 sectors
+Total jobs (sum): 20.93
+Share sum check: 1.000000 (should be 1.0)
+
+STEP 6: Merging with Strategy Attributes
+--------------------------------------------------------------------------------
+Extracted numeric ID: 1004
+Attributes strategy_id type: int64
+[OK] Merge complete
+Columns before merge: 10
+Columns after merge: 12
+New attribute columns: ['strategy_id_x', 'strategy_id_y', 'strategy']
+
+================================================================================
+FINAL OUTPUT STRUCTURE
+================================================================================
+
+Total rows: 20
+Total columns: 12
+
+All columns:
+   1. country_name
+   2. country_ISO
+   3. strategy_id_x
+   4. sector_code
+   5. sector_name
+   6. direct_jobs
+   7. indirect_jobs
+   8. total_jobs
+   9. share_of_total_jobs
+  10. strategy_numeric_id
+  11. strategy_id_y
+  12. strategy
+
+================================================================================
+NON-ZERO SECTORS (11 out of 20)
+================================================================================
+
+country_name country_ISO     strategy_id_x sector_code                                                   sector_name  direct_jobs  indirect_jobs  total_jobs  share_of_total_jobs  strategy_numeric_id  strategy_id_y strategy
+       Egypt         EGY Strategy_1004_EGY           A                             Agriculture, forestry and fishing    12.885302       0.010708   12.896010             0.616274                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           G          Wholesale and retail trade; repair of motor vehicles     0.000000       3.172266    3.172266             0.151596                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           C                                                 Manufacturing     2.716568       0.267520    2.984089             0.142604                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           B                                          Mining and quarrying     0.000000       1.269506    1.269506             0.060667                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           H                                    Transportation and storage     0.000000       0.243294    0.243294             0.011627                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           K                            Financial and insurance activities     0.000000       0.140453    0.140453             0.006712                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           M             Professional, scientific and technical activities     0.000000       0.116426    0.116426             0.005564                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           F                                                  Construction     0.000000       0.030892    0.030892             0.001476                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           O Public administration and defence; compulsory social security     0.000000       0.024016    0.024016             0.001148                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           J                                 Information and communication     0.000000       0.020207    0.020207             0.000966                 1004            NaN      NaN
+       Egypt         EGY Strategy_1004_EGY           N                           Administrative and support services     0.000000       0.011579    0.011579             0.000553                 1004            NaN      NaN
+
+================================================================================
+SUMMARY STATISTICS
+================================================================================
+
+Total jobs created: 20.93
+Direct jobs: 15.60 (74.6%)
+Indirect jobs: 5.32 (25.4%)
+
+Top 5 sectors by employment:
+  A: Agriculture, forestry and fishing
+    Jobs: 12.90 (61.6%)
+  G: Wholesale and retail trade; repair of motor vehicl
+    Jobs: 3.17 (15.2%)
+  C: Manufacturing
+    Jobs: 2.98 (14.3%)
+  B: Mining and quarrying
+    Jobs: 1.27 (6.1%)
+  H: Transportation and storage
+    Jobs: 0.24 (1.2%)
+
+================================================================================
+TEST COMPLETE!
+================================================================================
+
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\TEST_ONE_STRATEGY_CLEAN.py", line 356, in <module>
+    print("\u2713 ISIC sector aggregation working")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 0: character maps to <undefined>

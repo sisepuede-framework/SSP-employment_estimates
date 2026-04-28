@@ -1,0 +1,57 @@
+Loading MRIO data...
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+L_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found.
+Y_BASE file is not found, will be parsed in IO module.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 8.3 s ---
+Loaded. Countries: 164, Sectors: 120
+
+Reading: GLORIA_template/Scenarios/Strategy_1004_MEX.xlsx
+
+AFTER READING EXCEL:
+  Rows: 120
+  Non-zero values: 40
+  NaN in PROD_COMM: 3
+
+STEP: resolve_comma(REG_imp)...
+  Rows after: 120
+  Non-zero values: 40
+
+STEP: resolve_all(REG_imp)...
+  Rows after: 120
+  Non-zero values: 40
+
+STEP: resolve_comma(PROD_COMM)...
+  Rows after: 120
+  Non-zero values: 40
+
+STEP: resolve_hyphen(PROD_COMM)...
+  Rows after: 120
+  Non-zero values: 40
+
+STEP: resolve_all(PROD_COMM)...
+  Rows after: 120
+  Non-zero values: 40
+
+================================================================================
+FINAL RESULT:
+================================================================================
+SUCCESS: 120 rows, $1,000,000.00 total investment
+
+Non-zero entries:
+  MEX - Sector 67.0: $26,000.00
+  MEX - Sector 68.0: $26,000.00
+  MEX - Sector 66.0: $26,000.00
+  MEX - Sector 75.0: $26,000.00
+  MEX - Sector 73.0: $26,000.00
+  MEX - Sector 62.0: $26,000.00
+  MEX - Sector 90.0: $42,500.00
+  MEX - Sector 70.0: $26,000.00
+  MEX - Sector 91.0: $42,500.00
+  MEX - Sector 21.0: $20,952.38

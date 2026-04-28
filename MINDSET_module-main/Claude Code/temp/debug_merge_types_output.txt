@@ -1,0 +1,80 @@
+================================================================================
+DEBUG: Data Type Analysis in Investment Converter
+================================================================================
+
+Loading MRIO data...
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+L_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found.
+Y_BASE file is not found, will be parsed in IO module.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 6.1 s ---
+Loaded.
+
+================================================================================
+ANALYZING DATA TYPES BEFORE MERGE
+================================================================================
+
+1. exog_inv BEFORE type conversion:
+   Shape: (117, 3)
+   PROD_COMM dtype: str
+   REG_imp dtype: str
+   Sample PROD_COMM values: ['1.0', '10.0', '100.0', '101.0', '102.0', '103.0', '104.0', '105.0', '106.0', '107.0']
+   Sample REG_imp values: ['MEX', 'MEX', 'MEX', 'MEX', 'MEX', 'MEX', 'MEX', 'MEX', 'MEX', 'MEX']
+
+2. exog_inv AFTER converting PROD_COMM to string:
+   PROD_COMM dtype: str
+   Sample PROD_COMM values: ['1.0', '10.0', '100.0', '101.0', '102.0', '103.0', '104.0', '105.0', '106.0', '107.0']
+
+3. inv_conv (INV_CONV):
+   Shape: (14256, 4)
+   Columns: ['TRAD_COMM', 'PROD_COMM', 'input_coeff', 'REG_imp']
+   PROD_COMM dtype: str
+   REG_imp dtype: str
+   Sample PROD_COMM values: ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1']
+   Sample REG_imp values: ['ROW', 'ROW', 'ROW', 'ROW', 'ROW', 'ROW', 'ROW', 'ROW', 'ROW', 'ROW']
+
+================================================================================
+CHECKING FOR MATCHES
+================================================================================
+
+4. Unique values in exog_inv:
+   Unique PROD_COMM: ['1.0', '10.0', '100.0', '101.0', '102.0', '103.0', '104.0', '105.0', '106.0', '107.0', '108.0', '109.0', '11.0', '110.0', '111.0', '112.0', '113.0', '114.0', '115.0', '116.0']
+   Unique REG_imp: <ArrowStringArray>
+['MEX']
+Length: 1, dtype: str
+
+5. Unique values in inv_conv:
+   Unique PROD_COMM: ['1', '10', '100', '101', '102', '103', '104', '105', '106', '107', '108', '109', '11', '110', '111', '112', '113', '114', '115', '116']
+   Unique REG_imp: ['BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'ROW', 'UGA']
+
+6. PROD_COMM matching analysis:
+   Exog_inv unique PROD_COMM: 117
+   Inv_conv unique PROD_COMM: 120
+   Matching PROD_COMM: 0
+   NO MATCHES FOUND!
+
+7. REG_imp matching analysis:
+   Exog_inv unique REG_imp: 1
+   Inv_conv unique REG_imp: 8
+   Matching REG_imp: 1
+   Matches: {'MEX'}
+
+================================================================================
+TESTING MERGE WITH TYPE CORRECTION
+================================================================================
+
+8. Merge WITHOUT type correction:
+   Result shape: (117, 5)
+   Non-null input_coeff: 0
+
+9. Merge WITH type correction (convert inv_conv.PROD_COMM to str):
+   Result shape: (117, 5)
+   Non-null input_coeff: 0
+   FAILED - Still no matches
+

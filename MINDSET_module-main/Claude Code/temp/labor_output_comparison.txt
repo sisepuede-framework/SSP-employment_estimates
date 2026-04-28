@@ -1,0 +1,77 @@
+================================================================================
+CHECKING LABOR_BASE vs q_base CONSISTENCY
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+TOTAL ECONOMY-WIDE CHECK:
+--------------------------------------------------------------------------------
+ROW:
+  Total employment:   3,347,358,900 workers
+  Total output:     179,408,342,952 kUSD
+  Intensity:                 0.0187 workers/kUSD =     18.7 workers/$M
+
+BGR:
+  Total employment:       3,391,873 workers
+  Total output:         143,459,715 kUSD
+  Intensity:                 0.0236 workers/kUSD =     23.6 workers/$M
+
+BLZ:
+  Total employment:         175,804 workers
+  Total output:           3,944,523 kUSD
+  Intensity:                 0.0446 workers/kUSD =     44.6 workers/$M
+
+EGY:
+  Total employment:      29,715,964 workers
+  Total output:         442,604,686 kUSD
+  Intensity:                 0.0671 workers/kUSD =     67.1 workers/$M
+
+LBY:
+  Total employment:       2,188,927 workers
+  Total output:         180,337,518 kUSD
+  Intensity:                 0.0121 workers/kUSD =     12.1 workers/$M
+
+MAR:
+  Total employment:      11,992,626 workers
+  Total output:         220,207,636 kUSD
+  Intensity:                 0.0545 workers/kUSD =     54.5 workers/$M
+
+MEX:
+  Total employment:      55,827,457 workers
+  Total output:       2,256,923,256 kUSD
+  Intensity:                 0.0247 workers/kUSD =     24.7 workers/$M
+
+UGA:
+  Total employment:      16,078,050 workers
+  Total output:          56,219,198 kUSD
+  Intensity:                 0.2860 workers/kUSD =    286.0 workers/$M
+
+================================================================================
+SANITY CHECK: Compare to real-world data
+================================================================================
+
+Expected employment intensities (workers per $M GDP):
+  Developed economies (like ROW/China): 5-15
+  Middle-income (like MEX, BGR, MAR, EGY): 15-40
+  Low-income (like BLZ, UGA): 40-100
+  Very poor (like LBY): could be higher
+
+If numbers are MUCH higher (>200), LABOR_BASE might not be aggregated correctly
+If numbers are MUCH lower (<5), q_base might not be aggregated correctly
+
+================================================================================
+CHECK: Where do these files come from?
+================================================================================
+
+LABOR_BASE: GLORIA_db/v57/2019/SSP/labor_data.pkl
+L_BASE: GLORIA_db/v57/2019/SSP/GLORIA_L_Base_2019.mat
+Y_BASE: GLORIA_db/v57/2019/SSP/GLORIA_Y_Base_2019.mat
+
+These files need to be aggregated CONSISTENTLY from the 164-country
+GLORIA data. If one is aggregated differently, the employment intensities
+will be nonsensical.

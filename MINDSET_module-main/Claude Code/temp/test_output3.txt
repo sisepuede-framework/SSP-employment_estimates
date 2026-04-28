@@ -1,0 +1,29 @@
+================================================================================
+TEST: Identity INV_CONV with PROPER Employment Baseline
+================================================================================
+
+STEP 1: Loading MRIO Data
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+[OK] MRIO data loaded
+  Countries: ROW, BGR, BLZ, EGY, LBY, MAR, MEX, UGA
+[OK] LABOR_BASE loaded: (960, 10)
+
+STEP 2: Loading Investment Scenario
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\TEST_WITH_PROPER_EMPLOYMENT.py", line 69, in <module>
+    Scenario.build_payr_tax_split()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\scenario.py", line 677, in build_payr_tax_split
+    payr_tax_split = self.scenario_data["payr_tax_split"]
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\openpyxl\workbook\workbook.py", line 287, in __getitem__
+    raise KeyError("Worksheet {0} does not exist.".format(key))
+KeyError: 'Worksheet payr_tax_split does not exist.'

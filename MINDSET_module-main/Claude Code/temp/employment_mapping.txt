@@ -1,0 +1,51 @@
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+================================================================================
+EMPLOYMENT_COUNTRY MAPPING
+================================================================================
+
+HH_CONS_COU full table:
+--------------------------------------------------------------------------------
+  Country_Code     GLORIA_Country Employment_country Investment_country
+0          ROW  Rest of the World              China              China
+1          BGR           Bulgaria           Bulgaria           Bulgaria
+2          BLZ             Belize             Belize             Belize
+3          EGY              Egypt              Egypt              Egypt
+4          LBY              Libya              Libya              Libya
+5          MAR            Morocco            Morocco            Morocco
+6          MEX             Mexico             Mexico             Mexico
+7          UGA             Uganda             Uganda             Uganda
+
+================================================================================
+INTERPRETATION
+================================================================================
+
+Employment_country: Which GLORIA country's employment coefficients to use
+for each aggregated country.
+
+User's hypothesis: Each of the 8 countries (BGR, BLZ, EGY, LBY, MAR, MEX, UGA)
+should use their own employment coefficients.
+ROW uses China's coefficients as a proxy.
+
+Available employment countries in EMPL_COEF:
+--------------------------------------------------------------------------------
+Total: 164 countries
+
+First 20: ['Rest of Americas', 'Rest of Europe', 'Rest of Africa', 'Rest of Asia-Pacific', 'Afghanistan', 'Angola', 'Albania', 'United Arab Emirates', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Burundi', 'Belgium', 'Benin', 'Burkina Faso', 'Bangladesh', 'Bulgaria', 'Bahrain']
+...
+
+Checking for our countries:
+  [OK] Bulgaria found
+  [OK] Belize found
+  [OK] Egypt found
+  [OK] Libya found
+  [OK] Morocco found
+  [OK] Mexico found
+  [OK] Uganda found
+  [OK] China found
+
