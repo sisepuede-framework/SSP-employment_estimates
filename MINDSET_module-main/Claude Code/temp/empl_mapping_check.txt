@@ -1,0 +1,99 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+CHECKING EMPL_COEF MAPPING
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+STEP 1: Check HH_CONS_COU mapping
+--------------------------------------------------------------------------------
+HH_CONS_COU shape: (8, 8)
+Columns: ['Country_No', 'Country_Code', 'GLORIA_Country', 'USDA_Country', 'Employment_country', 'Investment_country', 'Beta_C', 'Beta_C_Agg']
+
+First 20 rows:
+   Country_No Country_Code  ... Beta_C Beta_C_Agg
+0           1          ROW  ...  China      China
+1           2          BGR  ...  China      China
+2           3          BLZ  ...  China      China
+3           4          EGY  ...  China      China
+4           5          LBY  ...  China      China
+5           6          MAR  ...  China      China
+6           7          MEX  ...  China      China
+7           8          UGA  ...  China      China
+
+[8 rows x 8 columns]
+
+Unique aggregated countries:
+<ArrowStringArray>
+['ROW', 'BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'UGA']
+Length: 8, dtype: str
+
+STEP 2: Build employment coefficients
+--------------------------------------------------------------------------------
+After build_empl_coef:
+  Shape: (960, 3)
+  Columns: ['REG_imp', 'PROD_COMM', 'empl_coef']
+
+First 20 rows:
+     REG_imp  PROD_COMM  empl_coef
+3960     ROW          1      0.435
+3961     ROW          2      0.339
+3962     ROW          3      0.339
+3963     ROW          4      0.280
+3964     ROW          5      0.314
+3965     ROW          6      0.382
+3966     ROW          7      0.220
+3967     ROW          8      0.379
+3968     ROW          9      0.373
+3969     ROW         10      0.379
+3970     ROW         11      0.382
+3971     ROW         12      0.382
+3972     ROW         13      0.379
+3973     ROW         14      0.379
+3974     ROW         15      0.379
+3975     ROW         16      0.298
+3976     ROW         17      0.305
+3977     ROW         18      0.305
+3978     ROW         19      0.305
+3979     ROW         20      0.305
+
+Countries in final EMPL_COEF:
+<ArrowStringArray>
+['ROW', 'BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'UGA']
+Length: 8, dtype: str
+
+STEP 3: Check coefficients for EGY and MEX
+--------------------------------------------------------------------------------
+EGY:
+  Number of products: 120
+  Non-zero coefficients: 120
+  Zero coefficients: 0
+  Min coefficient: 0.057000
+  Max coefficient: 0.984000
+  Mean coefficient: 0.566367
+
+  Sample products (10, 50, 90):
+    Product 10: 0.984000
+    Product 50: 0.528000
+    Product 90: 0.554000
+
+MEX:
+  Number of products: 120
+  Non-zero coefficients: 120
+  Zero coefficients: 0
+  Min coefficient: 0.010000
+  Max coefficient: 1.000000
+  Mean coefficient: 0.393567
+
+  Sample products (10, 50, 90):
+    Product 10: 0.319000
+    Product 50: 0.244000
+    Product 90: 0.430000
+
+================================================================================

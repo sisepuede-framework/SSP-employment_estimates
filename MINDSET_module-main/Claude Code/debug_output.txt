@@ -1,0 +1,82 @@
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SSP - Codes\DEBUG_BOL_single.py", line 199, in <module>
+    dq_total = IO_model.calc_dq_exog(dy_inv_exog)
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\InputOutput_SSP.py", line 415, in calc_dq_exog
+    dq_exog_fd = np.dot(self.L_BASE, dy)
+ValueError: shapes (960,960) and (1080,) not aligned: 960 (dim 1) != 1080 (dim 0)
+Working directory: C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main
+
+============================================================
+STEP 1: Loading MRIO Base Data
+============================================================
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.4 s ---
+
+Regions (COU_ID): ['ROW', 'BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'UGA', 'BOL']
+Number of sectors: 120
+Is 'BOL' in COU_ID? True
+
+============================================================
+STEP 2: Loading a single Bolivia scenario
+============================================================
+Scenario file: C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\GLORIA_template\Scenarios\Strategy_1004_BOL.xlsx
+File exists: True
+
+[OK] Scenario object created
+[OK] set_exog_inv() completed
+  inv_exog shape: (120, 3)
+  inv_exog columns: ['REG_imp', 'PROD_COMM', 'dk']
+  inv_exog head:
+  REG_imp PROD_COMM         dk
+0     BOL         1  20.952381
+1     BOL        10  20.952381
+2     BOL       100        0.0
+3     BOL       101        0.0
+4     BOL       102        0.0
+5     BOL       103        0.0
+6     BOL       104        0.0
+7     BOL       105        0.0
+8     BOL       106        0.0
+9     BOL       107        0.0
+
+  Investing countries: <ArrowStringArray>
+['BOL']
+Length: 1, dtype: str
+  Total investment: 1,000.00
+
+============================================================
+STEP 3: Investment Converter
+============================================================
+[OK] INV_CONV created, shape: (1080, 4)
+[OK] invest object created
+[OK] build_inv_output_elas()
+[OK] calc_inv_share()
+[OK] calc_dy_inv_exog()
+  dy_inv_exog shape: (0, 3)
+  dy_inv_exog columns: ['REG_imp', 'TRAD_COMM', 'dy']
+  dy_inv_exog head:
+Empty DataFrame
+Columns: [REG_imp, TRAD_COMM, dy]
+Index: []
+  Total dy: 0.00
+
+============================================================
+STEP 4: Convert dy_inv_exog to vector
+============================================================
+  Regions for vector: ['ROW', 'BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'UGA', 'BOL']
+  Number of sectors: 120
+  Regions in dy_inv_exog: []
+[OK] Vector created, shape: (1080,)
+  Sum: 0.00
+  Non-zero elements: 0
+
+============================================================
+STEP 5: IO Model - Calculate output changes
+============================================================
+[OK] IO model initialized
+[ERROR] calc_dq_exog(): shapes (960,960) and (1080,) not aligned: 960 (dim 1) != 1080 (dim 0)

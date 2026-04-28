@@ -1,0 +1,79 @@
+================================================================================
+EORA26 SECTOR MAPPING CHECK
+================================================================================
+
+Total Eora26 sectors in crosswalk: 26
+
+All sector names:
+   1. Agriculture
+   2. Fishing
+   3. Mining and Quarrying
+   4. Food & Beverages
+   5. Textiles and Wearing Apparel
+   6. Wood and Paper
+   7. Petroleum, Chemical and Non-Metallic Mineral Products
+   8. Metal Products
+   9. Electrical and Machinery
+  10. Transport Equipment
+  11. Other Manufacturing
+  12. Recycling
+  13. Electricity, Gas and Water
+  14. Construction
+  15. Maintenance and Repair
+  16. Wholesale Trade
+  17. Retail Trade
+  18. Hotels and Restaurants
+  19. Transport
+  20. Post and Telecommunications
+  21. Financial Intermediation and Business Activities
+  22. Public Administration
+  23. Education, Health and Other Services
+  24. Private Households
+  25. Others
+  26. Re-export & Re-import
+
+================================================================================
+PRODUCTS PER SECTOR
+================================================================================
+
+Sectors with products (23):
+  Agriculture                                             :  21 products
+  Mining and Quarrying                                    :  17 products
+  Food & Beverages                                        :  16 products
+  Petroleum, Chemical and Non-Metallic Mineral Products   :  15 products
+  Metal Products                                          :   9 products
+  Transport                                               :   6 products
+  Electrical and Machinery                                :   4 products
+  Electricity, Gas and Water                              :   4 products
+  Post and Telecommunications                             :   4 products
+  Financial Intermediation and Business Activities        :   4 products
+  Wood and Paper                                          :   3 products
+  Education, Health and Other Services                    :   3 products
+  Fishing                                                 :   2 products
+  Textiles and Wearing Apparel                            :   2 products
+  Transport Equipment                                     :   2 products
+  Construction                                            :   2 products
+  Other Manufacturing                                     :   1 products
+  Recycling                                               :   1 products
+  Maintenance and Repair                                  :   1 products
+  Hotels and Restaurants                                  :   1 products
+  Public Administration                                   :   1 products
+  Private Households                                      :   1 products
+  Others                                                  :   1 products
+
+================================================================================
+UNMAPPED SECTORS (Zero products)
+================================================================================
+
+Found 3 sectors with NO products mapped:
+  1. Wholesale Trade
+  2. Retail Trade
+  3. Re-export & Re-import
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\check_unmapped_sectors.py", line 53, in <module>
+    print(f"\n\u26a0\ufe0f  WARNING: Values for these sectors will NOT be allocated to products!")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-3: character maps to <undefined>

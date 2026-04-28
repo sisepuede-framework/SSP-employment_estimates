@@ -1,0 +1,3 @@
+    Lfd_Nr Region_acronyms Region_names Agg_region Agg_region_name  Unnamed: 5  Lfd_Nr_agg  Unnamed: 7  Unnamed: 8  Unnamed: 9 Unnamed: 10 Unnamed: 11
+50      51             EGY        Egypt        EGY           Egypt         NaN           4         NaN         NaN         NaN         NaN         NaN
+99     100             MEX       Mexico        MEX          Mexico         NaN           7         NaN         NaN         NaN         NaN         NaN

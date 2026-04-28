@@ -1,0 +1,54 @@
+================================================================================
+FILLING GLORIA-EORA26 CONCORDANCE MATRIX
+================================================================================
+
+25 Eora26 sectors identified:
+  1. Agriculture
+  2. Fishing
+  3. Mining and quarrying
+  4. Food and beverages
+  5. Textiles and wearing apparel
+  6. Wood and paper
+  7. Petroleum, chemical and non-metallic mineral products
+  8. Metal products
+  9. Electrical and machinery
+  10. Transport equipment
+  11. Other manufacturing
+  12. Recycling
+  13. Electricity, gas and water
+  14. Construction
+  15. Maintenance and repair
+  16. Wholesale trade
+  17. Retail trade
+  18. Hotels and restaurants
+  19. Transport
+  20. Post and telecommunications
+  21. Financial intermediation and business activities
+  22. Public administration
+  23. Education, health and other services
+  24. Private households
+  25. Other
+
+120 GLORIA products identified
+First 10: ['Growing wheat', 'Growing maize', 'Growing cereals n.e.c', 'Growing leguminous crops and oil seeds', 'Growing rice', 'Growing vegetables, roots, tubers', 'Growing sugar beet and cane', 'Growing tobacco', 'Growing fibre crops', 'Growing crops n.e.c.']
+
+================================================================================
+CREATING CONCORDANCE MAPPING
+================================================================================
+
+Mapping products to sectors...
+  Processed 20/120 products...
+  Processed 40/120 products...
+  Processed 60/120 products...
+  Processed 80/120 products...
+  Processed 100/120 products...
+  Processed 120/120 products...
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\fill_concordance_matrix.py", line 240, in <module>
+    print(f"\n\u2713 Completed mapping all 120 products")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 2: character maps to <undefined>
+

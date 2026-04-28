@@ -1,0 +1,62 @@
+================================================================================
+CHECKING EMPL_COEF DATA
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+STEP 1: Check if EMPL_COEF exists
+--------------------------------------------------------------------------------
+[OK] EMPL_COEF loaded
+  Shape: (120, 166)
+  Columns: ['Unnamed: 0', 'Unnamed: 1', 'Rest of Americas', 'Rest of Europe', 'Rest of Africa', 'Rest of Asia-Pacific', 'Afghanistan', 'Angola', 'Albania', 'United Arab Emirates']...
+
+First 10 rows:
+   Unnamed: 0                              Unnamed: 1  ...  Zambia  Zimbabwe
+0           1                           Growing wheat  ...   0.763     0.763
+1           2                           Growing maize  ...   0.653     0.653
+2           3                   Growing cereals n.e.c  ...   0.653     0.653
+3           4  Growing leguminous crops and oil seeds  ...   0.900     0.900
+4           5                            Growing rice  ...   0.775     0.775
+5           6       Growing vegetables, roots, tubers  ...   0.854     0.854
+6           7             Growing sugar beet and cane  ...   0.552     0.552
+7           8                         Growing tobacco  ...   0.984     0.984
+8           9                     Growing fibre crops  ...   0.664     0.664
+9          10                    Growing crops n.e.c.  ...   0.984     0.984
+
+[10 rows x 166 columns]
+
+Data summary:
+  Non-zero values: 19800
+  Zero values: 0
+
+
+STEP 2: Check Variable_list_MINDSET_SSP.xlsx
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\check_empl_coef_data.py", line 44, in <module>
+    var_list = pd.read_excel("GLORIA_db/v57/2019/SSP/Variable_list_MINDSET_SSP.xlsx")
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\excel\_base.py", line 481, in read_excel
+    io = ExcelFile(
+        io,
+    ...<2 lines>...
+        engine_kwargs=engine_kwargs,
+    )
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\excel\_base.py", line 1604, in __init__
+    ext = inspect_excel_format(
+        content_or_path=path_or_buffer, storage_options=storage_options
+    )
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\excel\_base.py", line 1452, in inspect_excel_format
+    with get_handle(
+         ~~~~~~~~~~^
+        content_or_path, "rb", storage_options=storage_options, is_text=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ) as handle:
+    ^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\common.py", line 935, in get_handle
+    handle = open(handle, ioargs.mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'GLORIA_db/v57/2019/SSP/Variable_list_MINDSET_SSP.xlsx'

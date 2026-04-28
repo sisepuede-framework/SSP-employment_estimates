@@ -1,0 +1,50 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+TRACE: EGY EMPLOYMENT MULTIPLIER CALCULATION
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.3 s ---
+EGY Results:
+  Output change: $471 kUSD
+  Jobs created: 20.93
+  Jobs per $M output: 44.38
+
+================================================================================
+DETAILED BREAKDOWN FOR INVESTED PRODUCTS
+================================================================================
+
+Prod   dq           empl_coef    intensity    multiplier   jobs         jobs/$M     
+--------------------------------------------------------------------------------
+65               0       0.285    0.033625    0.009583        0.00         9.6
+66               0       0.285    0.003241    0.000924        0.00         0.9
+67               0       0.285    0.051447    0.014662        0.00        14.7
+68               0       0.285    0.071670    0.020426        0.00        20.4
+69               0       0.057    0.035195    0.002006        0.00         2.0
+70               0       0.285    0.023334    0.006650        0.00         6.7
+86               7       0.550    0.126305    0.069468        0.48        69.5
+89               0       0.550    0.660116    0.363064        0.01       363.1
+90               0       0.554    0.094293    0.052238        0.00        52.2
+91              14       0.506    0.031573    0.015976        0.22        16.0
+
+================================================================================
+ANALYSIS
+================================================================================
+
+Formula: empl_multiplier = empl_coef × (empl_base / q_base)
+Formula: jobs = empl_multiplier × dq
+
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\trace_egy_multiplier.py", line 129, in <module>
+    print("Check if: empl_multiplier \u2248 empl_coef × intensity")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2248' in position 26: character maps to <undefined>

@@ -1,0 +1,81 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+DIAGNOSING EMPLOYMENT DISCREPANCY: EGY vs MEX
+================================================================================
+
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.7 s ---
+STEP 1: Check LABOR_BASE data
+--------------------------------------------------------------------------------
+EGY total employment: 29,715,964 workers
+MEX total employment: 55,827,457 workers
+
+STEP 2: Check baseline output (q_base)
+--------------------------------------------------------------------------------
+EGY baseline output: $442,604,686 kUSD
+MEX baseline output: $2,256,923,256 kUSD
+
+STEP 3: Employment intensity (workers per kUSD output)
+--------------------------------------------------------------------------------
+EGY: 0.0671 workers/kUSD = 67.1 workers/$M
+MEX: 0.0247 workers/kUSD = 24.7 workers/$M
+
+STEP 4: Check employment coefficients by product
+--------------------------------------------------------------------------------
+Sample products (10, 50, 90) employment coefficients:
+
+Product 10:
+  EGY: 0.000000
+  MEX: 0.000000
+
+Product 50:
+  EGY: 0.000000
+  MEX: 0.000000
+
+Product 90:
+  EGY: 0.000000
+  MEX: 0.000000
+
+STEP 5: Check what products are being invested in
+--------------------------------------------------------------------------------
+EGY investments:
+PROD_COMM    dk
+       91  42.5
+       90  42.5
+       89  42.5
+       86  42.5
+       70  26.0
+       65  26.0
+       66  26.0
+       67  26.0
+       68  26.0
+       69  26.0
+
+MEX investments:
+PROD_COMM    dk
+       91  42.5
+       90  42.5
+       89  42.5
+       86  42.5
+       70  26.0
+       65  26.0
+       66  26.0
+       67  26.0
+       68  26.0
+       69  26.0
+
+================================================================================
+ANALYSIS
+================================================================================
+
+Check if:
+1. LABOR_BASE data is correct for both countries
+2. Baseline output (q_base) is reasonable
+3. Employment intensity differences are realistic
+4. Product mix affects results (labor-intensive vs capital-intensive)

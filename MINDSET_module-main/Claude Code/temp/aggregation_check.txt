@@ -1,0 +1,38 @@
+================================================================================
+CHECKING LABOR DATA AGGREGATION QUALITY
+================================================================================
+
+Loading aggregated labor_data.pkl (SSP - 8 countries)...
+  Shape: (960, 10)
+  Countries: ['BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'ROW', 'UGA']
+
+Loading original labor_data.pkl (164 GLORIA countries)...
+  Shape: (19680, 10)
+  Number of countries: 164
+
+================================================================================
+VALIDATION: Check if employment was summed correctly
+================================================================================
+
+Grouping file loaded: 164 countries
+
+Product 90 employment totals:
+--------------------------------------------------------------------------------
+Aggregated (8 countries):
+  ROW: 39,354,035 workers
+  EGY: 133,518 workers
+  MEX: 871,271 workers
+
+Original (164 countries) - same countries:
+  Egypt: NOT FOUND
+  Mexico: NOT FOUND
+
+Countries aggregated into ROW: 157
+  Sample: ['XAM', 'XEU', 'XAF', 'XAS', 'AFG', 'AGO', 'ALB', 'ARE', 'ARG', 'ARM']
+
+Sum of all countries that became ROW (Product 90): nan workers
+ROW in aggregated file (Product 90): 39,354,035 workers
+
+[ERROR] ROW aggregation mismatch: nan difference
+
+================================================================================

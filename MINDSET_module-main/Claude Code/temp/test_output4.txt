@@ -1,0 +1,47 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+TEST: Identity INV_CONV with PROPER Employment Baseline
+================================================================================
+
+STEP 1: Loading MRIO Data
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+[OK] MRIO data loaded
+  Countries: ROW, BGR, BLZ, EGY, LBY, MAR, MEX, UGA
+[OK] LABOR_BASE loaded: (960, 10)
+
+STEP 2: Loading Investment Scenario
+--------------------------------------------------------------------------------
+[OK] Investment loaded: $1,000 kUSD
+
+STEP 3: Converting Investment to Final Demand
+--------------------------------------------------------------------------------
+[OK] Demand created: $979 kUSD
+  Preservation: 97.9%
+
+STEP 4: Calculating Output Changes
+--------------------------------------------------------------------------------
+[OK] Output change: $2,240 kUSD
+  Multiplier: 2.288x
+
+STEP 5: Calculating Employment Baseline (from LABOR_BASE)
+--------------------------------------------------------------------------------
+[OK] Employment baseline calculated from LABOR_BASE
+  Shape: (960, 3)
+  Columns: ['REG_imp', 'PROD_COMM', 'vol_total']
+  Total baseline employment: 3,466,729,601 workers
+
+STEP 6: Calculating Employment Impacts
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\TEST_WITH_PROPER_EMPLOYMENT.py", line 162, in <module>
+    Empl_model.calc_empl_multiplier(empl_base, IO_model.q_base)
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'IO' object has no attribute 'q_base'

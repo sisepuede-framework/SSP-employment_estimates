@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(pip show:*)",
+      "Bash(powershell:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(where python:*)",
+      "Bash(py:*)",
+      "Bash(python 2:*)",
+      "Bash(dir:*)",
+      "Bash(cmd:*)",
+      "Bash(python3:*)",
+      "Bash(unzip:*)",
+      "Bash(pip install:*)",
+      "Bash(find:*)"
+    ]
+  }
+}

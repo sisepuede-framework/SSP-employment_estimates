@@ -1,0 +1,599 @@
+---
+title: "Building Product-Level Distribution Dataset"
+subtitle: "Mapping 120 GLORIA Products to Sectoral Distributions via Eora26 Crosswalk"
+author: "Felipe Esteves"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = TRUE,
+  warning = TRUE,
+  fig.width = 10,
+  fig.height = 6
+)
+```
+
+# Overview
+
+This script transforms **sectoral distribution data** (26 Eora26 sectors) into
+**product-level distributions** (120 GLORIA products) using a concordance matrix.
+
+**Key Logic:**
+- Each sector's value is divided equally among all products mapped to that sector
+- Products can map to 1 or 2 sectors (main sector + "Other Services")
+- If a product maps to 2 sectors, it receives the average of both allocations
+- Final output: Value_Product sums to 1.0 per (Country, Strategy_ID)
+
+---
+
+# 1. Setup and Configuration
+
+```{r libraries}
+library(tidyverse)
+library(readxl)
+library(here)
+
+# Suppress summarize warnings
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r config}
+# File paths
+DATA_PATH <- "C:/Users/festeves/OneDrive - RAND Corporation/Courses/Dissertation/3rd Paper/Data"
+COST_STRUCTURE_PATH <- file.path(DATA_PATH, "Cost Structure")
+CROSSWALK_FILE <- file.path(DATA_PATH, "GLORIA-Eora26 - Crosswalk.xlsx")
+
+# Countries to process
+COUNTRIES <- c("BGR", "BLZ", "EGY", "LBY", "MAR", "MEX", "UGA")
+
+# Output file
+OUTPUT_FILE <- file.path(DATA_PATH, "sector_to_product_distribution_allcountries.csv")
+
+cat("Configuration:\n")
+cat("  Cost structure path:", COST_STRUCTURE_PATH, "\n")
+cat("  Crosswalk file:", CROSSWALK_FILE, "\n")
+cat("  Countries:", paste(COUNTRIES, collapse = ", "), "\n")
+cat("  Output file:", OUTPUT_FILE, "\n\n")
+```
+
+---
+
+# 2. Load and Validate Crosswalk Matrix
+
+```{r load_crosswalk}
+cat("="*80, "\n", sep = "")
+cat("STEP 1: Loading Crosswalk Matrix\n")
+cat("="*80, "\n", sep = "")
+
+# Load crosswalk (120 products × 26 sectors in wide format)
+crosswalk_wide <- read_excel(CROSSWALK_FILE, sheet = "Eora26 - GLORIA")
+
+cat("\nCrosswalk dimensions:", nrow(crosswalk_wide), "rows ×", ncol(crosswalk_wide), "columns\n")
+cat("Column names:", paste(head(names(crosswalk_wide), 10), collapse = ", "), "...\n")
+cat("First few product names:\n")
+print(head(crosswalk_wide$Products, 10))
+```
+
+```{r validate_crosswalk}
+cat("\n--- Crosswalk Validation ---\n")
+
+# Identify sector columns (all except 'Products' and 'Codes')
+product_col <- "Products"
+sector_cols <- setdiff(names(crosswalk_wide), c(product_col, "Codes", "Lfd_Nr"))
+
+cat("Identified", length(sector_cols), "sector columns\n")
+cat("Sectors:", paste(head(sector_cols, 5), collapse = ", "), "...\n")
+
+# Check for 0s and 1s only
+sector_values <- crosswalk_wide %>% select(all_of(sector_cols))
+unique_vals <- unique(unlist(sector_values))
+cat("Unique values in sector columns:", paste(sort(unique_vals), collapse = ", "), "\n")
+
+if (!all(unique_vals %in% c(0, 1, NA))) {
+  stop("ERROR: Crosswalk should only contain 0, 1, or NA in sector columns!")
+}
+
+# Check number of sectors per product
+crosswalk_wide <- crosswalk_wide %>%
+  rowwise() %>%
+  mutate(n_sectors_linked = sum(c_across(all_of(sector_cols)), na.rm = TRUE)) %>%
+  ungroup()
+
+cat("\nProducts linked to sectors:\n")
+print(table(crosswalk_wide$n_sectors_linked))
+
+# Show products with multiple sector links
+multi_sector <- crosswalk_wide %>%
+  filter(n_sectors_linked > 1) %>%
+  select(Products, n_sectors_linked)
+
+if (nrow(multi_sector) > 0) {
+  cat("\nProducts linked to multiple sectors (", nrow(multi_sector), " total):\n", sep = "")
+  print(head(multi_sector, 10))
+}
+
+cat("\nValidation: OK\n")
+```
+
+---
+
+# 3. Transform Crosswalk to Long Format
+
+```{r crosswalk_long}
+cat("\n", "="*80, "\n", sep = "")
+cat("STEP 2: Transforming Crosswalk to Long Format\n")
+cat("="*80, "\n", sep = "")
+
+# Pivot longer: one row per (Product, Sector) pair where link = 1
+crosswalk_long <- crosswalk_wide %>%
+  select(Products, all_of(sector_cols)) %>%
+  pivot_longer(
+    cols = all_of(sector_cols),
+    names_to = "Sector",
+    values_to = "linked"
+  ) %>%
+  filter(linked == 1) %>%
+  select(Products, Sector)
+
+cat("Long format dimensions:", nrow(crosswalk_long), "rows (Product-Sector pairs)\n")
+cat("Unique products:", n_distinct(crosswalk_long$Products), "\n")
+cat("Unique sectors:", n_distinct(crosswalk_long$Sector), "\n")
+
+# Show sample
+cat("\nSample Product-Sector links:\n")
+print(head(crosswalk_long, 10))
+```
+
+---
+
+# 4. Count Products per Sector
+
+```{r products_per_sector}
+cat("\n--- Products per Sector ---\n")
+
+products_per_sector <- crosswalk_long %>%
+  group_by(Sector) %>%
+  summarize(
+    n_products = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(n_products))
+
+cat("Total sectors with products:", nrow(products_per_sector), "\n\n")
+print(products_per_sector)
+
+# Add to crosswalk for easy merging
+crosswalk_long <- crosswalk_long %>%
+  left_join(products_per_sector, by = "Sector")
+```
+
+---
+
+# 5. Load Sectoral Distribution Files
+
+```{r load_distributions}
+cat("\n", "="*80, "\n", sep = "")
+cat("STEP 3: Loading Sectoral Distribution Files\n")
+cat("="*80, "\n", sep = "")
+
+# Function to load one country's distribution file
+load_country_distribution <- function(country) {
+  # File pattern: cost_str_COUNTRY.xlsx
+  file_path <- file.path(COST_STRUCTURE_PATH, paste0("cost_str_", country, ".xlsx"))
+
+  if (!file.exists(file_path)) {
+    warning("File not found for country: ", country, " (", file_path, ")")
+    return(NULL)
+  }
+
+  cat("  Loading:", basename(file_path), "\n")
+
+  df <- read_excel(file_path) %>%
+    mutate(Country = country) %>%
+    select(Country, everything())
+
+  return(df)
+}
+
+# Load all countries
+distribution_list <- lapply(COUNTRIES, load_country_distribution)
+names(distribution_list) <- COUNTRIES
+
+# Remove NULLs (countries not found)
+distribution_list <- distribution_list[!sapply(distribution_list, is.null)]
+
+cat("\nSuccessfully loaded", length(distribution_list), "countries\n")
+
+# Combine all distributions
+distributions_all <- bind_rows(distribution_list)
+
+cat("Combined dimensions:", nrow(distributions_all), "rows\n")
+cat("Columns:", paste(names(distributions_all), collapse = ", "), "\n")
+```
+
+```{r validate_distributions}
+cat("\n--- Distribution File Validation ---\n")
+
+# Check structure
+cat("Expected columns: Country, Sector, strategy_id, value\n")
+cat("Actual columns:", paste(names(distributions_all), collapse = ", "), "\n")
+
+# Column names should be: Country, Sector, strategy_id, value
+# Check they exist
+required_cols <- c("Sector", "strategy_id", "value")
+missing_cols <- setdiff(required_cols, names(distributions_all))
+
+if (length(missing_cols) > 0) {
+  stop("ERROR: Missing required columns: ", paste(missing_cols, collapse = ", "))
+}
+
+# Convert to lowercase for consistency in code
+distributions_all <- distributions_all %>%
+  rename(
+    country = Country,
+    sector = Sector
+  )
+
+cat("\nUnique strategies:", n_distinct(distributions_all$strategy_id), "\n")
+cat("Unique sectors:", n_distinct(distributions_all$sector), "\n")
+cat("Unique countries:", n_distinct(distributions_all$country), "\n")
+
+# Check that values sum to 1 per (country, strategy_id)
+sum_check <- distributions_all %>%
+  group_by(country, strategy_id) %>%
+  summarize(total_value = sum(value), .groups = "drop")
+
+cat("\nValue sums per (Country, Strategy_ID):\n")
+print(summary(sum_check$total_value))
+
+if (any(abs(sum_check$total_value - 1.0) > 1e-6)) {
+  warning("Some (Country, Strategy_ID) combinations do not sum to 1.0!")
+  bad_sums <- sum_check %>% filter(abs(total_value - 1.0) > 1e-6)
+  print(head(bad_sums, 10))
+}
+
+cat("\nValidation: OK\n")
+```
+
+---
+
+# 6. Check Sector Name Consistency
+
+```{r check_sector_names}
+cat("\n", "="*80, "\n", sep = "")
+cat("STEP 4: Checking Sector Name Consistency\n")
+cat("="*80, "\n", sep = "")
+
+# Sectors in crosswalk
+sectors_crosswalk <- unique(crosswalk_long$Sector)
+cat("Sectors in crosswalk (", length(sectors_crosswalk), "):\n", sep = "")
+print(sort(sectors_crosswalk))
+
+# Sectors in distribution files
+sectors_distribution <- unique(distributions_all$sector)
+cat("\nSectors in distribution files (", length(sectors_distribution), "):\n", sep = "")
+print(sort(sectors_distribution))
+
+# Check for mismatches
+in_crosswalk_not_distribution <- setdiff(sectors_crosswalk, sectors_distribution)
+in_distribution_not_crosswalk <- setdiff(sectors_distribution, sectors_crosswalk)
+
+if (length(in_crosswalk_not_distribution) > 0) {
+  warning("Sectors in crosswalk but NOT in distribution files:")
+  print(in_crosswalk_not_distribution)
+}
+
+if (length(in_distribution_not_crosswalk) > 0) {
+  warning("Sectors in distribution files but NOT in crosswalk:")
+  print(in_distribution_not_crosswalk)
+}
+
+# Standardize sector names (trim whitespace, consistent casing)
+distributions_all <- distributions_all %>%
+  mutate(sector = str_trim(sector))
+
+crosswalk_long <- crosswalk_long %>%
+  mutate(Sector = str_trim(Sector))
+
+cat("\nSector name check: COMPLETE\n")
+```
+
+---
+
+# 7. Merge and Allocate Product Values
+
+```{r merge_allocate}
+cat("\n", "="*80, "\n", sep = "")
+cat("STEP 5: Merging and Allocating Product Values\n")
+cat("="*80, "\n", sep = "")
+
+# Join distributions with crosswalk
+# Each sector's value will be distributed to all its products
+product_distribution <- distributions_all %>%
+  # Join with crosswalk on Sector
+  left_join(
+    crosswalk_long,
+    by = c("sector" = "Sector"),
+    relationship = "many-to-many"
+  ) %>%
+  # Keep only matched records (products that have sector links)
+  filter(!is.na(Products)) %>%
+  # Calculate product-level value
+  # Value_Product = Value_Sector / n_products_in_sector
+  mutate(
+    value_sector = value,
+    value_product = value_sector / n_products
+  ) %>%
+  # Rename for clarity
+  rename(
+    Country = country,
+    Strategy_ID = strategy_id,
+    Product = Products,
+    Sector = sector,
+    Value_Sector = value_sector,
+    Value_Product = value_product
+  ) %>%
+  select(Country, Strategy_ID, Product, Sector, Value_Sector, Value_Product, n_products)
+
+cat("Product distribution dimensions:", nrow(product_distribution), "rows\n")
+cat("Unique products:", n_distinct(product_distribution$Product), "\n")
+cat("Unique (Country, Strategy_ID) combinations:",
+    nrow(distinct(product_distribution, Country, Strategy_ID)), "\n")
+
+cat("\nSample output:\n")
+print(head(product_distribution, 15))
+```
+
+---
+
+# 8. Handle Multi-Sector Products
+
+```{r handle_multi_sector}
+cat("\n--- Handling Products Linked to Multiple Sectors ---\n")
+
+# Check which products appear multiple times per (Country, Strategy_ID)
+multi_sector_products <- product_distribution %>%
+  group_by(Country, Strategy_ID, Product) %>%
+  summarize(
+    n_sectors = n(),
+    sectors = paste(Sector, collapse = " + "),
+    .groups = "drop"
+  ) %>%
+  filter(n_sectors > 1)
+
+if (nrow(multi_sector_products) > 0) {
+  cat("Found", nrow(multi_sector_products), "cases of products linked to multiple sectors\n")
+  cat("Sample:\n")
+  print(head(multi_sector_products, 10))
+
+  # For products in multiple sectors, SUM their allocated values
+  cat("\nSumming values for multi-sector products...\n")
+
+  product_distribution_final <- product_distribution %>%
+    group_by(Country, Strategy_ID, Product) %>%
+    summarize(
+      Sectors = paste(unique(Sector), collapse = " + "),
+      Value_Product = sum(Value_Product),  # SUM across sectors (not average)
+      .groups = "drop"
+    )
+
+} else {
+  cat("No multi-sector products found - all products map to single sector\n")
+
+  product_distribution_final <- product_distribution %>%
+    select(Country, Strategy_ID, Product, Sector, Value_Product) %>%
+    rename(Sectors = Sector)
+}
+
+cat("\nFinal dimensions:", nrow(product_distribution_final), "rows\n")
+```
+
+---
+
+# 9. Validation: Check Sums
+
+```{r validate_sums}
+cat("\n", "="*80, "\n", sep = "")
+cat("STEP 6: Validating Output\n")
+cat("="*80, "\n", sep = "")
+
+cat("--- Validation: Value_Product sums per (Country, Strategy_ID) ---\n")
+
+sum_validation <- product_distribution_final %>%
+  group_by(Country, Strategy_ID) %>%
+  summarize(
+    Total_Value_Product = sum(Value_Product),
+    N_Products = n(),
+    .groups = "drop"
+  )
+
+cat("\nSummary of Total_Value_Product:\n")
+print(summary(sum_validation$Total_Value_Product))
+
+# Check for deviations from 1.0
+tolerance <- 1e-6
+bad_sums <- sum_validation %>%
+  filter(abs(Total_Value_Product - 1.0) > tolerance)
+
+if (nrow(bad_sums) > 0) {
+  warning("Found ", nrow(bad_sums), " (Country, Strategy_ID) combinations with sum != 1.0")
+  cat("\nDeviant sums:\n")
+  print(head(bad_sums %>% arrange(desc(abs(Total_Value_Product - 1.0))), 20))
+} else {
+  cat("\n✓ All (Country, Strategy_ID) combinations sum to 1.0 (within tolerance)\n")
+}
+
+# Distribution of products per strategy
+cat("\nProducts per strategy:\n")
+print(summary(sum_validation$N_Products))
+```
+
+---
+
+# 10. Save Output
+
+```{r save_output}
+cat("\n", "="*80, "\n", sep = "")
+cat("STEP 7: Saving Output\n")
+cat("="*80, "\n", sep = "")
+
+# Save final dataset
+write_csv(product_distribution_final, OUTPUT_FILE)
+
+cat("Saved to:", OUTPUT_FILE, "\n")
+cat("Rows:", nrow(product_distribution_final), "\n")
+cat("Columns:", paste(names(product_distribution_final), collapse = ", "), "\n")
+```
+
+---
+
+# 11. Summary Statistics and Visualizations
+
+```{r summary_stats}
+cat("\n", "="*80, "\n", sep = "")
+cat("SUMMARY STATISTICS\n")
+cat("="*80, "\n", sep = "")
+
+# Overall stats
+cat("\nDataset overview:\n")
+cat("  Total rows:", nrow(product_distribution_final), "\n")
+cat("  Countries:", n_distinct(product_distribution_final$Country), "\n")
+cat("  Strategies:", n_distinct(product_distribution_final$Strategy_ID), "\n")
+cat("  Products:", n_distinct(product_distribution_final$Product), "\n")
+
+# By country
+cat("\nRows per country:\n")
+country_counts <- product_distribution_final %>%
+  count(Country, name = "n_rows")
+print(country_counts)
+
+# Value distribution
+cat("\nValue_Product distribution:\n")
+print(summary(product_distribution_final$Value_Product))
+```
+
+```{r visualizations, fig.width=12, fig.height=8}
+# Plot 1: Distribution of Value_Product
+p1 <- ggplot(product_distribution_final, aes(x = Value_Product)) +
+  geom_histogram(bins = 50, fill = "steelblue", alpha = 0.7) +
+  scale_x_log10() +
+  labs(
+    title = "Distribution of Value_Product (log scale)",
+    x = "Value_Product",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+print(p1)
+
+# Plot 2: Top 20 products by average value
+top_products <- product_distribution_final %>%
+  group_by(Product) %>%
+  summarize(Mean_Value = mean(Value_Product), .groups = "drop") %>%
+  arrange(desc(Mean_Value)) %>%
+  head(20)
+
+p2 <- ggplot(top_products, aes(x = reorder(Product, Mean_Value), y = Mean_Value)) +
+  geom_bar(stat = "identity", fill = "darkgreen", alpha = 0.7) +
+  coord_flip() +
+  labs(
+    title = "Top 20 Products by Average Value_Product",
+    x = "Product",
+    y = "Mean Value_Product"
+  ) +
+  theme_minimal()
+
+print(p2)
+
+# Plot 3: Compare across countries for one strategy
+sample_strategy <- product_distribution_final$Strategy_ID[1]
+
+p3 <- product_distribution_final %>%
+  filter(Strategy_ID == sample_strategy) %>%
+  ggplot(aes(x = Country, y = Value_Product)) +
+  geom_boxplot(fill = "coral", alpha = 0.7) +
+  labs(
+    title = paste("Value_Product Distribution Across Countries (Strategy", sample_strategy, ")"),
+    x = "Country",
+    y = "Value_Product"
+  ) +
+  theme_minimal()
+
+print(p3)
+```
+
+---
+
+# 12. Final Verification Report
+
+```{r final_report}
+cat("\n", "="*80, "\n", sep = "")
+cat("FINAL VERIFICATION REPORT\n")
+cat("="*80, "\n", sep = "")
+
+# 1. Check product coverage
+all_gloria_products <- unique(crosswalk_wide$Products)
+products_in_output <- unique(product_distribution_final$Product)
+
+missing_products <- setdiff(all_gloria_products, products_in_output)
+
+cat("Product Coverage:\n")
+cat("  Total GLORIA products:", length(all_gloria_products), "\n")
+cat("  Products in output:", length(products_in_output), "\n")
+cat("  Missing products:", length(missing_products), "\n")
+
+if (length(missing_products) > 0) {
+  warning("Some products are missing from output:")
+  print(head(missing_products, 10))
+}
+
+# 2. Check strategy coverage
+expected_strategies <- 67  # As per instructions
+actual_strategies <- n_distinct(product_distribution_final$Strategy_ID)
+
+cat("\nStrategy Coverage:\n")
+cat("  Expected strategies:", expected_strategies, "\n")
+cat("  Actual strategies:", actual_strategies, "\n")
+
+# 3. Final sum check
+final_sum_check <- product_distribution_final %>%
+  group_by(Country, Strategy_ID) %>%
+  summarize(Sum = sum(Value_Product), .groups = "drop") %>%
+  mutate(Deviation = abs(Sum - 1.0))
+
+cat("\nFinal Sum Check:\n")
+cat("  Mean sum:", mean(final_sum_check$Sum), "\n")
+cat("  Max deviation from 1.0:", max(final_sum_check$Deviation), "\n")
+cat("  % within tolerance (1e-6):",
+    round(100 * mean(final_sum_check$Deviation < 1e-6), 2), "%\n")
+
+# 4. Example output
+cat("\nExample Output (first 20 rows for one country-strategy):\n")
+example <- product_distribution_final %>%
+  filter(Country == COUNTRIES[1], Strategy_ID == sample_strategy) %>%
+  arrange(desc(Value_Product)) %>%
+  head(20)
+
+print(example)
+
+cat("\n", "="*80, "\n", sep = "")
+cat("PROCESSING COMPLETE!\n")
+cat("="*80, "\n", sep = "")
+cat("\nOutput file:", OUTPUT_FILE, "\n")
+```
+
+---
+
+# Session Info
+
+```{r session_info}
+sessionInfo()
+```

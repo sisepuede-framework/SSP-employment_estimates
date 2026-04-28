@@ -1,0 +1,40 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+================================================================================
+EMPLOYMENT COEFFICIENTS FOR INVESTED PRODUCTS
+================================================================================
+
+Product coefficients for EGY vs MEX:
+--------------------------------------------------------------------------------
+Product           EGY        MEX    Ratio (EGY/MEX)
+--------------------------------------------------------------------------------
+65           0.285000   0.222000               1.28x
+66           0.285000   0.222000               1.28x
+67           0.285000   0.222000               1.28x
+68           0.285000   0.222000               1.28x
+69           0.057000   0.414000               0.14x
+70           0.285000   0.222000               1.28x
+86           0.550000   0.422000               1.30x
+89           0.550000   0.422000               1.30x
+90           0.554000   0.430000               1.29x
+91           0.506000   0.450000               1.12x
+--------------------------------------------------------------------------------
+Average      0.364200   0.324800               1.12x
+
+================================================================================
+COMBINED ANALYSIS
+================================================================================
+
+1. Employment coefficient ratio (for these products): 1.12x
+2. Baseline intensity ratio (from LABOR_BASE/q_base): 2.72x
+3. Expected combined ratio: 3.05x
+4. Observed ratio in test results: 8.6x
+
+[WARNING] There may be other factors at play

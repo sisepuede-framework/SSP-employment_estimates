@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\check_ram.py", line 1, in <module>
+    import psutil
+ModuleNotFoundError: No module named 'psutil'

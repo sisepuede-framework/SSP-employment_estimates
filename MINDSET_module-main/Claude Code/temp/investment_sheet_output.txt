@@ -1,0 +1,57 @@
+================================================================================
+READING: Strategy_1004_MEX.xlsx
+================================================================================
+
+Available sheets: ['Investment by']
+
+================================================================================
+SHEET: 'Investment by'
+================================================================================
+
+Shape: (120, 6)
+
+Columns (6):
+  1. Country
+  2. Country ISO*
+  3. Sector investing
+  4. Sector investing code*
+  5. Value*
+  6. Type*
+
+First 20 rows:
+   Country Country ISO*                    Sector investing  Sector investing code*   Value*     Type*
+0   Mexico          MEX             Administrative services                   115.0      0.0  absolute
+1   Mexico          MEX                       Air transport                   105.0      0.0  absolute
+2   Mexico          MEX      Alcoholic and other  beverages                    55.0      0.0  absolute
+3   Mexico          MEX                       Aluminium ore                    30.0      0.0  absolute
+4   Mexico          MEX                Animal oils and fats                    52.0      0.0  absolute
+5   Mexico          MEX  Arts, entertainment and recreation                   119.0      0.0  absolute
+6   Mexico          MEX                        Basic Copper                    79.0      0.0  absolute
+7   Mexico          MEX                          Basic Gold                    80.0      0.0  absolute
+8   Mexico          MEX                     Basic aluminium                    78.0      0.0  absolute
+9   Mexico          MEX           Basic inorganic chemicals                    67.0  26000.0  absolute
+10  Mexico          MEX                Basic iron and steel                    77.0      0.0  absolute
+11  Mexico          MEX              Basic lead/zinc/silver                    81.0      0.0  absolute
+12  Mexico          MEX                        Basic nickel                    82.0      0.0  absolute
+13  Mexico          MEX     Basic non-ferrous metals n.e.c.                    84.0      0.0  absolute
+14  Mexico          MEX             Basic organic chemicals                    68.0  26000.0  absolute
+15  Mexico          MEX        Basic petrochemical products                    66.0  26000.0  absolute
+16  Mexico          MEX                           Basic tin                    83.0      0.0  absolute
+17  Mexico          MEX                           Beef meat                    41.0      0.0  absolute
+18  Mexico          MEX               Building construction                    98.0      0.0  absolute
+19  Mexico          MEX   Cement, lime and plaster products                    75.0  26000.0  absolute
+
+
+Looking for data columns...
+
+'Country': 120 non-null values
+
+'Country ISO*': 120 non-null values
+
+'Sector investing': 120 non-null values
+
+'Sector investing code*': 117 non-null values
+
+'Value*': 120 non-null values
+
+'Type*': 120 non-null values

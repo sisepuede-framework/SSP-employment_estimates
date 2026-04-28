@@ -1,0 +1,4 @@
+Checking for NaN in product names:
+  Row 2: NaN found
+
+Valid products: 119/120

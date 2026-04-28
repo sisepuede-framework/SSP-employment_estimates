@@ -1,0 +1,198 @@
+---
+title: "World Bank - Job Creation and Decarbonization Synergies"
+author: "Fernando Esteves"
+date: "8/17/2025"
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE,warning=FALSE}
+library(rstudioapi) # uploading packages   
+library(reshape)
+library(dplyr)
+library(data.table)
+library(tidyverse)
+library(ggplot2)
+library(openxlsx)
+library(readxl)
+library(writexl)
+library(tabr)
+library(stringr)
+library(summarytools)
+library(gridExtra)
+
+wd <- dirname(dirname(rstudioapi::getActiveDocumentContext()$path))
+knitr::opts_knit$set(root.dir= wd,include=FALSE,echo = TRUE) ## working directory for all chunks
+
+st_options(descr.silent = TRUE)
+
+```
+
+# *SISEPUEDE - Transformation*
+
+The script estimates the employment impacts of shifting USD 1M in investment in the transformation proposed by _SISEPUEDE_. The employment multiplier is based on *Garret-Peltier (2017)* and is applied to an I-O table (*Eora26*) for Libya, Egypt, Morocco, Bulgaria, Mexico, Uganda and Belize.
+
+### *1. Data extraction - Eora26*
+
+The first section consists of data extraction, adding labels to the data sets, and calculating the relevant tables for the Input-Output analysis. *Eora26* dataset is sourced from 2017 and are presented in basic prices (https://worldmrio.com/eora26/).
+
+The Multi-regional Input-Output database is provided in current-year '000 USD:
+
++ *fd3*: industry-by-industry Transaction Matrix (inputs).
++ *va_adj*: Value Added - Compensation of employees, Taxes on production, Subsidies on production, Net operation surplus, Net mixed income, and Consumption of fixed capital.
++ *L*: Total Requirement table (Leontief inverse matrix).
+
+Average monthly earnings of employees by sector are extracted from the International Labor Organization data (Source: Wages and Working Time Statistics Database, ILOSTAT). Due to the lack of ILO data for **Libya** and **Morocco**, we opted to use alternative proxy countries based on similarities in economic structure, labor market characteristics, and social factors - Egypt for Libya and the average between Egypt and Jordan for Morocco.
+
+```{r Eora26,include=T,warning=FALSE}
+
+# Step 1: Load the EORA data ----
+
+# T index describes rows or columns in the MRIO table, with Final demand and Primary input rows/columns removed
+
+T_data_2017 <- as.matrix(read_table2("Data/IO Tables/Eora - 2017/Eora26_2017_bp_T.txt", col_names = FALSE))
+T_labels <- read.delim2("Data/IO Tables/Eora - 2017/labels_T.txt",header = F)
+T_labels$V5 <- NULL
+
+# Final demand
+
+FD_data_2017 <- as.matrix(read_table2("Data/IO Tables/Eora - 2017/Eora26_2017_bp_FD.txt", col_names = FALSE))
+FD_labels <- read.delim2("Data/IO Tables/Eora - 2017/labels_FD.txt",header = F)
+FD_labels$V5 <- NULL
+
+# Value-added
+
+VA_data_2017 <- as.matrix(read_table2("Data/IO Tables/Eora - 2017/Eora26_2017_bp_VA.txt", col_names=FALSE))
+VA_labels <- read.delim2("Data/IO Tables/Eora - 2017/labels_VA.txt",header = F)
+VA_labels$V3 <- NULL
+
+# Step 2: Baseline set up ----
+
+# # Creating I-O tables for the set of countries
+
+countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+# Transaction matrix for all countries (except URY and SLV) ----
+
+Eora26_2017_bp_T <- T_data_2017
+
+for(i in 1:7){
+
+labels_T <- T_labels %>% 
+  select(V1, V4) %>%  
+mutate(country=ifelse(V1!=countries[i], 'ROW', V1)) %>%  
+rename(sector=V4) %>%
+  select(country, sector) ## Labels for the T matrix. Set non-selected countries as ROW (Rest of the World)
+
+flow1<-cbind(labels_T, Eora26_2017_bp_T) %>%
+  group_by(country, sector) %>% summarise(across(everything(), list(sum))) %>%
+  filter(sector!="TOTAL") ## Step 1. Aggregate across columns
+
+row_labels <- paste(flow1$country, flow1$sector, sep="-") ## Save labels
+
+flow1 <- flow1 %>% ungroup %>% select(-country, -sector) ## drop country and sector variables
+
+flow1 <- t(flow1) ## Step 2: transpose and sum across rows (columns)
+
+flow2 <- cbind(labels_T, flow1) %>% filter(sector!="TOTAL") %>%
+  group_by(country, sector) %>% summarise(across(everything(), list(sum)))  %>%
+  ungroup() %>% select(-country, -sector)
+
+flow3 <- t(flow2) ## Finally, transpose matrix back to original orientation and label rows and columns
+
+colnames(flow3) <- row_labels
+rownames(flow3) <- row_labels
+
+# Final Demand ----
+
+Eora26_2017_bp_FD <- FD_data_2017 ## Load final demand data
+
+labels_FD <- FD_labels %>% select(V1, V4) %>%
+  mutate(country=ifelse(V1!=countries[i], "ROW", V1)) %>%
+  rename(type=V4) %>%
+  select(country, type)  ## Load final demand labels and repcountriese countries that aren't BRA with ROW
+
+fd <- cbind(labels_T, Eora26_2017_bp_FD) %>% filter(sector!="TOTAL") %>% group_by(country, sector) %>% 
+  summarise(across(everything(), list(sum))) %>% ungroup() %>%
+  select(-country, -sector) ## Sum across rows to get aggregate final demand
+
+fd2 <- t(fd)
+
+fd2 <- cbind(labels_FD, fd2) %>%
+  group_by(country, type) %>% 
+  summarise(across(everything(), list(sum))) %>% ungroup() 
+
+fd_col_labels <- paste(fd2$country, fd2$type, sep="-") ## Save labels
+
+fd2 <- fd2 %>% select(-country, -type)
+
+fd3<-t(fd2)
+colnames(fd3)<-t(fd_col_labels)
+rownames(fd3)<-row_labels
+
+# Value Added (Payments sector) ----
+
+Eora26_2017_bp_VA <- VA_data_2017
+
+labels_VA <- VA_labels %>% select(V2) %>%
+  rename(factor=V2) %>%
+  select(factor)  ## Load final demand labels and rep countries countries that aren't BRA with ROW
+
+va1<-t(Eora26_2017_bp_VA)
+va1<-cbind(labels_T, va1) %>% filter(sector!="TOTAL") %>%
+  group_by(country, sector) %>% 
+  summarise(across(everything(), list(sum))) %>% ungroup() 
+
+va2<- t(va1 %>% select(-country, -sector))
+rownames(va2)<-labels_VA$factor
+colnames(va2)<-row_labels
+
+eval(parse(text=paste0("labor_va_",countries[i]," <-as.matrix(va2[1,1:52])"))) # labor value added
+
+
+# Step 3: Baseline Results ----
+
+eval(parse(text=paste0("x_",countries[i]," <- rowSums(flow3)+rowSums(fd3)"))) # output = sales revenues + final demand (reference value)
+eval(parse(text=paste0("y_",countries[i]," <- colSums(flow3)+colSums(va2)"))) # output = total intermediate inputs + value added
+
+
+# Correcting Labor Value added ----
+
+eval(parse(text=paste0("y_",countries[i]," <- merge(as.matrix(y_",countries[i],"),labor_va_",countries[i],",by=0,all.x=T)")))
+eval(parse(text=paste0("colnames(y_",countries[i],") <- c('sector','output','labor_va')")))
+
+eval(parse(text=paste0("y_",countries[i]," <- y_",countries[i]," %>% mutate(labor_share_out = labor_va/output) %>% select(sector,labor_share_out)")))
+eval(parse(text=paste0("row.names(y_",countries[i],") <- y_",countries[i],"$sector")))
+eval(parse(text=paste0("y_",countries[i],"$sector <- NULL")))
+
+eval(parse(text=paste0("x_",countries[i]," <- as.matrix(x_",countries[i],")")))
+eval(parse(text=paste0("labor_va_",countries[i],"_adj <- merge(as.matrix(x_",countries[i],"),y_",countries[i],",by=0,all.x=T)"))) 
+eval(parse(text=paste0("colnames(labor_va_",countries[i],"_adj) <- c('Sector','Output','labor_share_out')")))
+eval(parse(text=paste0("labor_va_",countries[i],"_adj <- labor_va_",countries[i],"_adj %>% mutate(labor_va_adj = labor_share_out*Output) %>% select(Sector,labor_va_adj)")))
+
+eval(parse(text=paste0("rm(y_",countries[i],",labor_va_",countries[i],")")))
+
+## Calculate A matrix (Technology Matrix)
+
+eval(parse(text=paste0("x_",countries[i]," <- rowSums(flow3)+rowSums(fd3)"))) # output
+
+I <- (diag( (52) ))
+eval(parse(text=paste0("z_",countries[i]," <-  as.matrix(diag(c(t(( x_",countries[i]," )^-1))))")))
+eval(parse(text=paste0("A <- flow3 %*% z_",countries[i])))
+A <- as.matrix(A)
+
+### Calculate Leontief inverse matrix
+IminusA <-as.matrix(I-A)
+
+## Calculate inverse.
+eval(parse(text=paste0("L_",countries[i]," <- as.matrix(solve( IminusA ) )")))
+
+eval(parse(text=paste0("row.names(L_",countries[i],") <- colnames(L_",countries[i],")")))
+
+}
+
+# rm(list=setdiff(ls(), c('countries',"L_BGR","L_BLZ","L_EGY","L_LBY","L_MAR","L_MEX","L_UGA","labor_va_BGR_adj","labor_va_BLZ_adj","labor_va_EGY_adj","labor_va_LBY_adj","labor_va_MAR_adj","labor_va_MEX_adj","labor_va_UGA_adj","x_BGR","x_BLZ","x_EGY","x_LBY","x_MAR","x_MEX","x_UGA","z_BGR","z_BLZ","z_EGY","z_LBY","z_MAR","z_MEX","z_UGA")))
+
+rm(list=setdiff(ls(), c("wd",'countries',"L_BGR","L_BLZ","L_EGY","L_LBY","L_MAR","L_MEX","L_UGA","labor_va_BGR_adj","labor_va_BLZ_adj","labor_va_EGY_adj","labor_va_LBY_adj","labor_va_MAR_adj","labor_va_MEX_adj","labor_va_UGA_adj","x_BGR","x_BLZ","x_EGY","x_LBY","x_MAR","x_MEX","x_UGA","z_BGR","z_BLZ","z_EGY","z_LBY","z_MAR","z_MEX","z_UGA")))
+
+
+```

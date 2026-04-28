@@ -1,0 +1,48 @@
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+================================================================================
+DIAGNOSING EMPLOYMENT DATA BY COUNTRY
+================================================================================
+
+Employment and Output by Country:
+--------------------------------------------------------------------------------
+Country         Employment   Output (kUSD)   Emp/Output
+--------------------------------------------------------------------------------
+ROW          3,347,358,900 179,569,673,473         0.02
+BGR              3,391,873     143,615,853         0.02
+BLZ                175,804       3,961,963         0.04
+EGY             29,715,964     442,756,479         0.07
+LBY              2,188,927     181,625,938         0.01
+MAR             11,992,626     220,486,496         0.05
+MEX             55,827,457   2,258,950,213         0.02
+UGA             16,078,050      56,300,384         0.29
+
+================================================================================
+EMPLOYMENT COEFFICIENTS BY COUNTRY
+================================================================================
+
+Sample EMPL_COEF for each country (first 5 sectors):
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\diagnose_employment_data.py", line 56, in <module>
+    country_coef = MRIO.EMPL_COEF[MRIO.EMPL_COEF.iloc[:, 0].str.contains(country, na=False)]
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\generic.py", line 6206, in __getattr__
+    return object.__getattribute__(self, name)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\accessor.py", line 230, in __get__
+    return self._accessor(obj)
+           ~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\strings\accessor.py", line 194, in __init__
+    self._inferred_dtype = self._validate(data)
+                           ~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\strings\accessor.py", line 248, in _validate
+    raise AttributeError(
+        f"Can only use .str accessor with string values, not {inferred_dtype}"
+    )
+AttributeError: Can only use .str accessor with string values, not integer. Did you mean: 'std'?

@@ -1,0 +1,996 @@
+---
+title: "World Bank - Job Creation and Decarbonization Synergies"
+author: "Fernando Esteves"
+date: "8/17/2025"
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE,warning=FALSE}
+library(rstudioapi) # uploading packages   
+library(reshape)
+library(dplyr)
+library(data.table)
+library(tidyverse)
+library(ggplot2)
+library(openxlsx)
+library(readxl)
+library(writexl)
+library(tabr)
+library(stringr)
+library(summarytools)
+library(gridExtra)
+
+wd <- dirname(dirname(rstudioapi::getActiveDocumentContext()$path))
+knitr::opts_knit$set(root.dir= wd,include=FALSE,echo = TRUE) ## working directory for all chunks
+
+st_options(descr.silent = TRUE)
+
+```
+
+# *SISEPUEDE - Transformation*
+
+The script estimates the employment impacts of shifting USD 1M in investment in the transformation proposed by _SISEPUEDE_. The employment multiplier is based on *Garret-Peltier (2017)* and is applied to an I-O table (*Eora26*) for Libya, Egypt, Morocco, Bulgaria, Mexico, Uganda and Belize.
+
+### *1. Data extraction - Eora26*
+
+The first section consists of data extraction, adding labels to the data sets, and calculating the relevant tables for the Input-Output analysis. *Eora26* dataset is sourced from 2017 and are presented in basic prices (https://worldmrio.com/eora26/).
+
+The Multi-regional Input-Output database is provided in current-year '000 USD:
+
++ *fd3*: industry-by-industry Transaction Matrix (inputs).
++ *va_adj*: Value Added - Compensation of employees, Taxes on production, Subsidies on production, Net operation surplus, Net mixed income, and Consumption of fixed capital.
++ *L*: Total Requirement table (Leontief inverse matrix).
+
+Average monthly earnings of employees by sector are extracted from the International Labor Organization data (Source: Wages and Working Time Statistics Database, ILOSTAT). Due to the lack of ILO data for **Libya** and **Morocco**, we opted to use alternative proxy countries based on similarities in economic structure, labor market characteristics, and social factors - Egypt for Libya and the average between Egypt and Jordan for Morocco.
+
+```{r Eora26,include=T,warning=FALSE}
+
+# Step 1: Load the EORA data ----
+
+# T index describes rows or columns in the MRIO table, with Final demand and Primary input rows/columns removed
+
+T_data_2017 <- as.matrix(read_table2("Data/IO Tables/Eora - 2017/Eora26_2017_bp_T.txt", col_names = FALSE))
+T_labels <- read.delim2("Data/IO Tables/Eora - 2017/labels_T.txt",header = F)
+T_labels$V5 <- NULL
+
+# Final demand
+
+FD_data_2017 <- as.matrix(read_table2("Data/IO Tables/Eora - 2017/Eora26_2017_bp_FD.txt", col_names = FALSE))
+FD_labels <- read.delim2("Data/IO Tables/Eora - 2017/labels_FD.txt",header = F)
+FD_labels$V5 <- NULL
+
+# Value-added
+
+VA_data_2017 <- as.matrix(read_table2("Data/IO Tables/Eora - 2017/Eora26_2017_bp_VA.txt", col_names=FALSE))
+VA_labels <- read.delim2("Data/IO Tables/Eora - 2017/labels_VA.txt",header = F)
+VA_labels$V3 <- NULL
+
+# Step 2: Baseline set up ----
+
+# # Creating I-O tables for the set of countries
+
+countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+# Transaction matrix for all countries (except URY and SLV) ----
+
+Eora26_2017_bp_T <- T_data_2017
+
+for(i in 1:7){
+
+labels_T <- T_labels %>% 
+  select(V1, V4) %>%  
+mutate(country=ifelse(V1!=countries[i], 'ROW', V1)) %>%  
+rename(sector=V4) %>%
+  select(country, sector) ## Labels for the T matrix. Set non-selected countries as ROW (Rest of the World)
+
+flow1<-cbind(labels_T, Eora26_2017_bp_T) %>%
+  group_by(country, sector) %>% summarise(across(everything(), list(sum))) %>%
+  filter(sector!="TOTAL") ## Step 1. Aggregate across columns
+
+row_labels <- paste(flow1$country, flow1$sector, sep="-") ## Save labels
+
+flow1 <- flow1 %>% ungroup %>% select(-country, -sector) ## drop country and sector variables
+
+flow1 <- t(flow1) ## Step 2: transpose and sum across rows (columns)
+
+flow2 <- cbind(labels_T, flow1) %>% filter(sector!="TOTAL") %>%
+  group_by(country, sector) %>% summarise(across(everything(), list(sum)))  %>%
+  ungroup() %>% select(-country, -sector)
+
+flow3 <- t(flow2) ## Finally, transpose matrix back to original orientation and label rows and columns
+
+colnames(flow3) <- row_labels
+rownames(flow3) <- row_labels
+
+# Final Demand ----
+
+Eora26_2017_bp_FD <- FD_data_2017 ## Load final demand data
+
+labels_FD <- FD_labels %>% select(V1, V4) %>%
+  mutate(country=ifelse(V1!=countries[i], "ROW", V1)) %>%
+  rename(type=V4) %>%
+  select(country, type)  ## Load final demand labels and repcountriese countries that aren't BRA with ROW
+
+fd <- cbind(labels_T, Eora26_2017_bp_FD) %>% filter(sector!="TOTAL") %>% group_by(country, sector) %>% 
+  summarise(across(everything(), list(sum))) %>% ungroup() %>%
+  select(-country, -sector) ## Sum across rows to get aggregate final demand
+
+fd2 <- t(fd)
+
+fd2 <- cbind(labels_FD, fd2) %>%
+  group_by(country, type) %>% 
+  summarise(across(everything(), list(sum))) %>% ungroup() 
+
+fd_col_labels <- paste(fd2$country, fd2$type, sep="-") ## Save labels
+
+fd2 <- fd2 %>% select(-country, -type)
+
+fd3<-t(fd2)
+colnames(fd3)<-t(fd_col_labels)
+rownames(fd3)<-row_labels
+
+# Value Added (Payments sector) ----
+
+Eora26_2017_bp_VA <- VA_data_2017
+
+labels_VA <- VA_labels %>% select(V2) %>%
+  rename(factor=V2) %>%
+  select(factor)  ## Load final demand labels and rep countries countries that aren't BRA with ROW
+
+va1<-t(Eora26_2017_bp_VA)
+va1<-cbind(labels_T, va1) %>% filter(sector!="TOTAL") %>%
+  group_by(country, sector) %>% 
+  summarise(across(everything(), list(sum))) %>% ungroup() 
+
+va2<- t(va1 %>% select(-country, -sector))
+rownames(va2)<-labels_VA$factor
+colnames(va2)<-row_labels
+
+eval(parse(text=paste0("labor_va_",countries[i]," <-as.matrix(va2[1,1:52])"))) # labor value added
+
+
+# Step 3: Baseline Results ----
+
+eval(parse(text=paste0("x_",countries[i]," <- rowSums(flow3)+rowSums(fd3)"))) # output = sales revenues + final demand (reference value)
+eval(parse(text=paste0("y_",countries[i]," <- colSums(flow3)+colSums(va2)"))) # output = total intermediate inputs + value added
+
+
+# Correcting Labor Value added ----
+
+eval(parse(text=paste0("y_",countries[i]," <- merge(as.matrix(y_",countries[i],"),labor_va_",countries[i],",by=0,all.x=T)")))
+eval(parse(text=paste0("colnames(y_",countries[i],") <- c('sector','output','labor_va')")))
+
+eval(parse(text=paste0("y_",countries[i]," <- y_",countries[i]," %>% mutate(labor_share_out = labor_va/output) %>% select(sector,labor_share_out)")))
+eval(parse(text=paste0("row.names(y_",countries[i],") <- y_",countries[i],"$sector")))
+eval(parse(text=paste0("y_",countries[i],"$sector <- NULL")))
+
+eval(parse(text=paste0("x_",countries[i]," <- as.matrix(x_",countries[i],")")))
+eval(parse(text=paste0("labor_va_",countries[i],"_adj <- merge(as.matrix(x_",countries[i],"),y_",countries[i],",by=0,all.x=T)"))) 
+eval(parse(text=paste0("colnames(labor_va_",countries[i],"_adj) <- c('Sector','Output','labor_share_out')")))
+eval(parse(text=paste0("labor_va_",countries[i],"_adj <- labor_va_",countries[i],"_adj %>% mutate(labor_va_adj = labor_share_out*Output) %>% select(Sector,labor_va_adj)")))
+
+eval(parse(text=paste0("rm(y_",countries[i],",labor_va_",countries[i],")")))
+
+## Calculate A matrix (Technology Matrix)
+
+eval(parse(text=paste0("x_",countries[i]," <- rowSums(flow3)+rowSums(fd3)"))) # output
+
+I <- (diag( (52) ))
+eval(parse(text=paste0("z_",countries[i]," <-  as.matrix(diag(c(t(( x_",countries[i]," )^-1))))")))
+eval(parse(text=paste0("A <- flow3 %*% z_",countries[i])))
+A <- as.matrix(A)
+
+### Calculate Leontief inverse matrix
+IminusA <-as.matrix(I-A)
+
+## Calculate inverse.
+eval(parse(text=paste0("L_",countries[i]," <- as.matrix(solve( IminusA ) )")))
+
+eval(parse(text=paste0("row.names(L_",countries[i],") <- colnames(L_",countries[i],")")))
+
+}
+
+# rm(list=setdiff(ls(), c('countries',"L_BGR","L_BLZ","L_EGY","L_LBY","L_MAR","L_MEX","L_UGA","labor_va_BGR_adj","labor_va_BLZ_adj","labor_va_EGY_adj","labor_va_LBY_adj","labor_va_MAR_adj","labor_va_MEX_adj","labor_va_UGA_adj","x_BGR","x_BLZ","x_EGY","x_LBY","x_MAR","x_MEX","x_UGA","z_BGR","z_BLZ","z_EGY","z_LBY","z_MAR","z_MEX","z_UGA")))
+
+rm(list=setdiff(ls(), c("wd",'countries',"L_BGR","L_BLZ","L_EGY","L_LBY","L_MAR","L_MEX","L_UGA","labor_va_BGR_adj","labor_va_BLZ_adj","labor_va_EGY_adj","labor_va_LBY_adj","labor_va_MAR_adj","labor_va_MEX_adj","labor_va_UGA_adj","x_BGR","x_BLZ","x_EGY","x_LBY","x_MAR","x_MEX","x_UGA","z_BGR","z_BLZ","z_EGY","z_LBY","z_MAR","z_MEX","z_UGA")))
+
+
+```
+
+### *2. Synthetic Industries*
+
+Based on the cost structures provided in the spreadsheet "ATTRIBUTE_STRATEGY_coded.xlsx", we map the Eora26 sectors affected and simulate the employment impact of $1 million in investments on transformations.
+
+#### *2.1 ILOSTAT: average wage data consolidation*
+
+Due to different sector classification between  *Eora26* and *ILOSTAT*, we also present a preliminary mapping of the economic sectors from ILOSTAT to merge the average wage data (FTE calculation):
+
++ *Agriculture*: "A. Agriculture; forestry and fishing"
++ *Fishing*: "A. Agriculture; forestry and fishing"
++ *Mining and Quarrying*: "B. Mining and quarrying"
++ *Food & Beverages*: "C. Manufacturing"
++ *Textiles and Wearing Apparel*: "C. Manufacturing"                         
++ *Wood and Paper*: "C. Manufacturing"           
++ *Petroleum, Chemical and Non-Metallic Mineral Products*: "C. Manufacturing"
++ *Metal Products*: "C. Manufacturing"                                       
++ *Electrical and Machinery*: "C. Manufacturing"                             
++ *Transport Equipment*: "C. Manufacturing"                                  
++ *Other Manufacturing*: "C. Manufacturing"                                  
++ *Recycling*: "C. Manufacturing"                                            
++ *Maintenance and Repair*: "C. Manufacturing"                               
++ *Other Manufacturing*: "C. Manufacturing"                                  
++ *Electricity, Gas and Water*: weighted average of "D. Electricity; gas, steam and air conditioning supply"(70%) and
+"E. Water supply; sewerage, waste management and remediation activities"(30%)
++ *Construction*: "F. Construction"
++ *Wholesale Trade*: "G. Wholesale and retail trade; repair of motor vehicles and motorcycles"
++ *Retail Trade*: "G. Wholesale and retail trade; repair of motor vehicles and motorcycles"
++ *Transport*: "H. Transportation and storage"
++ *Hotels and Restaurants*: "I. Accommodation and food service activities"
++ *Post and Telecommunications*: "J. Information and communication"                          
++ *Financial Intermediation and Business Activities*: "K. Financial and insurance activities", "L. Real estate activities","M. Professional, scientific and technical activities","N. Administrative and support service activities"
++ *Public Administration*: "O. Public administration and defence; compulsory social security"
++ *Education, Health and Other Services*: weighted average of "P. Education" (40%) and "Q. Human health and social work activities" (60%)
++ *Private Households*: "T. Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use"
++ *Re-export & Re-import*: "U. Activities of extraterritorial organizations and bodies"
++ *Others*: average wage of "R. Arts, entertainment and recreation", "S. Other service activities", and "X. Not elsewhere classified"
+
+
+##### Data Procedures
+
+ILOSTAT provides complete data for most of the countries analyzed in this study, except for Libya and Morocco. We opted to use alternative proxy countries based on similarities in economic structure, labor market characteristics, and social factors - Egypt for Libya and the average between Egypt and Jordan for Morocco.
+
+#### Crosswalk to input missing average wage data by category
+
+"E. Water supply; sewerage, waste management and remediation activities": "Economic activity (Aggregate): Mining and quarrying; Electricity, gas and water supply"
+
+"I. Accommodation and food service activities":"Economic activity (Aggregate): Trade, Transportation, Accommodation and Food, and Business and Administrative Services"                                                                                 
+"J. Information and communication": "Economic activity (Aggregate): Public Administration, Community, Social and other Services and Activities"                                                                                             
+"M. Professional, scientific and technical activities":"Economic activity (Aggregate): Trade, Transportation, Accommodation and Food, and Business and Administrative Services"                                                                         
+"P. Education": "Economic activity (Aggregate): Public Administration, Community, Social and other Services and Activities"                                                                                                                 
+"R. Arts, entertainment and recreation": "Economic activity (Aggregate): Public Administration, Community, Social and other Services and Activities"                                                                                        
+"S. Other service activities": "Economic activity (Aggregate): Public Administration, Community, Social and other Services and Activities"                                                                                                  
+"T. Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use": "Economic activity (Aggregate): Public Administration, Community, Social and other Services and Activities"
+
+"U. Activities of extraterritorial organizations and bodies":"Economic activity (Aggregate): Public Administration, Community, Social and other Services and Activities"                                                                   
+"B. Mining and quarrying": "Economic activity (Aggregate): Mining and quarrying; Electricity, gas and water supply"
+
+"D. Electricity; gas, steam and air conditioning supply": "Economic activity (Aggregate): Mining and quarrying; Electricity, gas and water supply"
+
+"N. Administrative and support service activities": "Economic activity (Aggregate): Trade, Transportation, Accommodation and Food, and Business and Administrative Services"                                                                           
+"L. Real estate activities": "Economic activity (Aggregate): Trade, Transportation, Accommodation and Food, and Business and Administrative Services"
+
+
+```{r synthetic ind,include=T,warning=FALSE}
+
+# Extracting and consolidating average wage data - ILOSTAT
+
+## Building dataset framework
+
+countries <- c("Belize","Bulgaria","Egypt","Mexico","Uganda","Libya","Morocco")
+
+for(i in 1:7){
+
+eval(parse(text=paste0("average_wage_frame_",countries[i]," <- data.table('Economic activity'=c('A. Agriculture; forestry and fishing',
+                        'B. Mining and quarrying',
+                        'C. Manufacturing',
+                        'D. Electricity; gas, steam and air conditioning supply',
+                        'E. Water supply; sewerage, waste management and remediation activities',
+                        'F. Construction',
+                        'G. Wholesale and retail trade; repair of motor vehicles and motorcycles',
+                        'H. Transportation and storage',
+                        'I. Accommodation and food service activities',
+                        'J. Information and communication',
+                        'K. Financial and insurance activities',
+                        'L. Real estate activities',
+                        'M. Professional, scientific and technical activities',
+                        'N. Administrative and support service activities',
+                        'O. Public administration and defence; compulsory social security',
+                        'P. Education',
+                        'Q. Human health and social work activities',
+                        'R. Arts, entertainment and recreation',
+                        'S. Other service activities',
+                        'T. Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use',
+                        'U. Activities of extraterritorial organizations and bodies'),
+                        'ref_area.label'=as.vector(rep('",countries[i],"',21)))")))
+
+}
+
+list <- list(average_wage_frame_Belize,average_wage_frame_Bulgaria,average_wage_frame_Egypt,average_wage_frame_Libya,average_wage_frame_Mexico,average_wage_frame_Morocco,average_wage_frame_Uganda)
+
+average_wage_frame <- rbindlist(list,use.names = T)
+
+average_wage_frame <- average_wage_frame %>% unique()
+
+average_wage <- read_xlsx("Data/IO Tables/Average Employee Earnings - ILOSTAT (WB).xlsx")
+
+#x <- average_wage %>% filter(ref_area.label %in% c("Libya","Egypt", "Morocco","Bulgaria", "Mexico", "Uganda","Belize","Jordan"))
+
+average_wage <- average_wage %>% separate(classif1.label, into = c("ISIC", "Economic activity"), sep = ":") %>% 
+                select(-source.label,-indicator.label,-obs_status.label,-note_classif.label,-note_indicator.label,-note_source.label) %>%
+                filter(sex.label %in% c("Total"),ISIC %in% "Economic activity (ISIC-Rev.4)",classif2.label %in% c("Currency: U.S. dollars"),
+                time %in% c("2017")) %>% mutate(annual_wage=obs_value*12,
+                                                annual_wage=ifelse(is.na(annual_wage),0,annual_wage),"Economic activity"=trimws(`Economic activity`)) %>% 
+                select(-sex.label,-ISIC,-obs_value) %>% filter(!(`Economic activity` == "Total"),ref_area.label %in% c("Libya","Egypt", "Morocco","Bulgaria", "Mexico", "Uganda","Belize","Jordan")) 
+
+average_wage <- data.table(average_wage)
+
+## Computing the average wage proxy for Morocco (average between Egypt and Jordan)
+
+average_wage_MAR <- average_wage %>% filter(ref_area.label %in% c("Egypt","Jordan")) %>% mutate(ref_area.label="Morocco") %>%
+                    group_by(ref_area.label,`Economic activity`,classif2.label,time) %>% summarise(annual_wage=mean(annual_wage,na.rm=T))
+                  
+average_wage_MAR <- data.table(average_wage_MAR)
+
+# Computing the average wage proxy for Libya (Egypt data)
+
+average_wage_LBY <- average_wage %>% filter(ref_area.label %in% c("Egypt")) %>% mutate(ref_area.label="Libya")
+
+average_wage_LBY <- data.table(average_wage_LBY)
+
+# Average wage data consolidated
+
+list <- list(average_wage,average_wage_LBY,average_wage_MAR)
+
+average_wage <- rbindlist(list,use.names = T)
+average_wage <- average_wage %>% filter(!(ref_area.label == "Jordan"))
+
+## Merging to framework
+
+average_wage_consolidated <- merge(average_wage_frame,average_wage,by=c("ref_area.label","Economic activity"),all.x = T)
+
+average_wage_consolidated <- average_wage_consolidated %>% select(-classif2.label,-time)
+
+average_wage_consolidated_na <- average_wage_consolidated %>% filter(is.na(annual_wage))
+
+average_wage_consolidated_comp <- average_wage_consolidated %>% filter(!is.na(annual_wage))
+
+## Inputing missing values
+
+crosswalk <- data.table("ISIC"=c("E. Water supply; sewerage, waste management and remediation activities",
+                                 "I. Accommodation and food service activities",
+                                 "J. Information and communication",
+                                 "M. Professional, scientific and technical activities",
+                                 "P. Education",
+                                 "R. Arts, entertainment and recreation",
+                                 "S. Other service activities",
+                                 "T. Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use",
+                                 "U. Activities of extraterritorial organizations and bodies",
+                                 "B. Mining and quarrying",
+                                 "D. Electricity; gas, steam and air conditioning supply",
+                                 "N. Administrative and support service activities",
+                                 "L. Real estate activities"),
+"Agg"=c("Mining and quarrying; Electricity, gas and water supply",
+"Trade, Transportation, Accommodation and Food, and Business and Administrative Services",
+        "Public Administration, Community, Social and other Services and Activities",
+        "Trade, Transportation, Accommodation and Food, and Business and Administrative Services",
+        "Public Administration, Community, Social and other Services and Activities",
+        "Public Administration, Community, Social and other Services and Activities",
+        "Public Administration, Community, Social and other Services and Activities",
+        "Public Administration, Community, Social and other Services and Activities",
+        "Public Administration, Community, Social and other Services and Activities",
+        "Mining and quarrying; Electricity, gas and water supply",
+        "Mining and quarrying; Electricity, gas and water supply",
+        "Trade, Transportation, Accommodation and Food, and Business and Administrative Services",
+        "Trade, Transportation, Accommodation and Food, and Business and Administrative Services"))
+
+average_wage_consolidated_na <- merge(average_wage_consolidated_na,crosswalk,by.x = "Economic activity",by.y = "ISIC",all.x = T)
+
+average_wage_orig <- read_xlsx("Data/IO Tables/Average Employee Earnings - ILOSTAT (WB).xlsx")
+
+average_wage_orig <- average_wage_orig %>% separate(classif1.label, into = c("Aggregate", "Economic activity"), sep = ":") %>% 
+                select(-source.label,-indicator.label,-obs_status.label,-note_classif.label,-note_indicator.label,-note_source.label) %>%
+                filter(sex.label %in% c("Total"),Aggregate %in% "Economic activity (Aggregate)",classif2.label %in% c("Currency: U.S. dollars"),
+                time %in% c("2017")) %>% mutate(annual_wage=obs_value*12,
+                                                annual_wage=ifelse(is.na(annual_wage),0,annual_wage),"Economic activity"=trimws(`Economic activity`)) %>% 
+                select(-sex.label,-Aggregate,-obs_value) %>% filter(!(`Economic activity` == "Total"),ref_area.label %in% c("Libya","Egypt", "Morocco","Bulgaria", "Mexico", "Uganda","Belize","Jordan")) 
+
+average_wage_orig <- data.table(average_wage_orig)
+
+average_wage_consolidated_na <- merge(average_wage_consolidated_na,average_wage_orig[,c("ref_area.label","Economic activity","annual_wage")],by.x = c("ref_area.label","Agg"),by.y = c("ref_area.label","Economic activity"),all.x = T)
+
+# Manufacturing = 608.809, Public Administration = 663.913
+
+average_wage_consolidated_na <- average_wage_consolidated_na %>% mutate(annual_wage.y=ifelse(ref_area.label=="Bulgaria" & `Economic activity`=="B. Mining and quarrying",608.809*12,
+      ifelse(ref_area.label=="Bulgaria" & `Economic activity`=="D. Electricity; gas, steam and air conditioning supply",663.913*12,ifelse(ref_area.label=="Bulgaria" & `Economic activity`=="E. Water supply; sewerage, waste management and remediation activities",663.913*12,annual_wage.y)))) %>%
+  select(-annual_wage.x,-Agg) %>% rename("annual_wage"=annual_wage.y)
+
+list <- list(average_wage_consolidated_comp,average_wage_consolidated_na)
+
+average_wage <- rbindlist(list,use.names = T)
+
+average_wage <- dcast.data.table(average_wage,ref_area.label ~ `Economic activity`,value.var = "annual_wage",fun.aggregate = sum)
+
+# Reclassification of economic sectors to match Eora26
+
+average_wage <- average_wage %>% mutate(Agriculture=`A. Agriculture; forestry and fishing`,                
+                                          Fishing=`A. Agriculture; forestry and fishing`,
+                                         'Mining and Quarrying'=`B. Mining and quarrying`,
+                                          'Food & Beverages'=`C. Manufacturing`,
+                                          'Textiles and Wearing Apparel'=`C. Manufacturing`,
+                                          'Wood and Paper'=`C. Manufacturing`,
+                                          'Petroleum, Chemical and Non-Metallic Mineral Products'=`C. Manufacturing`,
+                                          'Metal Products'=`C. Manufacturing`,
+                                          'Electrical and Machinery'=`C. Manufacturing`,
+                                          'Transport Equipment'=`C. Manufacturing`,
+                                          'Other Manufacturing'=`C. Manufacturing`,
+                                          'Recycling'=`C. Manufacturing`,
+                                          'Maintenance and Repair'=`C. Manufacturing`,
+                                          'Other Manufacturing'=`C. Manufacturing`,
+                                          'Electricity, Gas and Water'= 0.5*(`D. Electricity; gas, steam and air conditioning supply`) +
+                                          0.5*(`E. Water supply; sewerage, waste management and remediation activities`),
+                                          Construction=`F. Construction`,
+                      'Wholesale Trade'=`G. Wholesale and retail trade; repair of motor vehicles and motorcycles`,
+                      'Retail Trade'=`G. Wholesale and retail trade; repair of motor vehicles and motorcycles`,
+                      'Transport'=`H. Transportation and storage`,
+                      'Hotels and Restaurants'=`I. Accommodation and food service activities`,
+                      'Post and Telecommunications'=`J. Information and communication`,
+                      'Financial Intermediation and Business Activities'= (`K. Financial and insurance activities`+`L. Real estate activities`+`M. Professional, scientific and technical activities`+`N. Administrative and support service activities`)/4,
+                      'Public Administration'=`O. Public administration and defence; compulsory social security`,
+                      'Education, Health and Other Services'=(`P. Education`+`Q. Human health and social work activities`+`R. Arts, entertainment and recreation`+`S. Other service activities`)/4,
+                      'Private Households'=`T. Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use`,
+                      'Re-export & Re-import'=0,
+                      'Others'=(`U. Activities of extraterritorial organizations and bodies`)/2)
+
+
+average_wage <- average_wage %>% select(ref_area.label,Agriculture,Fishing,"Mining and Quarrying","Food & Beverages","Textiles and Wearing Apparel",
+                                        "Wood and Paper","Petroleum, Chemical and Non-Metallic Mineral Products","Metal Products","Electrical and Machinery",
+                                        "Transport Equipment","Other Manufacturing","Recycling","Maintenance and Repair","Electricity, Gas and Water",
+                                        "Construction","Wholesale Trade","Retail Trade","Transport","Hotels and Restaurants","Post and Telecommunications",                                                             "Financial Intermediation and Business Activities","Public Administration","Education, Health and Other Services",
+                                        "Private Households","Re-export & Re-import","Others")
+
+average_wage <- melt.data.table(average_wage,id.vars = c("ref_area.label"),measure.vars = average_wage[,.(2:27)])
+
+average_wage <- average_wage %>% rename(Sector=variable,annual_wage=value) %>% mutate("Year"=2017) %>% relocate(Year,.before = Sector)
+
+countries <- c("Belize","Bulgaria","Egypt","Mexico","Uganda","Libya","Morocco")
+
+lac <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+for(i in 1:7){
+
+eval(parse(text = paste0("average_wage_",lac[i]," <- average_wage %>% filter(ref_area.label %in% c('",countries[i],"')) %>% mutate(country='",lac[i],"') %>% select(country,Sector,annual_wage)")))  
+
+}
+
+```
+
+#### *2.2 Eora26*
+
+```{r eora26,include=T,warning=FALSE}
+
+# Number of workers employed per sector: Calculation ---- 
+
+# The number of workers is calculated as total labor value-added divided by average wage per sector (Year:2017)
+
+countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+for(i in 1:7){
+
+  eval(parse(text = paste0("labor_va_",countries[i],"_adj <- labor_va_",countries[i],"_adj %>% mutate(country = substr(Sector,1,3), Sector=substr(Sector,5,nchar(Sector))) %>% relocate(country,.before=Sector) %>% mutate(Sector=ifelse(Sector=='Finacial Intermediation and Business Activities','Financial Intermediation and Business Activities',ifelse(Sector=='Hotels and Restraurants','Hotels and Restaurants',Sector))) %>%  filter(country %in% '",countries[i],"')")))
+  
+eval(parse(text = paste0("FTE_",countries[i]," <- merge(labor_va_",countries[i],"_adj,average_wage_",countries[i],",by='Sector',all.x = T)")))
+
+eval(parse(text = paste0("FTE_",countries[i]," <- FTE_",countries[i]," %>% mutate(FTE=(labor_va_adj*1000)/annual_wage,FTE=round(FTE,digits = 2),FTE=ifelse(annual_wage==0,0,FTE)) %>% rename(country=country.x) %>% select(-country.y)")))
+
+eval(parse(text = paste0("FTE_ROW <- FTE_",countries[i]," %>% mutate(country='ROW',FTE=0,annual_wage=0)"))) # ROW FTE matrix
+
+eval(parse(text = paste0("FTE_",countries[i]," <- rbind.data.frame(FTE_",countries[i],",FTE_ROW)")))
+eval(parse(text = paste0("FTE_",countries[i]," <- FTE_",countries[i]," %>% mutate(Sector=paste0(country,'-',Sector))")))
+
+eval(parse(text = paste0("FTE_",countries[i],"_diag <- matrix(diag(FTE_",countries[i],"$FTE),ncol=52)")))
+eval(parse(text = paste0("row.names(FTE_",countries[i],"_diag) <- as.vector(FTE_",countries[i],"$Sector)")))
+eval(parse(text = paste0("colnames(FTE_",countries[i],"_diag) <- as.vector(FTE_",countries[i],"$Sector)")))
+
+eval(parse(text = paste0("FTE_",countries[i],"_diag <- as.matrix(FTE_",countries[i],"_diag)")))
+}
+
+
+# Employment-Output ratio ----
+
+countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+for(i in 1:7){
+
+eval(parse(text = paste0("emp_out_ratio_",countries[i]," <- FTE_",countries[i],"_diag %*% z_",countries[i])))
+
+eval(parse(text = paste0("emp_out_columns_name <- row.names(emp_out_ratio_",countries[i],")")))
+eval(parse(text = paste0("colnames(emp_out_ratio_",countries[i],") <- emp_out_columns_name")))
+
+# Employment Requirement table ----
+
+eval(parse(text = paste0("er_",countries[i]," <- emp_out_ratio_",countries[i]," %*% L_",countries[i])))
+
+eval(parse(text = paste0("er_",countries[i]," <- er_",countries[i],"*100")))
+}
+
+for(i in 1:7){
+
+eval(parse(text = paste0("write.csv(er_",countries[i],",'Data/IO Tables/ER/er_",countries[i],".csv',row.names=F)")))
+}
+
+rm(list=setdiff(ls(), c("wd","er_BGR","er_BLZ","er_EGY","er_LBY","er_MAR","er_MEX","er_UGA")))
+
+```
+
+#### *2.3 Cost Structure of Transformations*
+
+
+```{r cost structure,include=T,warning=FALSE}
+
+# Cost Structure - Transformations ----
+
+countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
+
+transf_sheets <- c("Synthetic_ind_energy","AGRC","CCSQ","EN","ENTC","FGTV","FRST","INEN","LNDU","LSMM","LVST","IPPU","SCOE","TRNS","TRWW","WALI","WASO")
+
+for(i in 1:7){
+
+for(k in 1:17){
+  
+  eval(parse(text=paste0("cost_str_",countries[i],"_",transf_sheets[k]," <- read_excel('Data/Sisepuede - Transformations/ATTRIBUTE_STRATEGY_transformations_vectors.xlsx',sheet ='",transf_sheets[k],"',n_max=26)")))
+  
+}
+
+# All transformations in a single data frame
+
+eval(parse(text=paste0("cost_str_",countries[i],"<- merge(cost_str_",countries[i],"_AGRC,cost_str_",countries[i],"_CCSQ,all.x = T,by='Sector')")))
+}
+
+
+for(i in 1:7){
+for(m in 4:17){
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",cost_str_",countries[i],"_",transf_sheets[m],",all.x = T,by='Sector')")))
+
+}}
+
+
+for(i in 1:7){
+
+eval(parse(text = paste0("rm('cost_str_",countries[i],"_AGRC','cost_str_",countries[i],"_CCSQ','cost_str_",countries[i],"_EN','cost_str_",countries[i],"_ENTC','cost_st_",countries[i],"_FGTV','cost_st_",countries[i],"_FRST','cost_st_",countries[i],"_INEN','cost_st_",countries[i],"_IPPU','cost_st_",countries[i],"_LNDU','cost_st_",countries[i],"_LSMM','cost_st_",countries[i],"_LVST','cost_st_",countries[i],"_PFLO','cost_st_",countries[i],"_SCOE','cost_st_",countries[i],"_SOIL','cost_st_",countries[i],"_TRDE','cost_st_",countries[i],"_TRNS','cost_st_",countries[i],"_TRWW','cost_st_",countries[i],"_WALI','cost_st_",countries[i],"_WASO')")))
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>%  mutate(across(2:ncol(cost_str_",countries[i],"), function(x) ifelse(is.na(x),0,x)))")))
+
+eval(parse(text = paste0("synthetic_ind_",countries[i]," <- cost_str_",countries[i],"_Synthetic_ind_energy"))) # Consolidating synthetic sectors
+
+}
+
+# BAU Electricity Generation (IEA data) 
+
+bau_electricity <- read.csv("Data/Sisepuede - Transformations/electricity-prod-source-stacked.csv")
+bau_electricity <- bau_electricity %>% filter(Code %in% c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA"), Year %in% 2021:2022)
+
+bau_electricity <- setorder(bau_electricity,Code,-Year)
+
+bau_electricity <- bau_electricity %>% mutate(order= sequence(rle(Code)$length)) %>% filter(order==1) %>% select(-order) %>%
+                  mutate(across(4:ncol(bau_electricity), function(x) ifelse(is.na(x),0,x))) %>%
+                  mutate(total_prod = rowSums(.[4:12]),
+                  Bioenergy= Electricity.from.bioenergy..TWh./total_prod,Solar=Electricity.from.solar..TWh./total_prod,
+                  Wind=Electricity.from.wind..TWh./total_prod,Hydro=Electricity.from.hydro..TWh./total_prod,
+                  Nuclear=Electricity.from.nuclear..TWh./total_prod,
+                  "Oil and Gas"=(Electricity.from.oil..TWh.+Electricity.from.gas..TWh.)/total_prod,
+                  Coal=Electricity.from.coal..TWh./total_prod,Geothermal=1-Bioenergy-Solar-Wind-Hydro-Nuclear-`Oil and Gas`-Coal) %>%
+                mutate(across(where(is.numeric), function(x) round(x,digits = 2))) %>%
+                  select(Code,Bioenergy,Solar,Wind,Hydro,Nuclear,`Oil and Gas`,Coal,Geothermal)
+
+# Calculating each country BAU Electricity SS ---- 
+
+# "Renewable Energy" shares are taken from IEA's report "Energy Technology Perspectives 2023" (Global net-zero scenario)
+
+for(i in 1:7){
+
+eval(parse(text = paste0("bau_electricity_",countries[i]," <- bau_electricity %>% filter(Code=='",countries[i],"')")))
+
+eval(parse(text = paste0("synthetic_ind_",countries[i]," <- synthetic_ind_",countries[i]," %>%    
+  mutate(BAU_Electricity_",countries[i],"=Bioenergy*abs(bau_electricity_",countries[i],"$Bioenergy)+Solar*abs(bau_electricity_",countries[i],"$Solar)+               Wind*abs(bau_electricity_",countries[i],"$Wind)+Hydro*abs(bau_electricity_",countries[i],"$Hydro)+Nuclear*abs(bau_electricity_",countries[i],"$Nuclear)+`Oil and Gas`*abs(bau_electricity_",countries[i],"$`Oil and Gas`)+Coal*abs(bau_electricity_",countries[i],"$Coal)+Geothermal*abs(bau_electricity_",countries[i],"$Geothermal),
+                                          Renewable_Energy=0.2*Wind+Solar*0.2+Bioenergy*0.15+Hydro*0.1+`Green Hydrogen`*0.08+`Oil and Gas`*0.13+Coal*0.02+Nuclear*0.12,'Energy Efficiency'=0.5*Weatherization+0.25*`Industrial EE`+0.25*`Grid Upgrades`,'Fossil Fuels'=0.5*Coal+0.5*`Oil and Gas`) %>%
+  mutate(across(where(is.numeric), function(x) round(x,digits = 2)))")))
+
+# Consolidating synthetic sectors ---- 
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",synthetic_ind_",countries[i],",by='Sector',all.x = T)")))
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>%  mutate(across(where(is.numeric), function(x) round(x,digits = 2))) %>%
+  mutate(`3001`=`3001`+0.12*BAU_Electricity_",countries[i],",
+                                        `3002`=`3002`+0.12*Renewable_Energy,
+                                        `3059`= `Energy Efficiency`,
+                                        `3060`= 0.5*Renewable_Energy+0.5*`Energy Efficiency`,
+                                        `3061`= 0.7*BAU_Electricity_",countries[i],"+0.3*Hydrogen,
+                                        `3062`=0.7*Renewable_Energy+0.3*`Green Hydrogen`,
+                                        `3003`=0.95*Renewable_Energy+0.05*BAU_Electricity_",countries[i],",
+                                        `3005`=`Grid Upgrades`,
+                                        `3006`=0.5*Renewable_Energy+0.5*`Grid Upgrades`,
+                                        `3010`= `3010`+0.3*Renewable_Energy,
+                                        `3012`= `3010`,
+                                        `3015`=`3015`+0.50*BAU_Electricity_",countries[i],",
+                                        `3016`= `3016`+0.50*Renewable_Energy,
+                                        `3017`=`3015`,
+                                        `3018`=`3016`,
+                                        `3019`=`Industrial EE`,
+                                        `3020`=0.51*Renewable_Energy+0.51*`Industrial EE`,
+                                        `3021`=`Industrial EE`,
+                                        `3022`=0.51*Renewable_Energy+0.51*`Industrial EE`,
+                                        `4002`=`4002`+0.21*BAU_Electricity_",countries[i],"+0.08*Coal,
+                                        `3025`=`3025`+0.1*BAU_Electricity_",countries[i],",
+                                        `3026`=`3026`+0.1*Renewable_Energy,
+                                        `3028`=`3027`*0.8+0.2*Renewable_Energy,
+                                        `3029`=BAU_Electricity_",countries[i],",
+                                        `3030`=Renewable_Energy,
+                                        `3035`=`3035`+0.1*BAU_Electricity_",countries[i],",
+                                        `3036`=`3036`+0.1*Renewable_Energy,
+                                        `3039`=`3039`+0.16*BAU_Electricity_",countries[i],",
+                                        `3040`=`3040`+0.16*Renewable_Energy,
+                                        `3041`=`3041`+0.44*Hydrogen,
+                                        `3042`=`3042`+0.44*`Green Hydrogen`,
+                                        `3043`=`3039`,
+                                        `3044`=`3040`,
+                                        `2014`= `2014`+0.103*BAU_Electricity_",countries[i],") %>% 
+        select(-Bioenergy,-Solar,-Wind,-Hydro,-Nuclear,-`Oil and Gas`,-Coal,-Geothermal,-`Grid Upgrades`,-Weatherization,-Renewable_Energy,-`Energy Efficiency`,-`Fossil Fuels`,-`Industrial EE`,-Hydrogen,-`Green Hydrogen`,-`BAU_Electricity_",countries[i],"`) %>%
+  mutate(across(where(is.numeric), function(x) round(x,digits = 2)))")))
+
+
+# Scaling weights to sum 1
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- data.table(cost_str_",countries[i],")")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- melt.data.table(cost_str_",countries[i],",id.vars = 'Sector')")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>% rename(strategy_id=variable)")))
+
+eval(parse(text = paste0("sum_check <- cost_str_",countries[i]," %>% group_by(strategy_id) %>% mutate(weight_sum=sum(value)) %>% slice_max(value,with_ties = F) %>% mutate(value = ifelse(value != 1,value+(1-weight_sum),value)) %>% select(-weight_sum)"))) 
+
+eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",sum_check,by=c('Sector','strategy_id'),all.x = T)")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>% mutate(value.x = ifelse(!is.na(value.y),value.y,value.x)) %>% rename(value=value.x) %>% select(-value.y)")))
+eval(parse(text = paste0("cost_str_",countries[i]," <- setorder(cost_str_",countries[i],",strategy_id,Sector)")))
+
+}
+
+# Consolidating employment impact results ----
+
+### Generating employment estimates by economic sector
+
+for(i in 1:7){
+
+eval(parse(text = paste0("strategy_id <- as.vector(unique(cost_str_",countries[i],"$strategy_id))")))
+
+for(j in 1:max(length(strategy_id))){
+
+eval(parse(text = paste0("FD_",strategy_id[j],"_",countries[i]," <- cost_str_",countries[i]," %>% filter(strategy_id ==",strategy_id[j],") %>% select(value)")))
+
+eval(parse(text = paste0("FD_",strategy_id[j],"_",countries[i]," <- matrix(diag(FD_",strategy_id[j],"_",countries[i],"$value),ncol=26)")))
+
+eval(parse(text = paste0("job_multiplier_",strategy_id[j],"_",countries[i]," <- er_",countries[i],"[1:26,1:26] %*% FD_",strategy_id[j],"_",countries[i])))
+
+}}
+
+
+# job_multiplier_1004_BGR_sector <- job_multiplier_1004_BGR
+# 
+# 
+# job_multiplier_1004_BGR_sector_diag <- data.frame(value = diag(as.matrix(job_multiplier_1004_BGR_sector))) 
+# 
+# diag(job_multiplier_1004_BGR_sector) <- NA
+# 
+# job_multiplier_1004_BGR_sector <- reshape2::melt(as.matrix(job_multiplier_1004_BGR_sector), na.rm = TRUE)
+# 
+# job_multiplier_1004_BGR_sector <- job_multiplier_1004_BGR_sector %>% group_by(Var1) %>% summarise("Indirect Jobs"=sum(value,na.rm = T))
+# 
+# job_multiplier_1004_BGR_sector <- cbind(job_multiplier_1004_BGR_sector,diag_elements)
+# 
+# job_multiplier_1004_BGR_sector <- job_multiplier_1004_BGR_sector %>% rename("Sector"=Var1,"Direct Jobs"=value) %>% 
+#                                   
+#                                   mutate("Total Jobs"=`Direct Jobs`+`Indirect Jobs`,"Strategy"="1004","Country"=substr(Sector,1,3),
+#                                   Sector=substr(Sector,5,nchar(as.character(Sector)))) %>%
+#                                   
+#                                   relocate(`Direct Jobs`,.after = Sector) %>% relocate(Strategy,.before = Sector) %>% 
+#                                   relocate(Country,.before = Strategy)
+
+
+
+job_multiplier_BGR_sector <- list()
+
+for(j in strategy_id){
+  
+obj_name <- paste0("job_multiplier_",j,"_BGR_sector")
+
+job_multiplier_BGR_sector[[obj_name]] <- get(obj_name)
+
+}
+
+
+# Store results in a list
+
+results_list <- list()
+
+for (strat in strategy_id) {
+  for (ctry in countries) {
+    
+    # Construct the variable name dynamically
+    var_name <- paste0("job_multiplier_", strat, "_", ctry)
+    
+    # Get the actual data frame (assuming it exists in environment)
+    sector_df <- get(var_name)
+    
+    # Extract diagonal
+    diag_elements <- data.frame(value = diag(as.matrix(sector_df)))
+    
+    # Off-diagonal processing
+    diag(sector_df) <- NA
+    sector_df_long <- melt(as.matrix(sector_df), na.rm = TRUE)
+    
+    # Aggregate indirect jobs
+    indirect_jobs <- sector_df_long %>%
+      group_by(Var1) %>%
+      summarise(Indirect_Jobs = sum(value, na.rm = TRUE))
+    
+    # Combine with diagonal (direct jobs)
+    combined_df <- cbind(indirect_jobs, diag_elements)
+    
+    # Final formatting
+    combined_df <- combined_df %>%
+      rename(Sector = Var1, Direct_Jobs = value) %>%
+      mutate(
+        Total_Jobs = Direct_Jobs + Indirect_Jobs,
+        Strategy = strat,
+        Country = substr(Sector, 1, 3),
+        Sector = substr(Sector, 5, nchar(as.character(Sector)))
+      ) %>%
+      relocate(Direct_Jobs, .after = Sector) %>%
+      relocate(Strategy, .before = Sector) %>%
+      relocate(Country, .before = Strategy)
+    
+    # Save in results list
+    results_list[[paste0(strat, "_", ctry)]] <- combined_df
+  }
+}
+
+# Combine all results into one data frame
+
+final_results <- bind_rows(results_list, .id = "ID")
+
+final_results <- final_results %>% select(-ID)
+
+transf_codes <- read.csv("Data/Sisepuede - Transformations/ATTRIBUTE_STRATEGY_codes.csv")
+transf_codes$strategy_id <- as.character(transf_codes$strategy_id)
+
+final_results <- merge(final_results,transf_codes,all.x = T,by.x = "Strategy",by.y = "strategy_id")
+final_results <- final_results %>% rename(Strategy_id = Strategy,Strategy=strategy) %>% relocate(Strategy,.before = Sector) %>%
+                  relocate(Strategy_id,.after = Country)
+
+write.xlsx(final_results,"Data/Employment Multipliers - Results/employment_results_sector_WB.xlsx")
+
+### Consolidating total direct/indirect employment estimates by country
+
+for(i in 1:7){
+
+eval(parse(text = paste0("strategy_id <- as.vector(unique(cost_str_",countries[i],"$strategy_id))")))
+
+for(j in 1:max(length(strategy_id))){
+
+eval(parse(text = paste0("employment_results_",strategy_id[j],"_",countries[i]," <- data.frame(sum(diag(job_multiplier_",strategy_id[j],"_",countries[i],")),sum(job_multiplier_",strategy_id[j],"_",countries[i],"[row(job_multiplier_",strategy_id[j],"_",countries[i],") != col(job_multiplier_",strategy_id[j],"_",countries[i],")]))")))
+eval(parse(text = paste0("employment_results_",strategy_id[j],"_",countries[i]," <- employment_results_",strategy_id[j],"_",countries[i]," %>% rename(Direct_jobs = sum.diag.job_multiplier_",strategy_id[j],"_",countries[i],"..,Indirect_jobs=sum.job_multiplier_",strategy_id[j],"_",countries[i],".row.job_multiplier_",strategy_id[j],"_",countries[i],".....col.job_multiplier_",strategy_id[j],"_",countries[i],"...) %>% mutate(strategy_id='",strategy_id[j],"',Total_jobs=Direct_jobs+Indirect_jobs) %>% relocate(strategy_id,.before = Direct_jobs)")))
+
+}
+
+
+eval(parse(text = paste0("list <- list(employment_results_1004_",countries[i],",employment_results_1005_",countries[i],",employment_results_1006_",countries[i],",employment_results_1007_",countries[i],",employment_results_1010_",countries[i],",employment_results_1011_",countries[i],",employment_results_1013_",countries[i],",employment_results_1015_",countries[i],",employment_results_1016_",countries[i],",employment_results_1017_",countries[i],",employment_results_1018_",countries[i],",employment_results_1019_",countries[i],",employment_results_1020_",countries[i],",employment_results_1024_",countries[i],",employment_results_1026_",countries[i],",employment_results_2002_",countries[i],",employment_results_2003_",countries[i],",employment_results_2005_",countries[i],",employment_results_2006_",countries[i],",employment_results_2007_",countries[i],",employment_results_2009_",countries[i],",employment_results_2011_",countries[i],",employment_results_2012_",countries[i],",employment_results_2013_",countries[i],",employment_results_2014_",countries[i],",employment_results_2015_",countries[i],",employment_results_3001_",countries[i],",employment_results_3002_",countries[i],",employment_results_3003_",countries[i],",employment_results_3005_",countries[i],",employment_results_3006_",countries[i],",employment_results_3009_",countries[i],",employment_results_3010_",countries[i],",employment_results_3011_",countries[i],",employment_results_3012_",countries[i],",employment_results_3015_",countries[i],",employment_results_3016_",countries[i],",employment_results_3017_",countries[i],",employment_results_3018_",countries[i],",employment_results_3019_",countries[i],",employment_results_3020_",countries[i],",employment_results_3021_",countries[i],",employment_results_3022_",countries[i],",employment_results_3025_",countries[i],",employment_results_3026_",countries[i],",employment_results_3027_",countries[i],",employment_results_3028_",countries[i],",employment_results_3029_",countries[i],",employment_results_3030_",countries[i],",employment_results_3035_",countries[i],",employment_results_3036_",countries[i],",employment_results_3039_",countries[i],",employment_results_3040_",countries[i],",employment_results_3041_",countries[i],",employment_results_3042_",countries[i],",employment_results_3043_",countries[i],",employment_results_3044_",countries[i],",employment_results_3059_",countries[i],",employment_results_3060_",countries[i],",employment_results_3061_",countries[i],",employment_results_3062_",countries[i],",employment_results_4002_",countries[i],",employment_results_4003_",countries[i],",employment_results_4004_",countries[i],",employment_results_4005_",countries[i],",employment_results_4006_",countries[i],",employment_results_4007_",countries[i],")")))
+
+eval(parse(text = paste0("employment_results_",countries[i]," <- rbindlist(list,use.names = T)")))
+eval(parse(text = paste0("employment_results_",countries[i]," <- data.table(employment_results_",countries[i],")")))
+eval(parse(text = paste0("employment_results_",countries[i]," <- employment_results_",countries[i]," %>% mutate(Country='",countries[i],"') %>% relocate(Country,.before=Direct_jobs)"))) 
+eval(parse(text = paste0("write.csv(employment_results_",countries[i],",'Data/Employment Multipliers - Results/employment_results_",countries[i],".csv',row.names = F)")))
+
+}
+
+
+results <- list(employment_results_BGR,employment_results_BLZ,employment_results_EGY,employment_results_LBY,employment_results_MAR,employment_results_MEX,employment_results_UGA)
+
+employment_results_all <- rbindlist(results,use.names = T)
+
+employment_results_all <- employment_results_all %>% mutate(Direct_jobs=ifelse(Country=="UGA",Direct_jobs*1000,Direct_jobs),
+      Indirect_jobs=ifelse(Country=="UGA",Indirect_jobs*1000,Indirect_jobs),
+       Total_jobs=ifelse(Country=="UGA",Total_jobs*1000,Total_jobs))
+
+employment_results_all <- merge(employment_results_all,transf_codes,by="strategy_id",all.x = T)
+employment_results_all <- employment_results_all %>% mutate(Group=substr(strategy,1,4)) %>% relocate(strategy,.before = Country) %>% relocate(Group,.before = strategy)
+
+
+employment_results_all_average <-  employment_results_all %>% group_by(strategy_id,strategy) %>% summarise(Direct_jobs=mean(Direct_jobs),Indirect_jobs=mean(Indirect_jobs),Total_jobs=mean(Total_jobs)) %>% mutate(Group=substr(strategy,1,4)) %>% relocate(Group,.before = strategy)
+
+employment_results_all_country_average <-  employment_results_all %>% mutate(Group=substr(strategy,1,4)) %>% group_by(Group,Country) %>% summarise(Direct_jobs=mean(Direct_jobs),Indirect_jobs=mean(Indirect_jobs),Total_jobs=mean(Total_jobs))
+
+employment_results_all_group_average <-  employment_results_all %>% group_by(Group) %>% summarise(Direct_jobs=mean(Direct_jobs),Indirect_jobs=mean(Indirect_jobs),Total_jobs=mean(Total_jobs))
+
+
+write.csv(employment_results_all,"Data/Employment Multipliers - Results/employment_results_ALL_WB.csv",row.names = F)
+write.csv(employment_results_all_average,"Data/Employment Multipliers - Results/employment_results_all_average_WB.csv",row.names = F)
+write.csv(employment_results_all_country_average,"Data/Employment Multipliers - Results/employment_results_all_country_average_WB.csv",row.names = F)
+write.csv(employment_results_all_group_average,"Data/Employment Multipliers - Results/employment_results_all_group_average_WB.csv",row.names = F)
+
+
+```
+
+#### *2.4 Charts*
+
+
+```{r charts,include=T,warning=FALSE}
+
+# Charts ----
+
+#employment_results_all <- read.csv("Data/Employment Multipliers - Results/employment_results_ALL_WB.csv")
+
+
+employment_results_all <- employment_results_all %>% mutate(Class=ifelse(Group %in% c("FRST","LNDU"),"Forest & Land Use",
+                                                    ifelse(Group %in% c("AGRC"),"Agriculture",
+                                                    ifelse(Group %in% c("LSMM","LVST"),"Livestock",
+                                                    ifelse(Group %in% c("TRWW","WALI"),"Wastewater Mgmt.",
+                                                    ifelse(Group %in% c("WASO"),"Solid Waste",
+                                                    ifelse(Group %in% c("INEN","CCSQ"),"Industrial Energy",
+                                                    ifelse(Group %in% c("FGTV"),"Fugitive Emissions",
+                                                    ifelse(Group %in% c("ENTC","EN: "),"Energy Technology",
+                                                    ifelse(Group %in% c("TRNS"),"Transportation",
+                                                    ifelse(Group %in% c("SCOE"),"Buildings",
+                                                    ifelse(Group %in% c("ENTC"),"Energy Technology",
+                                                    ifelse(Group %in% c("IPPU"),"IPPU","EN")))))))))))),
+                                                    
+                                                    Class = ifelse(strategy %in% c("IPPU: Reduce cement clinker"),"Material Use",
+                                                    ifelse(strategy %in% c("IPPU: Reduce fluorinated gasses bundle","IPPU: Reduce Nitrous Oxide emissions","IPPU: Reduce other fluorinated compounds","IPPU: Reduce use of HFCs","IPPU: Reduce use of PFCs"),"GHG abatement",Class)),
+                                                    
+                                                    Sector=ifelse(Group %in% c("AGRC","FRST","LNDU","LSMM","LVST"),"Agriculture, forests, and other land use",
+                                                     ifelse(Group %in% c("TRWW","WALI","WASO"),"Waste",
+                                                     ifelse(Group %in% c("ENTC","FGTV","EN: "),"Energy Production",
+                                                     ifelse(Group %in% c("SCOE"),"Buildings",
+                                                     ifelse(Group %in% c("INEN","CCSQ","IPPU"),"Industry",
+                                                    ifelse(Group %in% c("TRNS"),"Transport",NA))))))) %>% relocate(Sector,.before = Group)
+
+
+employment_results_all_average <-  employment_results_all %>% group_by(Country,Sector,Class) %>% summarise(Direct_jobs=mean(Direct_jobs),Indirect_jobs=mean(Indirect_jobs),Total_jobs=mean(Total_jobs))
+  
+
+employment_results_all_average_sector <-  employment_results_all %>% group_by(Sector) %>% summarise(Direct_jobs=mean(Direct_jobs),Indirect_jobs=mean(Indirect_jobs),Total_jobs=mean(Total_jobs))
+
+employment_results_all_country_average <-  employment_results_all %>% mutate(Group=substr(strategy,1,4)) %>% group_by(Country,Sector,Class) %>% summarise(Direct_jobs=mean(Direct_jobs),Indirect_jobs=mean(Indirect_jobs),Total_jobs=mean(Total_jobs))
+
+employment_results_all_group_average <-  employment_results_all %>% group_by(Sector,Class) %>% summarise(Direct_jobs=mean(Direct_jobs),Indirect_jobs=mean(Indirect_jobs),Total_jobs=mean(Total_jobs)) %>% 
+  mutate(Country="Average")
+
+# Boxplot chart 
+
+boxplot_group <- employment_results_all %>% mutate(class = fct_reorder(Class, Total_jobs, .fun='median')) %>%
+  ggplot( aes(x=Sector, y=Total_jobs, fill=Sector)) + 
+    geom_boxplot() +
+    xlab("class") +
+    xlab("") + 
+  theme(legend.position="none",axis.title.x = element_blank(),axis.text.x = element_text(size=11),axis.text.y = element_text(size=11),axis.title.y = element_text(size=11)) + scale_y_continuous(limits = c(2,28),breaks = c(2,4,6,8,10,12,14,16,18,20,22,24,26,28)) + labs(y="Total jobs per $1 million") +
+  
+  scale_x_discrete(labels=function(x) str_wrap(x,width =10)) +
+
+labs(caption = "Source: Developed by the authors.") + 
+  theme(plot.subtitle = element_text(
+      family = "Econ Sans Cnd",
+      size = 10,hjust = 0),plot.caption = element_text(hjust = 0,size = 9,color = "grey16"))
+
+ggsave(filename = "Data/Visualizations/boxplot_group_WB.png",plot = boxplot_group,device = "png",width = 8,height = 4.5,units = "in")
+
+
+# Subgroup chart
+
+employment_results_chart <- rbindlist(list(employment_results_all_country_average,employment_results_all_group_average),use.names = T)
+employment_results_chart <- employment_results_chart %>% mutate(id=ifelse(Country=="Average",1,0))
+
+# Agriculture, forests, and other land use
+
+afolu_chart <- employment_results_chart %>% filter(Sector=="Agriculture, forests, and other land use") %>% group_by(Class,Country,id) %>% summarise("Total Jobs"=mean(Total_jobs))
+
+afolu_chart_1 <- ggplot(afolu_chart, aes(fill=Country, y=`Total Jobs`,x=as.character(Country))) + geom_point(aes(color=id),size=1.5) +
+  facet_wrap(Class ~., nrow = 1,ncol = 5,drop = T,scales = "free_x") + theme_bw() +
+  
+  theme(legend.position="none",axis.title.x = element_blank(),axis.text.x =element_blank(),axis.ticks.x=element_blank(),axis.text.y = element_text(size=11),axis.title.y = element_text(size=11),legend.background = element_rect(
+      fill = "white")) + scale_y_continuous(breaks = c(0,2,4,6,8,10,12,14,16,18,20),limit=c(0,20)) + labs(y="Total jobs per $1 million") + ggrepel::geom_text_repel(aes(label=Country),fontface="bold",color="black",size=1.8,direction = "y",hjust=1,nudge_x = 0.6,min.segment.length = 0.1) +
+  labs(caption = "Source: Developed by the authors.") + 
+  theme(plot.subtitle = element_text(
+      family = "Econ Sans Cnd",
+      size = 10,hjust = 0),plot.caption = element_text(hjust = 0,size = 9,color = "grey16"))
+
+ggsave(filename = "Data/Visualizations/afolu_WB.png",plot = afolu_chart_1,device = "png",width = 8,height = 3,units = "in")
+
+
+# Waste
+
+circular_economy_chart <- employment_results_chart %>% filter(Sector=="Waste") %>% group_by(Class,Country,id) %>% summarise("Total Jobs"=mean(Total_jobs))
+
+
+circular_economy_chart_1 <- ggplot(circular_economy_chart, aes(fill=Country, y=`Total Jobs`,x=as.character(Country))) + geom_point(aes(color=id),size=1.5) + facet_wrap(Class ~., nrow = 1,ncol = 5,drop = T,scales = "free_x") + theme_bw() +
+  
+  theme(legend.position="none",axis.title.x = element_blank(),axis.text.x =element_blank(),axis.ticks.x=element_blank(),axis.text.y = element_text(size=11),axis.title.y = element_text(size=11)) + scale_y_continuous(breaks = c(0,2,4,6,8,10,12,14,16,18,20,22),limit=c(0,22)) + labs(y="Total jobs per $1 million") + ggrepel::geom_text_repel(aes(label=Country),fontface="bold",color="black",size=2.5,direction = "y",hjust=1,nudge_x = 0.6,min.segment.length = 0.1) +
+  
+  labs(caption = "Source: Developed by the authors.") + 
+  theme(plot.subtitle = element_text(
+      family = "Econ Sans Cnd",
+      size = 10,hjust = 0),plot.caption = element_text(hjust = 0,size = 9,color = "grey16"))
+
+
+ggsave(filename = "Data/Visualizations/circular_economy_chart_1_WB.png",plot = circular_economy_chart_1,device = "png",width = 10,height = 4,units = "in")
+
+
+# Buildings
+
+buildings_chart <- employment_results_chart %>% filter(Sector=="Buildings") %>% group_by(Class,Country,id) %>% summarise("Total Jobs"=mean(Total_jobs))
+
+
+buildings_chart_1 <- ggplot(buildings_chart, aes(fill=Country, y=`Total Jobs`,x=as.character(Country))) + geom_point(aes(color=id),size=3) + facet_wrap(Class ~., nrow = 1,ncol = 1,drop = T,scales = "free_x") + theme_bw() +
+  
+  theme(legend.position="none",axis.title.x = element_blank(),axis.text.x =element_blank(),axis.ticks.x=element_blank(),axis.text.y = element_text(size=11),axis.title.y = element_text(size=11),strip.text.x.top = element_text(size=11)) + scale_y_continuous(breaks = c(0,2,4,6,8,10,12,14,16,18,20,22,24),limit=c(0,24)) + labs(y="Total jobs per $1 million") + ggrepel::geom_text_repel(aes(label=Country),fontface="bold",color="black",size=3.5,direction = "y",hjust=1,nudge_x = 0.6,min.segment.length = 0.1) +
+  
+  labs(caption = "Source: Developed by the authors.") + 
+  theme(plot.subtitle = element_text(
+      family = "Econ Sans Cnd",
+      size = 10,hjust = 0),plot.caption = element_text(hjust = 0,size = 9,color = "grey16"))
+
+
+ggsave(filename = "Data/Visualizations/buildings_chart_1_WB.png",plot = buildings_chart_1,device = "png",width = 9,height = 4,units = "in")
+
+
+# Energy
+
+energy_chart_1 <- employment_results_chart %>% filter(Class %in% c("Fugitive Emissions","Energy Technology")) %>% group_by(Class,Country,id) %>% summarise("Total Jobs"=mean(Total_jobs))
+
+
+energy_chart_1 <- ggplot(energy_chart_1, aes(fill=Country, y=`Total Jobs`,x=as.character(Country))) + geom_point(aes(color=id),size=1) + facet_wrap(Class ~., nrow = 1,ncol = 5,drop = T,scales = "free_x") + theme_bw() +
+  
+  theme(legend.position="none",axis.title.x = element_blank(),axis.text.x =element_blank(),axis.ticks.x=element_blank(),axis.text.y = element_text(size=11),axis.title.y = element_text(size=11)) + scale_y_continuous(breaks = c(0,2,4,6,8,10,12,14,16,18,20,22,24),limit=c(0,24)) + labs(y="Total jobs per $1 million") + ggrepel::geom_text_repel(aes(label=Country),fontface="bold",color="black",size=2.5,direction = "y",hjust=1,nudge_x = 0.6,min.segment.length = 0.1) +
+  
+  labs(caption = "Source: Developed by the authors.") + 
+  theme(plot.subtitle = element_text(
+      family = "Econ Sans Cnd",
+      size = 10,hjust = 0),plot.caption = element_text(hjust = 0,size = 9,color = "grey16"))
+
+
+ggsave(filename = "Data/Visualizations/energy_chart_1_WB.png",plot = energy_chart_1,device = "png",width = 8,height = 3,units = "in")
+
+
+# Transport
+
+transport_chart_2 <- employment_results_chart %>% filter(Class %in% c("Transportation")) %>% group_by(Class,Country,id) %>% summarise("Total Jobs"=mean(Total_jobs))
+
+
+transport_chart_2 <- ggplot(transport_chart_2, aes(fill=Country, y=`Total Jobs`,x=as.character(Country))) + geom_point(aes(color=id),size=2.5) + facet_wrap(Class ~., nrow = 1,ncol = 5,drop = T,scales = "free_x") + theme_bw() +
+  
+  theme(legend.position="none",axis.title.x = element_blank(),axis.text.x =element_blank(),axis.ticks.x=element_blank(),axis.text.y = element_text(size=11),axis.title.y = element_text(size=11),strip.text.x.top = element_text(size=11)) + scale_y_continuous(breaks = c(0,2,4,6,8,10,12,14,16,18,20),limit=c(0,20)) + labs(y="Total jobs per $1 million") + ggrepel::geom_text_repel(aes(label=Country),fontface="bold",color="black",size=3.5,direction = "y",hjust=1,nudge_x = 0.6,min.segment.length = 0.1) +
+  
+  labs(caption = "Source: Developed by the authors.") + 
+  theme(plot.subtitle = element_text(
+      family = "Econ Sans Cnd",
+      size = 10,hjust = 0),plot.caption = element_text(hjust = 0,size = 9,color = "grey16"))
+
+
+ggsave(filename = "Data/Visualizations/transport_chart_2_WB.png",plot = transport_chart_2,device = "png",width = 9,height = 4,units = "in")
+
+
+# Industry
+
+ippu_chart <- employment_results_chart %>% filter(Class %in% c("Industrial Energy","Material Use","GHG abatement")) %>% group_by(Class,Country,id) %>% summarise("Total Jobs"=mean(Total_jobs))
+
+ippu_chart$Class <- factor(ippu_chart$Class,levels=c("Material Use","Industrial Energy","GHG abatement"))
+
+
+ippu_chart <- ggplot(ippu_chart, aes(fill=Country, y=`Total Jobs`,x=as.character(Country))) + geom_point(aes(color=id),size=1.5) + facet_wrap(Class ~., nrow = 1,ncol = 3,drop = T,scales = "free_x") + theme_bw() +
+  
+  theme(legend.position="none",axis.title.x = element_blank(),axis.text.x =element_blank(),axis.ticks.x=element_blank(),axis.text.y = element_text(size=11),axis.title.y = element_text(size=11)) + scale_y_continuous(breaks = c(0,2,4,6,8,10,12,14,16,18,20,22,24),limit=c(0,24)) + labs(y="Total jobs per $1 million") + ggrepel::geom_text_repel(aes(label=Country),fontface="bold",color="black",size=2,direction = "y",hjust=1,nudge_x = 0.6,min.segment.length = 0.1) +
+  
+  labs(caption = "Source: Developed by the authors.") + 
+  theme(plot.subtitle = element_text(
+      family = "Econ Sans Cnd",
+      size = 10,hjust = 0),plot.caption = element_text(hjust = 0,size = 9,color = "grey16"))
+
+
+ggsave(filename = "Data/Visualizations/ippu_chart_WB.png",plot = ippu_chart,device = "png",width = 8,height = 3,units = "in")
+
+
+```
+
+### *References*
+
+Table A3.1 - Pollin, R., Garrett-Peltier, H., Heintz, J., Chakraborty, S., 2015. Global Green Growth: Clean Energy Industrial Investments and Expanding Job Opportunities. United Nations Industrial Development Organization and Global Green Growth Institute,Vienna and Seoul.
+
+Figure 7: DAC cost breakdown and comparison - Okzan et al (2022)
+
+Table 4 and 9 - Anaerobic digestion applied to agricultural waste and Biogas production - CAPEX (65%) and OPEX (35%) - Sánchez-Martín et al (2022)

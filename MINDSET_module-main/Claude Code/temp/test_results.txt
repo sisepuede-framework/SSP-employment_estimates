@@ -1,0 +1,87 @@
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\test_product_distribution.py", line 103, in <module>
+    test_dist = pd.read_excel(file_path)
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\excel\_base.py", line 481, in read_excel
+    io = ExcelFile(
+        io,
+    ...<2 lines>...
+        engine_kwargs=engine_kwargs,
+    )
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\excel\_base.py", line 1604, in __init__
+    ext = inspect_excel_format(
+        content_or_path=path_or_buffer, storage_options=storage_options
+    )
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\excel\_base.py", line 1452, in inspect_excel_format
+    with get_handle(
+         ~~~~~~~~~~^
+        content_or_path, "rb", storage_options=storage_options, is_text=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ) as handle:
+    ^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\io\common.py", line 935, in get_handle
+    handle = open(handle, ioargs.mode)
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\festeves\\OneDrive - RAND Corporation\\Courses\\Dissertation\\3rd Paper\\Data\\Cost Structure\\cost_str_BGR.xlsx'
+================================================================================
+TESTING PRODUCT DISTRIBUTION DATASET BUILDER
+================================================================================
+
+TEST 1: Loading Crosswalk
+--------------------------------------------------------------------------------
+SUCCESS: Loaded crosswalk
+  Dimensions: 120 rows × 27 columns
+  Column names: Products, Agriculture, Fishing, Mining and Quarrying, Food & Beverages...
+  Sector columns identified: 26
+  Sectors: Agriculture, Fishing, Mining and Quarrying, Food & Beverages, Textiles and Wearing Apparel...
+
+TEST 2: Transform Crosswalk to Long Format
+--------------------------------------------------------------------------------
+SUCCESS: Transformed to long format
+  Rows: 121 (Product-Sector pairs)
+  Unique products: 120
+  Unique sectors: 23
+
+Sample Product-Sector links:
+                                 Products       Sector
+0                           Growing wheat  Agriculture
+1                           Growing maize  Agriculture
+2                   Growing cereals n.e.c  Agriculture
+3  Growing leguminous crops and oil seeds  Agriculture
+4                            Growing rice  Agriculture
+5       Growing vegetables, roots, tubers  Agriculture
+6             Growing sugar beet and cane  Agriculture
+7                         Growing tobacco  Agriculture
+8                     Growing fibre crops  Agriculture
+9                    Growing crops n.e.c.  Agriculture
+
+Products per sector:
+                                                   Sector  n_products
+0                                             Agriculture          21
+1                                            Construction           2
+2                    Education, Health and Other Services           3
+3                                Electrical and Machinery           4
+4                              Electricity, Gas and Water           4
+5        Financial Intermediation and Business Activities           4
+6                                                 Fishing           2
+7                                        Food & Beverages          16
+8                                  Hotels and Restaurants           1
+9                                  Maintenance and Repair           1
+10                                         Metal Products           9
+11                                   Mining and Quarrying          17
+12                                    Other Manufacturing           1
+13                                                 Others           1
+14  Petroleum, Chemical and Non-Metallic Mineral Products          15
+15                            Post and Telecommunications           4
+16                                     Private Households           1
+17                                  Public Administration           1
+18                                              Recycling           1
+19                           Textiles and Wearing Apparel           2
+20                                              Transport           6
+21                                    Transport Equipment           2
+22                                         Wood and Paper           3
+
+================================================================================
+TEST 3: Loading Distribution Files
+--------------------------------------------------------------------------------
+Testing with: BGR
+  Loading: cost_str_BGR.xlsx
+ERROR loading distribution: [Errno 13] Permission denied: 'C:\\Users\\festeves\\OneDrive - RAND Corporation\\Courses\\Dissertation\\3rd Paper\\Data\\Cost Structure\\cost_str_BGR.xlsx'

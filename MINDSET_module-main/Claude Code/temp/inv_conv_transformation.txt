@@ -1,0 +1,52 @@
+================================================================================
+Understanding INV_CONV Transformation
+================================================================================
+
+STEP 1: INV_CONV as loaded from file
+--------------------------------------------------------------------------------
+Type: <class 'pandas.DataFrame'>
+Shape: (120, 121)
+Columns: ['Unnamed: 0', '1', '2', '3', '4', '5', '6', '7', '8', '9']...
+
+First 5x5 block:
+   Unnamed: 0        1        2        3        4        5
+0           1  0.19964  0.00000  0.00000  0.00000  0.00000
+1           2  0.00000  0.19964  0.00000  0.00000  0.00000
+2           3  0.00000  0.00000  0.19964  0.00000  0.00000
+3           4  0.00000  0.00000  0.00000  0.19964  0.00000
+4           5  0.00000  0.00000  0.00000  0.00000  0.19964
+
+First 10 diagonal values: [np.float64(0.19964), np.float64(0.19964), np.float64(0.19964), np.float64(0.19964), np.float64(0.19964), np.float64(0.19964), np.float64(0.19964), np.float64(0.19964), np.float64(0.19964), np.float64(0.19964)]
+
+STEP 2: How scenario.set_inv_conv_adj() transforms it
+--------------------------------------------------------------------------------
+After transformation:
+Type: <class 'pandas.DataFrame'>
+Shape: (14256, 4)
+Columns: ['TRAD_COMM', 'PROD_COMM', 'input_coeff', 'REG_imp']
+
+First 20 rows:
+     TRAD_COMM PROD_COMM  input_coeff REG_imp
+0            1         1     0.199640     ROW
+70          71         1     0.000385     ROW
+71          72         1     0.000385     ROW
+76          77         1     0.001380     ROW
+77          78         1     0.001380     ROW
+84          85         1     0.014860     ROW
+85          86         1     0.247640     ROW
+86          87         1     0.132640     ROW
+89          90         1     0.003570     ROW
+90          91         1     0.005040     ROW
+91          92         1     0.003090     ROW
+97          98         1     0.132275     ROW
+98          99         1     0.132275     ROW
+100        101         1     0.068940     ROW
+106        107         1     0.003650     ROW
+112        113         1     0.019220     ROW
+113        114         1     0.033640     ROW
+121          2         2     0.199640     ROW
+190         71         2     0.000385     ROW
+191         72         2     0.000385     ROW
+
+
+ERROR: 'charmap' codec can't encode character '\u2192' in position 29: character maps to <undefined>

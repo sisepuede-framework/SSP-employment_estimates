@@ -1,0 +1,75 @@
+Loading MRIO data...
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+L_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found, will be parsed in IO module.
+G_BASE file is not found.
+Y_BASE file is not found, will be parsed in IO module.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 8.4 s ---
+Loaded. Countries: 164, Sectors: 120
+
+Reading: GLORIA_template/Scenarios/Strategy_1004_MEX.xlsx
+
+AFTER READING EXCEL:
+  Rows: 120
+  Non-zero values: 40
+  NaN in PROD_COMM: 3
+
+STEP: resolve_comma(REG_imp)...
+  Rows after: 120
+  Non-zero values: 40
+
+STEP: resolve_all(REG_imp)...
+  Rows after: 120
+  Non-zero values: 40
+
+STEP: resolve_comma(PROD_COMM)...
+Traceback (most recent call last):
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\indexing.py", line 2144, in _setitem_single_column
+    self.obj._mgr.column_setitem(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        loc, plane_indexer, value, inplace_only=True
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\internals\managers.py", line 1518, in column_setitem
+    col_mgr.setitem_inplace(idx, value)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\internals\managers.py", line 2220, in setitem_inplace
+    value = np_can_hold_element(arr.dtype, value)
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\dtypes\cast.py", line 1775, in np_can_hold_element
+    raise LossySetitemError
+pandas.errors.LossySetitemError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\debug_scenario_processing.py", line 55, in <module>
+    inv_exog = resolve_comma(inv_exog, "PROD_COMM")
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\utils.py", line 119, in resolve_comma
+    df.loc[:,col_name] = df[col_name].astype(str)
+    ~~~~~~^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\indexing.py", line 938, in __setitem__
+    iloc._setitem_with_indexer(indexer, value, self.name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\indexing.py", line 1953, in _setitem_with_indexer
+    self._setitem_with_indexer_split_path(indexer, value, name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\indexing.py", line 1997, in _setitem_with_indexer_split_path
+    self._setitem_single_column(ilocs[0], value, pi)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\festeves\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\pandas\core\indexing.py", line 2163, in _setitem_single_column
+    raise TypeError(
+        f"Invalid value '{value}' for dtype '{dtype}'"
+    ) from exc
+TypeError: Invalid value '<ArrowStringArray>
+['115.0', '105.0',  '55.0',  '30.0',  '52.0', '119.0',  '79.0',  '80.0',
+  '78.0',  '67.0',
+ ...
+  '35.0',  '56.0', '103.0',  '29.0',  '53.0',  '48.0',  '96.0',  '95.0',
+ '104.0', '100.0']
+Length: 120, dtype: str' for dtype 'float64'

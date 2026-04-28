@@ -1,0 +1,49 @@
+================================================================================
+VALIDATING LABOR_DATA AGGREGATION
+================================================================================
+
+Loading aggregated labor_data.pkl (SSP - 8 countries)...
+  Shape: (960, 10)
+  Countries: ['BGR', 'BLZ', 'EGY', 'LBY', 'MAR', 'MEX', 'ROW', 'UGA']
+
+Loading original labor_data.pkl (164 GLORIA countries)...
+  Shape: (19680, 10)
+  Countries (first 20): ['AFG', 'AGO', 'ALB', 'ARE', 'ARG', 'ARM', 'AUS', 'AUT', 'AZE', 'BDI', 'BEL', 'BEN', 'BFA', 'BGD', 'BGR', 'BHR', 'BHS', 'BIH', 'BLR', 'BLZ']
+
+================================================================================
+VALIDATION: EGY and MEX employment should match exactly
+================================================================================
+
+EGY:
+--------------------------------------------------------------------------------
+  Aggregated (SSP) - rows: 120
+  Original (164) - rows: 120
+  Product 90 employment:
+    Aggregated: 133,518 workers
+    Original:   133,518 workers
+    Match: True
+
+MEX:
+--------------------------------------------------------------------------------
+  Aggregated (SSP) - rows: 120
+  Original (164) - rows: 120
+  Product 90 employment:
+    Aggregated: 871,271 workers
+    Original:   871,271 workers
+    Match: True
+
+================================================================================
+CHECKING BASELINE OUTPUT (q_base) CONSISTENCY
+================================================================================
+
+The issue might not be in labor_data.pkl aggregation, but in how
+q_base is calculated from L_BASE and Y_BASE matrices.
+
+If L_BASE and Y_BASE were aggregated differently than labor_data.pkl,
+then empl_base/q_base ratios will be inconsistent.
+
+RECOMMENDATION:
+1. Check if L_BASE, Y_BASE, G_BASE were created using aggregate_mat.py
+2. Check if labor_data.pkl was created using collapse_MRIO_SSP.py
+3. Verify both use the same R_grouping_SSP.xlsx mapping
+4. If created at different times, re-run ALL aggregation scripts together

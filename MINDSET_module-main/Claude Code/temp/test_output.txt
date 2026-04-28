@@ -1,0 +1,29 @@
+================================================================================
+TEST: Employment Analysis with ISIC Sectors and Strategy Attributes
+================================================================================
+
+STEP 1: Loading ISIC Crosswalk and Strategy Attributes
+--------------------------------------------------------------------------------
+Crosswalk loaded: (121, 21)
+Columns: ['GLORIA ISIC Rev. 4 concordance', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
+
+First 10 rows:
+           GLORIA ISIC Rev. 4 concordance  ...                                                  T
+0                                     NaN  ...  Activities of households as employers; undiffe...
+1                           Growing wheat  ...                                                  0
+2                           Growing maize  ...                                                  0
+3                   Growing cereals n.e.c  ...                                                  0
+4  Growing leguminous crops and oil seeds  ...                                                  0
+5                            Growing rice  ...                                                  0
+6       Growing vegetables, roots, tubers  ...                                                  0
+7             Growing sugar beet and cane  ...                                                  0
+8                         Growing tobacco  ...                                                  0
+9                     Growing fibre crops  ...                                                  0
+
+[10 rows x 21 columns]
+
+Traceback (most recent call last):
+  File "C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\Claude Code\temp\TEST_ONE_STRATEGY_WITH_SECTORS.py", line 59, in <module>
+    product_col = [col for col in crosswalk_df.columns if 'Lfd' in col or 'lfd' in col or 'Product' in col and 'Code' not in col][0]
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range

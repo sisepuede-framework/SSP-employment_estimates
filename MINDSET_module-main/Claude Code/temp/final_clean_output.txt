@@ -1,0 +1,91 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+TEST: Employment Analysis - FINAL CLEAN OUTPUT
+================================================================================
+
+STEP 1: Loading Crosswalk and Attributes
+--------------------------------------------------------------------------------
+ISIC sections: 20
+Strategy attributes: (92, 2)
+
+STEP 2: Initializing MINDSET
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.3 s ---
+[OK] Models ready
+
+STEP 3: Processing Strategy_1004_EGY
+--------------------------------------------------------------------------------
+Country: Egypt (EGY)
+
+STEP 4: Aggregating to ISIC Sectors
+--------------------------------------------------------------------------------
+Sectors: 20
+Total jobs: 20.93
+Share sum: 1.000000
+
+STEP 5: Merging Strategy Attributes
+--------------------------------------------------------------------------------
+[OK] Merge complete
+
+================================================================================
+FINAL OUTPUT STRUCTURE
+================================================================================
+
+Total rows: 20
+Total columns: 10
+
+Columns:
+   1. country_name
+   2. country_ISO
+   3. strategy_id
+   4. strategy_name
+   5. sector_code
+   6. sector_name
+   7. direct_jobs
+   8. indirect_jobs
+   9. total_jobs
+  10. share_of_total_jobs
+
+================================================================================
+NON-ZERO SECTORS
+================================================================================
+
+country_name country_ISO       strategy_id strategy_name sector_code                                                   sector_name  direct_jobs  indirect_jobs  total_jobs  share_of_total_jobs
+       Egypt         EGY Strategy_1004_EGY           NaN           A                             Agriculture, forestry and fishing    12.885302       0.010708   12.896010             0.616274
+       Egypt         EGY Strategy_1004_EGY           NaN           G          Wholesale and retail trade; repair of motor vehicles     0.000000       3.172266    3.172266             0.151596
+       Egypt         EGY Strategy_1004_EGY           NaN           C                                                 Manufacturing     2.716568       0.267520    2.984089             0.142604
+       Egypt         EGY Strategy_1004_EGY           NaN           B                                          Mining and quarrying     0.000000       1.269506    1.269506             0.060667
+       Egypt         EGY Strategy_1004_EGY           NaN           H                                    Transportation and storage     0.000000       0.243294    0.243294             0.011627
+       Egypt         EGY Strategy_1004_EGY           NaN           K                            Financial and insurance activities     0.000000       0.140453    0.140453             0.006712
+       Egypt         EGY Strategy_1004_EGY           NaN           M             Professional, scientific and technical activities     0.000000       0.116426    0.116426             0.005564
+       Egypt         EGY Strategy_1004_EGY           NaN           F                                                  Construction     0.000000       0.030892    0.030892             0.001476
+       Egypt         EGY Strategy_1004_EGY           NaN           O Public administration and defence; compulsory social security     0.000000       0.024016    0.024016             0.001148
+       Egypt         EGY Strategy_1004_EGY           NaN           J                                 Information and communication     0.000000       0.020207    0.020207             0.000966
+       Egypt         EGY Strategy_1004_EGY           NaN           N                           Administrative and support services     0.000000       0.011579    0.011579             0.000553
+
+================================================================================
+SUMMARY
+================================================================================
+
+Total jobs: 20.93
+Direct: 15.60 (74.6%)
+Indirect: 5.32 (25.4%)
+
+Top 3 sectors:
+  A: Agriculture, forestry and fishing
+    12.90 jobs (61.6%)
+  G: Wholesale and retail trade; repair of motor v
+    3.17 jobs (15.2%)
+  C: Manufacturing
+    2.98 jobs (14.3%)
+
+================================================================================
+TEST COMPLETE - Structure confirmed!
+================================================================================

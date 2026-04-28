@@ -1,0 +1,71 @@
+C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\Mindset - WB\MINDSET_module-main\MINDSET_module-main\SourceCode\employment.py:22: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  EMPL_COEF = EMPL_COEF.reset_index()
+================================================================================
+TEST: Identity INV_CONV with PROPER Employment Baseline
+================================================================================
+
+STEP 1: Loading MRIO Data
+--------------------------------------------------------------------------------
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.5 s ---
+[OK] MRIO data loaded
+  Countries: ROW, BGR, BLZ, EGY, LBY, MAR, MEX, UGA
+[OK] LABOR_BASE loaded: (960, 10)
+
+STEP 2: Loading Investment Scenario
+--------------------------------------------------------------------------------
+[OK] Investment loaded: $1,000 kUSD
+
+STEP 3: Converting Investment to Final Demand
+--------------------------------------------------------------------------------
+[OK] Demand created: $1,000 kUSD
+  Preservation: 100.0%
+
+STEP 4: Calculating Output Changes
+--------------------------------------------------------------------------------
+[OK] Output change: $2,196 kUSD
+  Multiplier: 2.196x
+
+STEP 5: Calculating Employment Baseline (from LABOR_BASE)
+--------------------------------------------------------------------------------
+[OK] Employment baseline calculated from LABOR_BASE
+  Shape: (960, 3)
+  Columns: ['REG_imp', 'PROD_COMM', 'vol_total']
+  Total baseline employment: 3,466,729,601 workers
+
+STEP 6: Calculating Employment Impacts
+--------------------------------------------------------------------------------
+[OK] Employment calculated using MINDSET methodology
+  Total jobs created: 53
+  Jobs per $M USD: 53.2
+
+STEP 7: Results by Country
+--------------------------------------------------------------------------------
+Country  Investment  Demand  Output  Jobs  Jobs_per_M
+    ROW         0.0  652.45 1688.00 28.72       44.02
+    BGR         0.0    9.93   13.58  0.10        9.73
+    EGY      1000.0  323.65  471.49 20.93       64.66
+    LBY         0.0    3.69    5.33  0.67      182.86
+    MAR         0.0    8.19    9.96  2.54      310.51
+    MEX         0.0    2.05    7.32  0.07       32.76
+
+================================================================================
+RESULTS SUMMARY
+================================================================================
+
+Scenario: Strategy_1004_EGY
+Investment: $1,000 kUSD = $1,000,000
+Demand: $1,000 kUSD
+Output: $2,196 kUSD (multiplier: 2.20x)
+Employment: 53 jobs (53.2 per $M)
+
+[OK] This uses MINDSET's actual LABOR_BASE data
+[OK] Following prod_cost.py and RunMINDSET.py methodology
+[OK] No guessing or invented assumptions
+
+================================================================================

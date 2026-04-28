@@ -1,0 +1,44 @@
+WARNING: No input file specified for SCENARIO
+SCENARIO file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_POLLUTANTS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+ALL_PROCESS_EMISSIONS file is not found.
+--- Collected exogenous variables: 0.3 s ---
+Initial investment:
+  Total: $1,000.00 kUSD
+
+After calc_dy_inv_exog (before vectorization):
+  Shape: (428, 3)
+  Columns: ['REG_imp', 'TRAD_COMM', 'dy']
+  Total dy: $979.05 kUSD
+
+First 20 rows:
+   REG_imp TRAD_COMM        dy
+0      BGR        10  0.010396
+1      BGR       101       0.0
+2      BGR       102       0.0
+3      BGR       104       0.0
+4      BGR       105       0.0
+5      BGR       106       0.0
+6      BGR       107       0.0
+7      BGR       109       0.0
+8      BGR       112       0.0
+9      BGR       114       0.0
+10     BGR       119       0.0
+11     BGR        12  0.052358
+12     BGR        14  0.009979
+13     BGR        20  0.000056
+14     BGR        21  0.000262
+15     BGR        31       0.0
+16     BGR        37       0.0
+17     BGR         4  0.460588
+18     BGR        40       0.0
+19     BGR        47       0.0
+
+Total by country:
+  ROW: $840.36 kUSD
+  BGR: $2.21 kUSD
+  EGY: $0.64 kUSD
+  MAR: $0.60 kUSD
+  MEX: $135.23 kUSD

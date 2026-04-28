@@ -1,0 +1,1 @@
+python "ParseCode\collapse_MRIO.py" "GLORIA_template\Country_groupings\R_grouping.xlsx"

@@ -1,0 +1,45 @@
+Strategy_1004_MEX.xlsx - Investment by sheet
+================================================================================
+Non-zero investments:
+
+                                                 Sector investing  Sector investing code*       Value*
+                                        Basic inorganic chemicals                      67 26000.000000
+                                          Basic organic chemicals                      68 26000.000000
+                                     Basic petrochemical products                      66 26000.000000
+                                Cement, lime and plaster products                      75 26000.000000
+                                          Clay building materials                      73 26000.000000
+                                               Coke oven products                      62 26000.000000
+Computers; electronic products; optical and precision instruments                      90 42500.000000
+      Dyes, paints, glues, detergents and other chemical products                      70 26000.000000
+                                             Electrical equipment                      91 42500.000000
+                                             Forestry and logging                      21 20952.380952
+                         Growing beverage crops (coffee, tea etc)                      13 20952.380952
+                                            Growing cereals n.e.c                       3 20952.380952
+                                             Growing crops n.e.c.                      10 20952.380952
+                                              Growing fibre crops                       9 20952.380952
+                                          Growing fruits and nuts                      12 20952.380952
+                                                   Growing grapes                      11 20952.380952
+                           Growing leguminous crops and oil seeds                       4 20952.380952
+                                                    Growing maize                       2 20952.380952
+                                                     Growing rice                       5 20952.380952
+          Growing spices, aromatic, drug and pharmaceutical crops                      14 20952.380952
+                                      Growing sugar beet and cane                       7 20952.380952
+                                                  Growing tobacco                       8 20952.380952
+                                Growing vegetables, roots, tubers                       6 20952.380952
+                                                    Growing wheat                       1 20952.380952
+                                          Machinery and equipment                      86 42500.000000
+                                          Nitrogenous fertilizers                      64 26000.000000
+                            Non-nitrogenous and mixed fertilizers                      65 26000.000000
+                                            Other ceramics n.e.c.                      74 26000.000000
+                       Other non-metallic mineral products n.e.c.                      76 26000.000000
+                           Pharmaceuticals and medicinal products                      69 26000.000000
+                                                 Plastic products                      72 26000.000000
+               Raising of animals n.e.c.; services to agriculture                      20 20952.380952
+                                                Raising of cattle                      16 20952.380952
+                                               Raising of poultry                      19 20952.380952
+                                                 Raising of sheep                      17 20952.380952
+                                            Raising of swine/pigs                      18 20952.380952
+                                       Refined petroleum products                      63 26000.000000
+               Repair and installation of machinery and equipment                      89 42500.000000
+                                                  Rubber products                      71 26000.000000
+                                      Seeds and plant propagation                      15 20952.380952

@@ -1,0 +1,62 @@
+================================================================================
+PROPER EMPLOYMENT COMPARISON: EGY vs MEX
+================================================================================
+
+METRIC DEFINITIONS:
+- Jobs per $M INVESTMENT: How many jobs created per $1M invested (POLICY METRIC)
+- Jobs per $M OUTPUT: Employment intensity of production (BASELINE METRIC)
+- Jobs per $M DEMAND: Employment from final demand shock (IO MODEL OUTPUT)
+
+================================================================================
+EGY RESULTS (Strategy_1004_EGY)
+================================================================================
+Investment:       $1,000 kUSD = $1.000M
+Final Demand:     $  324 kUSD = $0.324M
+Output Change:    $  471 kUSD = $0.471M
+Jobs Created:     20.93 jobs
+
+Jobs per $M INVESTMENT:  20.93 / 1.000 =  20.9 jobs/$M  ← POLICY METRIC
+Jobs per $M DEMAND:      20.93 / 0.324 =  64.7 jobs/$M
+Jobs per $M OUTPUT:      20.93 / 0.471 =  44.4 jobs/$M  ← BASELINE INTENSITY
+
+================================================================================
+MEX RESULTS (Strategy_1004_MEX)
+================================================================================
+Investment:       $1,000 kUSD = $1.000M
+Final Demand:     $  980 kUSD = $0.980M
+Output Change:    $2,240 kUSD = $2.240M
+Jobs Created:     35.1 jobs (total), but only 1.01 jobs in MEX
+
+MEX-ONLY RESULTS:
+Output Change:    $  204 kUSD = $0.204M
+Jobs in MEX:      1.01 jobs
+
+Jobs per $M INVESTMENT:   1.01 / 1.000 =   1.0 jobs/$M  ← POLICY METRIC
+Jobs per $M OUTPUT:       1.01 / 0.204 =   5.0 jobs/$M  ← BASELINE INTENSITY
+
+================================================================================
+COMPARISON
+================================================================================
+
+                          EGY        MEX       Ratio
+Jobs/$M Investment        20.9        1.0      20.9x  ← TOO HIGH!
+Jobs/$M Output            44.4        5.0       8.9x  ← TOO HIGH!
+
+Expected ratio for middle-income countries: 1.5-3.0x
+Observed ratio: 8.9-20.9x
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The employment multipliers are too high for EGY and too low for MEX, creating
+an unrealistic 20x difference in jobs per $M investment.
+
+Possible causes:
+1. LABOR_BASE aggregation error (employment data inconsistent with output data)
+2. Q_base calculation error (baseline output doesn't match employment baseline)
+3. Product-specific data quality issues in original GLORIA
+4. fcf_share redistribution amplifying the discrepancy
+
+NEXT STEP: Check if EGY and MEX labor_data in the aggregated SSP file matches
+the original 164-country GLORIA database.
