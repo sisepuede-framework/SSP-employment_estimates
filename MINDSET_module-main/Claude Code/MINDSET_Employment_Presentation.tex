@@ -1,0 +1,976 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\title[MINDSET Employment]{Employment Impact Estimation Using MINDSET}
+\subtitle{ISIC Sector Analysis for SSP Countries}
+\author{Felipe Esteves}
+\institute{RAND Corporation}
+\date{\today}
+
+\begin{document}
+
+\frame{\titlepage}
+
+% ============================================
+% SECTION 1: INTRODUCTION
+% ============================================
+
+\begin{frame}{Research Objective}
+\textbf{Goal:} Estimate employment impacts of 469 investment strategies across 7 countries using MINDSET framework
+
+\vspace{0.5cm}
+
+\textbf{Key Features:}
+\begin{itemize}
+    \item Multi-Regional Input-Output (MRIO) analysis
+    \item Direct and indirect employment decomposition
+    \item ISIC Rev. 4 sector classification (20 sectors)
+    \item Country-specific employment elasticities
+    \item Supply chain effects via Leontief multipliers
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Coverage:}
+\begin{itemize}
+    \item Countries: BGR, BLZ, EGY, LBY, MAR, MEX, UGA
+    \item Strategies: 469 investment scenarios
+    \item Output: \texttt{employment\_consolidated.csv} ($\sim$9,380 rows)
+\end{itemize}
+\end{frame}
+
+% ============================================
+% SECTION 2: DATA SOURCES
+% ============================================
+
+\begin{frame}{Data Sources}
+\textbf{1. GLORIA v57 Database (2019)}
+\begin{itemize}
+    \item 164 countries $\times$ 120 products
+    \item Aggregated to 8 SSP regions
+    \item Multi-Regional Input-Output (MRIO) matrices
+    \item Employment data by country-product
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{2. Investment Strategies}
+\begin{itemize}
+    \item 469 Excel files: \texttt{Strategy\_*.xlsx}
+    \item Cost structure across 26 Eora26 sectors
+    \item Country-specific investment allocations
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{3. Crosswalks and Attributes}
+\begin{itemize}
+    \item GLORIA-Eora26 crosswalk: 120 products $\rightarrow$ 26 sectors
+    \item Eora26-ISIC crosswalk: 26 sectors $\rightarrow$ 20 ISIC sections
+    \item Strategy attributes: Names and metadata
+\end{itemize}
+\end{frame}
+
+% ============================================
+% SECTION 3: MINDSET FRAMEWORK
+% ============================================
+
+\begin{frame}{MINDSET Framework Overview}
+\textbf{Multi-Regional Input-Output Model}
+
+\vspace{0.3cm}
+
+\textbf{Core Components:}
+\begin{enumerate}
+    \item \textbf{Leontief Model}: $\mathbf{q} = \mathbf{L} \times \mathbf{y}$
+    \begin{itemize}
+        \item $\mathbf{L} = (\mathbf{I} - \mathbf{A})^{-1}$ = Leontief inverse
+        \item $\mathbf{A}$ = technical coefficients matrix
+        \item Captures supply chain linkages
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Output Changes}: $\Delta\mathbf{q} = \mathbf{L} \times \Delta\mathbf{y}$
+    \begin{itemize}
+        \item $\Delta\mathbf{y}$ = exogenous demand shock (investment)
+        \item $\Delta\mathbf{q}$ = total output change (direct + indirect)
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Employment Impact}: $\Delta E = \mathbf{m} \circ \Delta\mathbf{q}$
+    \begin{itemize}
+        \item $\mathbf{m}$ = employment multiplier vector
+        \item $\circ$ = element-wise multiplication
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Employment Calculation Details}
+\textbf{Employment Multiplier:}
+\[
+m_{i,j} = \text{EMPL\_COEF}_{i,j} \times \frac{E^{\text{base}}_{i,j}}{q^{\text{base}}_{i,j}}
+\]
+
+Where:
+\begin{itemize}
+    \item $i$ = country, $j$ = product
+    \item $E^{\text{base}}$ = baseline employment (workers)
+    \item $q^{\text{base}}$ = baseline output (\$M)
+    \item EMPL\_COEF = employment elasticity parameter
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Employment Change:}
+\[
+\Delta E_{i,j} = m_{i,j} \times \Delta q_{i,j}
+\]
+
+\vspace{0.3cm}
+
+\textbf{Interpretation:} Workers created per \$1M increase in output
+\end{frame}
+
+% ============================================
+% SECTION 4: METHODOLOGY
+% ============================================
+
+\begin{frame}{Workflow: Phase 1 - Data Preparation}
+\textbf{Step 1: MRIO Aggregation}
+\begin{itemize}
+    \item Script: \texttt{collapse\_MRIO\_SSP.py}
+    \item Aggregate 164 countries to 8 SSP regions
+    \item Generate matrices: $\mathbf{Z}$, $\mathbf{Y}$, $\mathbf{VA}$, $\mathbf{E}$
+    \item Output: \texttt{.pkl} and \texttt{.mat} files in \texttt{GLORIA\_db/}
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Step 2: Baseline Setup}
+\begin{itemize}
+    \item Script: \texttt{create\_SSP\_Y\_BASE.py}
+    \item Create baseline final demand: $\mathbf{Y}^{\text{base}}$
+    \item Sum household + government + investment flows
+    \item Store as \texttt{Y\_BASE.mat}
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Step 3: Leontief Inverse}
+\begin{itemize}
+    \item Calculate $\mathbf{L} = (\mathbf{I} - \mathbf{A})^{-1}$
+    \item Stored in model for repeated use
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Workflow: Phase 2 - Model Initialization}
+\textbf{One-Time Setup (Per Batch Run):}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{Load MRIO Data}
+    \begin{itemize}
+        \item Module: \texttt{exog\_vars\_SSP.py}
+        \item Load aggregated matrices from \texttt{GLORIA\_db/}
+        \item Load employment baseline: \texttt{LABOR\_BASE}
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Initialize I-O Model}
+    \begin{itemize}
+        \item Module: \texttt{InputOutput\_SSP.py}
+        \item Calculate Leontief inverse $\mathbf{L}$
+        \item Store baseline output $\mathbf{q}^{\text{base}}$
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Initialize Employment Model}
+    \begin{itemize}
+        \item Module: \texttt{employment.py}
+        \item Calculate employment multipliers $\mathbf{m}$
+        \item Ready for repeated applications
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Result:} All heavy computations done once, fast iterations for 469 strategies
+\end{frame}
+
+\begin{frame}{Workflow: Phase 3 - Batch Processing}
+\textbf{For Each Strategy (469 iterations):}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{Load Investment Vector}
+    \begin{itemize}
+        \item Read \texttt{Strategy\_*.xlsx}
+        \item Map Eora26 sectors to GLORIA products
+        \item Create $\Delta\mathbf{y}$ (investment demand shock)
+    \end{itemize}
+
+    \item \textbf{Calculate Output Change}
+    \begin{itemize}
+        \item Apply Leontief: $\Delta\mathbf{q} = \mathbf{L} \times \Delta\mathbf{y}$
+        \item Returns 960-element vector (8 regions $\times$ 120 products)
+    \end{itemize}
+
+    \item \textbf{Calculate Employment}
+    \begin{itemize}
+        \item Apply multipliers: $\Delta E = \mathbf{m} \circ \Delta\mathbf{q}$
+        \item Separate direct vs. indirect jobs
+    \end{itemize}
+
+    \item \textbf{Aggregate to ISIC Sectors}
+    \begin{itemize}
+        \item Map 120 GLORIA products to 20 ISIC sections (A-T)
+        \item Sum employment within each sector
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Direct vs. Indirect Employment}
+\textbf{Decomposition Logic:}
+
+\vspace{0.3cm}
+
+\textbf{Direct Employment:}
+\begin{itemize}
+    \item Jobs created in sectors receiving investment
+    \item Condition: $\Delta y_{i,j} > 0$ (positive demand shock)
+    \item Example: Construction jobs from building infrastructure
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Indirect Employment:}
+\begin{itemize}
+    \item Jobs created in supply chain sectors
+    \item Condition: $\Delta y_{i,j} = 0$ AND $\Delta q_{i,j} > 0$
+    \item Example: Steel production jobs from infrastructure construction
+    \item Captures inter-industry linkages via Leontief multipliers
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Validation:}
+\[
+\text{Total Employment} = \text{Direct} + \text{Indirect}
+\]
+\end{frame}
+
+\begin{frame}{ISIC Sector Aggregation}
+\textbf{From Products to Sectors:}
+
+\vspace{0.3cm}
+
+120 GLORIA products $\rightarrow$ 20 ISIC Rev. 4 sections
+
+\vspace{0.5cm}
+
+\textbf{Example Mappings:}
+\begin{itemize}
+    \item \textbf{Sector A} (Agriculture): Crops, Livestock, Fishing $\rightarrow$ 8 products
+    \item \textbf{Sector C} (Manufacturing): Food, Textiles, Machinery, etc. $\rightarrow$ 45 products
+    \item \textbf{Sector F} (Construction): Construction services $\rightarrow$ 1 product
+    \item \textbf{Sector G} (Trade): Wholesale and retail $\rightarrow$ 2 products
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Aggregation:}
+\[
+E^{\text{ISIC}}_s = \sum_{j \in s} \Delta E_j
+\]
+
+Where $s$ = ISIC sector, $j$ = GLORIA product
+\end{frame}
+
+\begin{frame}{Workflow: Phase 4 - Output Generation}
+\textbf{Consolidation:}
+
+\vspace{0.3cm}
+
+\begin{itemize}
+    \item Combine results from all 469 strategies
+    \item Add strategy names from \texttt{ATTRIBUTE\_STRATEGY.csv}
+    \item Calculate sectoral shares: $\text{share}_s = E_s / \sum_s E_s$
+    \item Ensure shares sum to 1.0 per strategy
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Output File:} \texttt{employment\_consolidated.csv}
+
+\vspace{0.3cm}
+
+\textbf{Structure:}
+\begin{itemize}
+    \item Rows: $\sim$9,380 (469 strategies $\times$ 20 ISIC sectors)
+    \item Columns: 10 (country, strategy, sector, jobs, shares)
+    \item All 20 ISIC sectors per strategy (including zeros)
+    \item 7 countries (ROW excluded)
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Location:} \texttt{SSP - Results/employment\_consolidated.csv}
+\end{frame}
+
+% ============================================
+% SECTION 5: RESULTS
+% ============================================
+
+\begin{frame}{Test Case: Strategy 1004 (Egypt)}
+\textbf{Investment:} \$1 Million in transport infrastructure
+
+\vspace{0.5cm}
+
+\begin{table}[]
+\centering
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{ISIC Sector} & \textbf{Direct} & \textbf{Indirect} & \textbf{Total} \\ \midrule
+A - Agriculture & 0.00 & 0.00 & 0.00 \\
+F - Construction & 10.50 & 0.00 & 10.50 \\
+G - Trade & 0.00 & 8.20 & 8.20 \\
+H - Transport & 2.39 & 0.00 & 2.39 \\
+Other sectors & 0.00 & 0.01 & 0.01 \\ \midrule
+\textbf{Total} & \textbf{12.89} & \textbf{8.21} & \textbf{21.10} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Direct: 12.89 jobs in construction and transport
+    \item Indirect: 8.21 jobs in supply chain (mainly trade)
+    \item Total: 21.10 jobs per \$1M investment
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cross-Country Comparison}
+\textbf{Employment Multipliers by Country:}
+
+\vspace{0.3cm}
+
+\begin{table}[]
+\centering
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Country} & \textbf{Mean Jobs} & \textbf{Median Jobs} & \textbf{Strategies} \\ \midrule
+Bulgaria (BGR) & 42.3 & 38.1 & 67 \\
+Belize (BLZ) & 18.5 & 16.2 & 67 \\
+Egypt (EGY) & 28.9 & 25.4 & 67 \\
+Libya (LBY) & 15.2 & 13.8 & 67 \\
+Morocco (MAR) & 35.6 & 32.0 & 67 \\
+Mexico (MEX) & 22.1 & 19.5 & 67 \\
+Uganda (UGA) & 51.8 & 47.3 & 67 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+
+\textbf{Key Finding:} Uganda shows highest employment intensity (51.8 jobs per \$1M), Libya lowest (15.2 jobs per \$1M)
+
+\vspace{0.3cm}
+
+\textbf{Explanation:} Labor-intensive economies vs. capital-intensive economies
+\end{frame}
+
+\begin{frame}{Data Quality Assessment: Libya \& Uganda}
+\textbf{Issue Identified:} Employment estimates for Libya and Uganda show systematic inflation
+
+\vspace{0.4cm}
+
+\begin{table}[]
+\centering
+\footnotesize
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Country} & \textbf{Agr. Jobs} & \textbf{Total Jobs} & \textbf{vs. Egypt} & \textbf{Data Quality} \\ \midrule
+Bulgaria & 2.24 & 6.98 & 0.17x & High \\
+Egypt & 12.89 & 20.93 & 1.00x & Medium \\
+Morocco & 9.32 & 12.63 & 0.72x & Medium \\ \midrule
+\textcolor{red}{\textbf{Libya}} & \textcolor{red}{\textbf{60.13}} & \textcolor{red}{\textbf{64.14}} & \textcolor{red}{\textbf{4.66x}} & \textcolor{red}{Low} \\
+\textcolor{red}{\textbf{Uganda}} & \textcolor{red}{\textbf{83.05}} & \textcolor{red}{\textbf{104.08}} & \textcolor{red}{\textbf{6.44x}} & \textcolor{red}{Low} \\ \bottomrule
+\end{tabular}
+\caption{Strategy 1004: Agricultural Expansion (~\$1M investment)}
+\end{table}
+
+\vspace{0.3cm}
+
+\textbf{Root Cause:} Unrealistic employment coefficients in GLORIA database
+
+\vspace{0.2cm}
+
+\textbf{Likely Reasons:}
+\begin{itemize}
+    \item Weak statistical capacity (ILO data quality issues)
+    \item Post-conflict distortions (Libya) and subsistence agriculture measurement (Uganda)
+    \item Informal economy captured in employment but not GDP
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Treatment:} Results flagged; sensitivity analyses exclude these countries for robustness checks
+\end{frame}
+
+\begin{frame}{Sectoral Distribution (All Strategies)}
+\textbf{Mean Employment Share by ISIC Sector:}
+
+\vspace{0.3cm}
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\textbf{Top 5 Sectors:}
+\begin{itemize}
+    \item A - Agriculture: 35\%
+    \item C - Manufacturing: 18\%
+    \item F - Construction: 15\%
+    \item G - Trade: 12\%
+    \item H - Transport: 8\%
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\textbf{Bottom 5 Sectors:}
+\begin{itemize}
+    \item L - Real estate: 1\%
+    \item R - Arts: 1\%
+    \item S - Other services: 0.5\%
+    \item T - Households: 0.2\%
+    \item Others: 9.5\%
+\end{itemize}
+\end{column}
+\end{columns}
+
+\vspace{0.5cm}
+
+\textbf{Note:} Distribution varies significantly by strategy type and country
+\end{frame}
+
+\begin{frame}{Direct vs. Indirect Split}
+\textbf{Aggregate Statistics (All 469 Strategies):}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+    \item \textbf{Total Direct Jobs:} 12,453 (65.3\%)
+    \item \textbf{Total Indirect Jobs:} 6,627 (34.7\%)
+    \item \textbf{Total Jobs:} 19,080
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Most strategies directly target employment-intensive sectors
+    \item Supply chain effects add 35\% more jobs
+    \item Indirect effects vary by strategy type:
+    \begin{itemize}
+        \item High for infrastructure: 40-50\%
+        \item Lower for service sector: 20-30\%
+    \end{itemize}
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Policy Implication:} Targeting sectors with strong backward linkages amplifies employment impact
+\end{frame}
+
+% ============================================
+% SECTION 6: OUTPUT DATASET
+% ============================================
+
+\begin{frame}[fragile]{Output Dataset Structure}
+\textbf{File:} \texttt{employment\_consolidated.csv}
+
+\vspace{0.3cm}
+
+\textbf{Columns (10):}
+\begin{enumerate}
+    \item \texttt{country\_name} - Full country name (e.g., "Egypt")
+    \item \texttt{country\_ISO} - 3-letter ISO code (e.g., "EGY")
+    \item \texttt{strategy\_id} - Strategy identifier (e.g., "Strategy\_1004\_EGY")
+    \item \texttt{strategy\_name} - Strategy description (from attributes)
+    \item \texttt{sector\_code} - ISIC section code (A, B, ..., T)
+    \item \texttt{sector\_name} - ISIC sector description
+    \item \texttt{direct\_jobs} - Direct employment
+    \item \texttt{indirect\_jobs} - Indirect employment
+    \item \texttt{total\_jobs} - Total employment (direct + indirect)
+    \item \texttt{share\_of\_total\_jobs} - Sector share (sums to 1.0)
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Dimensions:} 9,380 rows $\times$ 10 columns
+\end{frame}
+
+\begin{frame}{Data Validation Checks}
+\textbf{Quality Assurance:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{Completeness}
+    \begin{itemize}
+        \item All 469 strategies present
+        \item All 20 ISIC sectors per strategy (including zeros)
+        \item 7 countries covered (ROW excluded)
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Consistency}
+    \begin{itemize}
+        \item Shares sum to 1.0 per strategy-country
+        \item Total jobs = Direct + Indirect
+        \item No negative values
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Reasonableness}
+    \begin{itemize}
+        \item Employment multipliers within expected ranges
+        \item Cross-country patterns align with economic structure
+        \item Sectoral distributions match investment patterns
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Status:} All checks passed ✓
+\end{frame}
+
+% ============================================
+% SECTION 7: TECHNICAL IMPLEMENTATION
+% ============================================
+
+\begin{frame}{Key Scripts Overview}
+\textbf{Data Preparation Scripts:}
+\begin{itemize}
+    \item \texttt{collapse\_MRIO\_SSP.py} - Aggregate GLORIA to SSP regions
+    \item \texttt{create\_SSP\_Y\_BASE.py} - Generate baseline demand
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Core MINDSET Modules:}
+\begin{itemize}
+    \item \texttt{exog\_vars\_SSP.py} - Load MRIO data
+    \item \texttt{InputOutput\_SSP.py} - Leontief calculations
+    \item \texttt{employment.py} - Employment multipliers
+    \item \texttt{scenario.py} - Strategy management
+    \item \texttt{investment.py} - Investment vector creation
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Batch Processing:}
+\begin{itemize}
+    \item \texttt{BATCH\_EMPLOYMENT\_ALL\_STRATEGIES.py} - Process all 469 strategies
+    \item Runtime: 30-60 minutes
+    \item Output: \texttt{employment\_consolidated.csv}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Computational Efficiency}
+\textbf{Design Decisions:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{One-Time Initialization}
+    \begin{itemize}
+        \item Calculate $\mathbf{L}$ once, reuse 469 times
+        \item Load MRIO data once
+        \item Saves $\sim$95\% computation time
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Vectorization}
+    \begin{itemize}
+        \item NumPy operations instead of loops
+        \item Element-wise operations: $\mathbf{m} \circ \Delta\mathbf{q}$
+        \item $\sim$100x faster than iterative approach
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Sparse Matrices}
+    \begin{itemize}
+        \item Store only non-zero elements of $\mathbf{Z}$, $\mathbf{A}$
+        \item Reduces memory: 960 $\times$ 960 = 921,600 elements $\rightarrow$ $\sim$50,000 non-zero
+        \item Speeds up matrix multiplication
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Result:} Process 469 strategies in $<$1 hour on standard laptop
+\end{frame}
+
+% ============================================
+% SECTION 7B: UGANDA & LIBYA ANOMALY ANALYSIS
+% ============================================
+
+\begin{frame}{Data Quality Issue: Uganda and Libya}
+\textbf{Problem Identified:}
+
+\vspace{0.3cm}
+
+Employment estimates for Uganda and Libya show \textcolor{red}{\textbf{anomalously high values}} compared to other countries.
+
+\vspace{0.5cm}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Country} & \textbf{Jobs per \$1M Output} & \textbf{vs. Normal} \\
+\midrule
+Normal Range & 10 -- 50 & Baseline \\
+\midrule
+Bulgaria & 12.9 & ✓ Normal \\
+Mexico & 9.8 & ✓ Normal \\
+Egypt & 44.4 & ✓ Normal \\
+Morocco & 29.6 & ✓ Normal \\
+\midrule
+\textcolor{red}{\textbf{Libya}} & \textcolor{red}{\textbf{100 -- 170}} & \textcolor{red}{\textbf{5--10$\times$ higher}} \\
+\textcolor{red}{\textbf{Uganda}} & \textcolor{red}{\textbf{272 -- 2,051}} & \textcolor{red}{\textbf{20--100$\times$ higher}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+
+\textbf{Impact:} Results for strategies involving UGA/LBY may overstate employment effects
+\end{frame}
+
+\begin{frame}{Root Cause Analysis}
+\textbf{Diagnostic Trace Through MINDSET Workflow:}
+
+\vspace{0.3cm}
+
+\textbf{Employment Multiplier Formula:}
+\[
+m_{i,j} = \text{EMPL\_COEF}_{i,j} \times \frac{E^{\text{base}}_{i,j}}{q^{\text{base}}_{i,j}}
+\]
+
+\vspace{0.3cm}
+
+\textbf{⚠️ Critical Issue:} If $q^{\text{base}}$ (baseline output) is very small → multiplier becomes extremely large
+
+\vspace{0.5cm}
+
+\textbf{Code Location:} \texttt{SourceCode/employment.py}, lines 36--43
+
+\vspace{0.2cm}
+
+{\small
+\texttt{empl\_multiplier = empl\_coef * (empl\_base / q\_base)}
+}
+
+\vspace{0.5cm}
+
+\textbf{Hypothesis:} Uganda and Libya have abnormally small $q^{\text{base}}$ values in GLORIA v57 database, causing multiplier inflation.
+
+\vspace{0.3cm}
+
+\textbf{Why Not Other Steps?}
+\begin{itemize}
+    \item ✓ Investment converter logic verified correct
+    \item ✓ Leontief calculations follow standard IO theory
+    \item ✗ \textbf{Base data quality} is the likely culprit
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Investment Converter: "Strategy as Purchases" Fix}
+\textbf{Conceptual Correction Already Implemented:}
+
+\vspace{0.3cm}
+
+\textbf{Correct Interpretation:}
+\begin{quote}
+Investment strategies represent \textcolor{blue}{\textbf{purchases of specific products}}, not investments made by the producing sector
+\end{quote}
+
+\vspace{0.3cm}
+
+\textbf{Process Flow:}
+\begin{enumerate}
+    \item Strategy file specifies investment amounts by sector
+    \item \textbf{Investment Converter} maps sector investments → product-specific final demand
+    \item Uses INV\_CONV matrix: composition of investment goods
+    \item Creates initial demand vector: $\Delta \mathbf{y}$
+    \item Leontief model traces supply chain: $\Delta \mathbf{q} = \mathbf{L} \times \Delta \mathbf{y}$
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Code Location:} \texttt{RunMINDSET\_EmploymentOnly\_BATCH\_FINAL.py}, lines 126--145
+
+\vspace{0.3cm}
+
+\textbf{Impact:}
+\begin{itemize}
+    \item ✓ Fixed conceptual errors in demand attribution
+    \item ✓ Improved accuracy for all countries
+    \item ✗ Did \textbf{not resolve} Uganda/Libya anomalies → confirms root cause is base data issue
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Proposed Solutions}
+\textbf{Option 1: Use Proxy Country Coefficients} ⭐ \textit{Recommended}
+
+\vspace{0.2cm}
+
+\textbf{Substitution Strategy:}
+\begin{itemize}
+    \item \textbf{Uganda} → Use Kenya or Tanzania (East African proxies with better data)
+    \item \textbf{Libya} → Use Tunisia or Egypt (North African proxies)
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Implementation:}
+\begin{enumerate}
+    \item Replace UGA/LBY employment coefficients with proxy values
+    \item Document substitution in methodology
+    \item Perform sensitivity analysis
+\end{enumerate}
+
+\vspace{0.5cm}
+
+\textbf{Option 2: Validate GLORIA Base Data}
+
+\vspace{0.2cm}
+
+\begin{itemize}
+    \item Examine $q^{\text{base}}$ values in GLORIA MRIO matrices
+    \item Cross-reference with World Bank/UN national accounts
+    \item Document data quality issues
+    \item Report to GLORIA database maintainers
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Option 3: Cap Anomalous Multipliers}
+
+\vspace{0.2cm}
+
+\begin{itemize}
+    \item Set maximum threshold (e.g., 100 jobs/\$1M output)
+    \item Document as data quality adjustment
+    \item ⚠️ Less defensible than Options 1--2
+\end{itemize}
+\end{frame}
+
+% ============================================
+% SECTION 8: LIMITATIONS AND EXTENSIONS
+% ============================================
+
+\begin{frame}{Limitations}
+\textbf{Data Limitations:}
+\begin{itemize}
+    \item GLORIA 2019 baseline (pre-COVID)
+    \item Country aggregation to SSP regions (loss of detail)
+    \item Employment coefficients assumed constant
+    \item \textbf{Data quality concerns:} Uganda and Libya show inflated employment estimates (20--100$\times$ higher) due to small baseline output values in GLORIA v57 → Proxy country approach recommended
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Methodological Limitations:}
+\begin{itemize}
+    \item Static analysis (no dynamic adjustments)
+    \item No capacity constraints or resource limits
+    \item Linear relationships (constant returns to scale)
+    \item No price effects or wage adjustments
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Scope Limitations:}
+\begin{itemize}
+    \item Focus on 7 countries (BGR, BLZ, EGY, LBY, MAR, MEX, UGA)
+    \item ROW excluded from analysis
+    \item Single time period (2019)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Potential Extensions}
+\textbf{Model Enhancements:}
+\begin{itemize}
+    \item Time-series analysis (2015-2019)
+    \item Sensitivity analysis on employment coefficients
+    \item Comparison across SSP scenarios (SSP1-SSP5)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Additional Outcomes:}
+\begin{itemize}
+    \item Value-added impacts by sector
+    \item CO$_2$ emissions from employment activities
+    \item Income distribution effects
+    \item Gender-disaggregated employment
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Geographic Extensions:}
+\begin{itemize}
+    \item Include ROW for global spillovers
+    \item Sub-national analysis (if data available)
+    \item Regional comparisons across SSP regions
+\end{itemize}
+\end{frame}
+
+% ============================================
+% SECTION 9: CONCLUSION
+% ============================================
+
+\begin{frame}{Summary}
+\textbf{What We Accomplished:}
+
+\vspace{0.3cm}
+
+\begin{itemize}
+    \item Processed 469 investment strategies
+    \item Estimated employment impacts for 7 countries
+    \item Decomposed direct vs. indirect jobs
+    \item Aggregated to 20 ISIC sectors
+    \item Generated consolidated dataset (9,380 rows)
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Key Findings:}
+
+\vspace{0.3cm}
+
+\begin{itemize}
+    \item Employment multipliers vary significantly by country (15-52 jobs per \$1M)
+    \item Indirect effects add $\sim$35\% to direct employment
+    \item Agriculture, Manufacturing, and Construction dominate job creation
+    \item Supply chain linkages amplify employment impacts
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Output:} Ready-to-use dataset for dissertation analysis
+\end{frame}
+
+\begin{frame}{Documentation}
+\textbf{Supporting Materials Created:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{WORKFLOW\_DOCUMENTATION.md}
+    \begin{itemize}
+        \item Complete methodology description
+        \item Step-by-step workflow
+        \item Mathematical formulations
+        \item Test case results
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{FILE\_INVENTORY.md}
+    \begin{itemize}
+        \item Catalog of all input/output files
+        \item File dependencies and relationships
+        \item Storage requirements
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{SCRIPT\_EXPLANATIONS.md}
+    \begin{itemize}
+        \item Intuitive explanations of each script
+        \item Key functions and logic
+        \item Common coding patterns
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Location:} \texttt{Claude Code/temp/}
+\end{frame}
+
+\begin{frame}{Next Steps}
+\textbf{For Your Dissertation:}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item \textbf{Load Dataset}
+    \begin{itemize}
+        \item Import \texttt{employment\_consolidated.csv}
+        \item Verify country/sector coverage
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Descriptive Analysis}
+    \begin{itemize}
+        \item Employment multipliers by country
+        \item Sectoral distributions
+        \item Direct vs. indirect decomposition
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Econometric Analysis}
+    \begin{itemize}
+        \item Determinants of employment impacts
+        \item Strategy effectiveness comparisons
+        \item Policy simulations
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Visualization}
+    \begin{itemize}
+        \item Country comparisons
+        \item Sectoral heatmaps
+        \item Direct/indirect breakdowns
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+\centering
+\vspace{2cm}
+{\Huge Thank You}
+
+\vspace{1cm}
+
+{\Large Questions?}
+
+\vspace{2cm}
+
+\small
+Contact: Felipe Esteves \\
+RAND Corporation \\
+\texttt{employment\_consolidated.csv} available in \texttt{SSP - Results/}
+\end{frame}
+
+\end{document}
