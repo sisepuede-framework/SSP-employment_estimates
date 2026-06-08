@@ -469,7 +469,7 @@ output_data <- final_allocation %>%
   arrange(Country, strategy_id, Product) %>%
   rename("Country ISO*"=Country,"Sector investing"=Product,"Sector investing code*"=Lfd_Nr,
          "Value*"=Value_Product) %>%
-  mutate(`Value*`=`Value*`*1000000,`Type*`="abs-b",
+  mutate(`Value*`=`Value*`*1000,`Type*`="abs-b",
          Country=ifelse(`Country ISO*`=="BGR","Bulgaria",
                         ifelse(`Country ISO*`=="BLZ","Belize",
                                ifelse(`Country ISO*`=="EGY","Egypt",
@@ -481,7 +481,7 @@ output_data <- final_allocation %>%
   
 # Exporting files as to be used by MINDSET ----
 
-export_dir <- "Mindset - WB/MINDSET_module-main/MINDSET_module-main/GLORIA_template/Scenarios"
+export_dir <- "SSP-employment_estimates/MINDSET_module-main/GLORIA_template/Scenarios"
 if (!dir.exists(export_dir)) dir.create(export_dir, recursive = TRUE)
 
 # Get unique combinations of Country, Country ISO*, and strategy_id
