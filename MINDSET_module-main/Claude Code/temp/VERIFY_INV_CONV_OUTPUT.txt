@@ -1,0 +1,13 @@
+=== variables sheet columns ===
+['Variable name (new)', 'Variable name (old)', 'Variable description', 'Module', 'Type', 'Unit', 'Dim1', 'Dim2', 'Dim3', 'Dim4', 'Location']
+
+INV_CONV Location: GLORIA_db\v57\2019\SSP\INV_CONV.csv
+INV_CONV Type:     DataFrame
+Resolved path:     C:\Users\festeves\OneDrive - RAND Corporation\Courses\Dissertation\3rd Paper\SSP-employment_estimates\MINDSET_module-main\GLORIA_db\v57\2019\SSP\INV_CONV.csv
+Exists:            True
+
+Loaded shape: (120, 121)
+Numeric block shape: (120, 120)
+Diagonal: min=1.0000 max=1.0000 mean=1.0000
+Off-diagonal absolute sum: 0.000000
+IS IDENTITY: True

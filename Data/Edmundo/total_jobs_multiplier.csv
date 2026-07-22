@@ -1,0 +1,391 @@
+Economic Sector,Ssp Sector,Total Jobs
+Wood and Paper,Wastewater treatment,0.1741
+Wholesale Trade,Wastewater treatment,0.7342
+Transport Equipment,Wastewater treatment,0.0652
+Transport,Wastewater treatment,0.5472
+Textiles and Wearing Apparel,Wastewater treatment,0.0024
+Retail Trade,Wastewater treatment,0.1597
+Recycling,Wastewater treatment,0.0034
+Re-export & Re-import,Wastewater treatment,0
+Public Administration,Wastewater treatment,0.0026
+Private Households,Wastewater treatment,0
+Post and Telecommunications,Wastewater treatment,0.1999
+"Petroleum, Chemical and Non-Metallic Mineral Products",Wastewater treatment,0.3275
+Others,Wastewater treatment,0.0118
+Other Manufacturing,Wastewater treatment,0.0537
+Mining and Quarrying,Wastewater treatment,0.0894
+Metal Products,Wastewater treatment,0.5347
+Maintenance and Repair,Wastewater treatment,0.0178
+Hotels and Restaurants,Wastewater treatment,0.0586
+Food & Beverages,Wastewater treatment,0.0028
+Fishing,Wastewater treatment,0.0012
+Financial Intermediation and Business Activities,Wastewater treatment,0.886
+"Electricity, Gas and Water",Wastewater treatment,1.9737
+Electrical and Machinery,Wastewater treatment,3.4776
+"Education, Health and Other Services",Wastewater treatment,2.4222
+Construction,Wastewater treatment,2.1077
+Agriculture,Wastewater treatment,0.0365
+Wood and Paper,Transportation,1.0231
+Wholesale Trade,Transportation,4.5749
+Transport Equipment,Transportation,0.3937
+Transport,Transportation,1.5376
+Textiles and Wearing Apparel,Transportation,0.0155
+Retail Trade,Transportation,0.456
+Recycling,Transportation,0.0166
+Re-export & Re-import,Transportation,0
+Public Administration,Transportation,0.0142
+Private Households,Transportation,0
+Post and Telecommunications,Transportation,2.196
+"Petroleum, Chemical and Non-Metallic Mineral Products",Transportation,5.588
+Others,Transportation,0.0613
+Other Manufacturing,Transportation,1.923
+Mining and Quarrying,Transportation,0.1584
+Metal Products,Transportation,5.4193
+Maintenance and Repair,Transportation,0.0997
+Hotels and Restaurants,Transportation,0.2031
+Food & Beverages,Transportation,0.0142
+Fishing,Transportation,0.0128
+Financial Intermediation and Business Activities,Transportation,4.1063
+"Electricity, Gas and Water",Transportation,1.0557
+Electrical and Machinery,Transportation,23.9606
+"Education, Health and Other Services",Transportation,0.2175
+Construction,Transportation,1.9967
+Agriculture,Transportation,0.3407
+Wood and Paper,Solid Waste,0.6262
+Wholesale Trade,Solid Waste,2.1508
+Transport Equipment,Solid Waste,0.1885
+Transport,Solid Waste,2.9646
+Textiles and Wearing Apparel,Solid Waste,0.0075
+Retail Trade,Solid Waste,0.4582
+Recycling,Solid Waste,0.922
+Re-export & Re-import,Solid Waste,0
+Public Administration,Solid Waste,0.6582
+Private Households,Solid Waste,0.0001
+Post and Telecommunications,Solid Waste,1.9665
+"Petroleum, Chemical and Non-Metallic Mineral Products",Solid Waste,1.9707
+Others,Solid Waste,0.037
+Other Manufacturing,Solid Waste,0.2844
+Mining and Quarrying,Solid Waste,0.4031
+Metal Products,Solid Waste,1.919
+Maintenance and Repair,Solid Waste,0.0528
+Hotels and Restaurants,Solid Waste,0.185
+Food & Beverages,Solid Waste,0.0165
+Fishing,Solid Waste,0.0054
+Financial Intermediation and Business Activities,Solid Waste,2.7687
+"Electricity, Gas and Water",Solid Waste,5.9159
+Electrical and Machinery,Solid Waste,8.7197
+"Education, Health and Other Services",Solid Waste,1.2761
+Construction,Solid Waste,5.444
+Agriculture,Solid Waste,0.1684
+Wood and Paper,Power Industry,0.3572
+Wholesale Trade,Power Industry,1.4739
+Transport Equipment,Power Industry,0.1304
+Transport,Power Industry,0.9049
+Textiles and Wearing Apparel,Power Industry,0.0047
+Retail Trade,Power Industry,0.3093
+Recycling,Power Industry,0.0046
+Re-export & Re-import,Power Industry,0
+Public Administration,Power Industry,0.0697
+Private Households,Power Industry,0
+Post and Telecommunications,Power Industry,1.1258
+"Petroleum, Chemical and Non-Metallic Mineral Products",Power Industry,1.4069
+Others,Power Industry,0.0199
+Other Manufacturing,Power Industry,0.0998
+Mining and Quarrying,Power Industry,0.074
+Metal Products,Power Industry,1.3903
+Maintenance and Repair,Power Industry,0.0358
+Hotels and Restaurants,Power Industry,0.0724
+Food & Beverages,Power Industry,0.0058
+Fishing,Power Industry,0.0021
+Financial Intermediation and Business Activities,Power Industry,1.5895
+"Electricity, Gas and Water",Power Industry,0.5304
+Electrical and Machinery,Power Industry,6.9345
+"Education, Health and Other Services",Power Industry,0.5181
+Construction,Power Industry,4.0385
+Agriculture,Power Industry,0.4618
+Wood and Paper,LULUCF,0.1631
+Wholesale Trade,LULUCF,0.6897
+Transport Equipment,LULUCF,0.0358
+Transport,LULUCF,0.2451
+Textiles and Wearing Apparel,LULUCF,0.0022
+Retail Trade,LULUCF,0.0718
+Recycling,LULUCF,0.0021
+Re-export & Re-import,LULUCF,0
+Public Administration,LULUCF,0.0033
+Private Households,LULUCF,0
+Post and Telecommunications,LULUCF,0.1174
+"Petroleum, Chemical and Non-Metallic Mineral Products",LULUCF,2.5711
+Others,LULUCF,0.0092
+Other Manufacturing,LULUCF,0.0239
+Mining and Quarrying,LULUCF,0.0542
+Metal Products,LULUCF,0.2655
+Maintenance and Repair,LULUCF,0.0172
+Hotels and Restaurants,LULUCF,0.0331
+Food & Beverages,LULUCF,0.0246
+Fishing,LULUCF,0.0048
+Financial Intermediation and Business Activities,LULUCF,1.0039
+"Electricity, Gas and Water",LULUCF,0.2218
+Electrical and Machinery,LULUCF,1.613
+"Education, Health and Other Services",LULUCF,0.0497
+Construction,LULUCF,0.1091
+Agriculture,LULUCF,5.936
+Wood and Paper,Livestock Manure Management,0.4738
+Wholesale Trade,Livestock Manure Management,2.038
+Transport Equipment,Livestock Manure Management,0.1782
+Transport,Livestock Manure Management,0.7161
+Textiles and Wearing Apparel,Livestock Manure Management,0.0066
+Retail Trade,Livestock Manure Management,0.4228
+Recycling,Livestock Manure Management,0.0069
+Re-export & Re-import,Livestock Manure Management,0
+Public Administration,Livestock Manure Management,0.0064
+Private Households,Livestock Manure Management,0
+Post and Telecommunications,Livestock Manure Management,0.4761
+"Petroleum, Chemical and Non-Metallic Mineral Products",Livestock Manure Management,1.3103
+Others,Livestock Manure Management,0.0292
+Other Manufacturing,Livestock Manure Management,0.138
+Mining and Quarrying,Livestock Manure Management,0.1378
+Metal Products,Livestock Manure Management,1.4812
+Maintenance and Repair,Livestock Manure Management,0.05
+Hotels and Restaurants,Livestock Manure Management,0.1145
+Food & Beverages,Livestock Manure Management,0.0181
+Fishing,Livestock Manure Management,0.005
+Financial Intermediation and Business Activities,Livestock Manure Management,2.1086
+"Electricity, Gas and Water",Livestock Manure Management,2.5347
+Electrical and Machinery,Livestock Manure Management,9.8244
+"Education, Health and Other Services",Livestock Manure Management,0.124
+Construction,Livestock Manure Management,5.5023
+Agriculture,Livestock Manure Management,3.6925
+Wood and Paper,Livestock,0.1032
+Wholesale Trade,Livestock,0.3746
+Transport Equipment,Livestock,0.0115
+Transport,Livestock,0.1583
+Textiles and Wearing Apparel,Livestock,0.0012
+Retail Trade,Livestock,0.0441
+Recycling,Livestock,0.0012
+Re-export & Re-import,Livestock,0
+Public Administration,Livestock,0.002
+Private Households,Livestock,0
+Post and Telecommunications,Livestock,0.0538
+"Petroleum, Chemical and Non-Metallic Mineral Products",Livestock,2.0745
+Others,Livestock,0.005
+Other Manufacturing,Livestock,0.0113
+Mining and Quarrying,Livestock,0.0419
+Metal Products,Livestock,0.0696
+Maintenance and Repair,Livestock,0.0099
+Hotels and Restaurants,Livestock,0.0189
+Food & Beverages,Livestock,0.0181
+Fishing,Livestock,0.0035
+Financial Intermediation and Business Activities,Livestock,0.4739
+"Electricity, Gas and Water",Livestock,0.1505
+Electrical and Machinery,Livestock,0.0426
+"Education, Health and Other Services",Livestock,0.0306
+Construction,Livestock,0.0686
+Agriculture,Livestock,4.4011
+Wood and Paper,Liquid Waste,0.4221
+Wholesale Trade,Liquid Waste,1.4231
+Transport Equipment,Liquid Waste,0.1306
+Transport,Liquid Waste,0.482
+Textiles and Wearing Apparel,Liquid Waste,0.0046
+Retail Trade,Liquid Waste,0.4709
+Recycling,Liquid Waste,0.0041
+Re-export & Re-import,Liquid Waste,0
+Public Administration,Liquid Waste,0.0046
+Private Households,Liquid Waste,0
+Post and Telecommunications,Liquid Waste,0.3534
+"Petroleum, Chemical and Non-Metallic Mineral Products",Liquid Waste,0.6894
+Others,Liquid Waste,0.0192
+Other Manufacturing,Liquid Waste,0.1331
+Mining and Quarrying,Liquid Waste,0.066
+Metal Products,Liquid Waste,1.0925
+Maintenance and Repair,Liquid Waste,0.0381
+Hotels and Restaurants,Liquid Waste,0.0769
+Food & Beverages,Liquid Waste,0.0044
+Fishing,Liquid Waste,0.0021
+Financial Intermediation and Business Activities,Liquid Waste,2.0281
+"Electricity, Gas and Water",Liquid Waste,0.9658
+Electrical and Machinery,Liquid Waste,5.6386
+"Education, Health and Other Services",Liquid Waste,2.4543
+Construction,Liquid Waste,7.4175
+Agriculture,Liquid Waste,0.0913
+Wood and Paper,IPPU,0.8235
+Wholesale Trade,IPPU,3.4823
+Transport Equipment,IPPU,0.3167
+Transport,IPPU,1.0312
+Textiles and Wearing Apparel,IPPU,0.011
+Retail Trade,IPPU,0.7466
+Recycling,IPPU,0.0092
+Re-export & Re-import,IPPU,0
+Public Administration,IPPU,0.0101
+Private Households,IPPU,0
+Post and Telecommunications,IPPU,0.9301
+"Petroleum, Chemical and Non-Metallic Mineral Products",IPPU,2.815
+Others,IPPU,0.0449
+Other Manufacturing,IPPU,0.2398
+Mining and Quarrying,IPPU,0.2735
+Metal Products,IPPU,2.8094
+Maintenance and Repair,IPPU,0.0847
+Hotels and Restaurants,IPPU,0.1474
+Food & Beverages,IPPU,0.009
+Fishing,IPPU,0.0038
+Financial Intermediation and Business Activities,IPPU,3.2068
+"Electricity, Gas and Water",IPPU,0.6252
+Electrical and Machinery,IPPU,17.5165
+"Education, Health and Other Services",IPPU,0.1651
+Construction,IPPU,10.1392
+Agriculture,IPPU,0.1668
+Wood and Paper,Industrial Energy,1.1522
+Wholesale Trade,Industrial Energy,3.6708
+Transport Equipment,Industrial Energy,0.4564
+Transport,Industrial Energy,2.2944
+Textiles and Wearing Apparel,Industrial Energy,0.0996
+Retail Trade,Industrial Energy,0.8216
+Recycling,Industrial Energy,0.0124
+Re-export & Re-import,Industrial Energy,0
+Public Administration,Industrial Energy,0.1428
+Private Households,Industrial Energy,0
+Post and Telecommunications,Industrial Energy,4.9532
+"Petroleum, Chemical and Non-Metallic Mineral Products",Industrial Energy,3.0938
+Others,Industrial Energy,0.0512
+Other Manufacturing,Industrial Energy,0.4358
+Mining and Quarrying,Industrial Energy,0.161
+Metal Products,Industrial Energy,3.897
+Maintenance and Repair,Industrial Energy,0.0912
+Hotels and Restaurants,Industrial Energy,0.1964
+Food & Beverages,Industrial Energy,0.0654
+Fishing,Industrial Energy,0.014
+Financial Intermediation and Business Activities,Industrial Energy,5.665
+"Electricity, Gas and Water",Industrial Energy,1.0466
+Electrical and Machinery,Industrial Energy,16.038
+"Education, Health and Other Services",Industrial Energy,0.9084
+Construction,Industrial Energy,10.8756
+Agriculture,Industrial Energy,0.8042
+Wood and Paper,Fugitive Emissions,0.5074
+Wholesale Trade,Fugitive Emissions,2.1541
+Transport Equipment,Fugitive Emissions,0.1986
+Transport,Fugitive Emissions,0.8142
+Textiles and Wearing Apparel,Fugitive Emissions,0.0068
+Retail Trade,Fugitive Emissions,0.4686
+Recycling,Fugitive Emissions,0.0063
+Re-export & Re-import,Fugitive Emissions,0
+Public Administration,Fugitive Emissions,0.0063
+Private Households,Fugitive Emissions,0
+Post and Telecommunications,Fugitive Emissions,0.8149
+"Petroleum, Chemical and Non-Metallic Mineral Products",Fugitive Emissions,1.1935
+Others,Fugitive Emissions,0.0291
+Other Manufacturing,Fugitive Emissions,0.1519
+Mining and Quarrying,Fugitive Emissions,0.0882
+Metal Products,Fugitive Emissions,1.7658
+Maintenance and Repair,Fugitive Emissions,0.0525
+Hotels and Restaurants,Fugitive Emissions,0.1048
+Food & Beverages,Fugitive Emissions,0.0058
+Fishing,Fugitive Emissions,0.0026
+Financial Intermediation and Business Activities,Fugitive Emissions,2.1494
+"Electricity, Gas and Water",Fugitive Emissions,1.2906
+Electrical and Machinery,Fugitive Emissions,11.0261
+"Education, Health and Other Services",Fugitive Emissions,0.3302
+Construction,Fugitive Emissions,6.3982
+Agriculture,Fugitive Emissions,0.2311
+Wood and Paper,Forest,0.017
+Wholesale Trade,Forest,0.0753
+Transport Equipment,Forest,0.0015
+Transport,Forest,0.0324
+Textiles and Wearing Apparel,Forest,0.0002
+Retail Trade,Forest,0.011
+Recycling,Forest,0.0001
+Re-export & Re-import,Forest,0
+Public Administration,Forest,0.0006
+Private Households,Forest,0
+Post and Telecommunications,Forest,0.0083
+"Petroleum, Chemical and Non-Metallic Mineral Products",Forest,0.0426
+Others,Forest,0.0012
+Other Manufacturing,Forest,0.0019
+Mining and Quarrying,Forest,0.0022
+Metal Products,Forest,0.0073
+Maintenance and Repair,Forest,0.0027
+Hotels and Restaurants,Forest,0.0024
+Food & Beverages,Forest,0.0116
+Fishing,Forest,0.0021
+Financial Intermediation and Business Activities,Forest,0.1148
+"Electricity, Gas and Water",Forest,0.0194
+Electrical and Machinery,Forest,0.0051
+"Education, Health and Other Services",Forest,0.0094
+Construction,Forest,0.0111
+Agriculture,Forest,3.2437
+Wood and Paper,Crops,0.2812
+Wholesale Trade,Crops,1.3405
+Transport Equipment,Crops,0.0909
+Transport,Crops,0.7545
+Textiles and Wearing Apparel,Crops,0.0044
+Retail Trade,Crops,0.1242
+Recycling,Crops,0.0038
+Re-export & Re-import,Crops,0
+Public Administration,Crops,0.0052
+Private Households,Crops,0
+Post and Telecommunications,Crops,0.2528
+"Petroleum, Chemical and Non-Metallic Mineral Products",Crops,3.8521
+Others,Crops,0.0177
+Other Manufacturing,Crops,0.0496
+Mining and Quarrying,Crops,0.0834
+Metal Products,Crops,0.71
+Maintenance and Repair,Crops,0.031
+Hotels and Restaurants,Crops,0.0606
+Food & Beverages,Crops,0.0249
+Fishing,Crops,0.0052
+Financial Intermediation and Business Activities,Crops,1.3775
+"Electricity, Gas and Water",Crops,0.372
+Electrical and Machinery,Crops,5.2095
+"Education, Health and Other Services",Crops,0.0767
+Construction,Crops,0.1842
+Agriculture,Crops,5.4412
+Wood and Paper,CCS,0.257
+Wholesale Trade,CCS,1.139
+Transport Equipment,CCS,0.1042
+Transport,CCS,0.3883
+Textiles and Wearing Apparel,CCS,0.0036
+Retail Trade,CCS,0.2222
+Recycling,CCS,0.0029
+Re-export & Re-import,CCS,0
+Public Administration,CCS,0.0032
+Private Households,CCS,0
+Post and Telecommunications,CCS,0.3592
+"Petroleum, Chemical and Non-Metallic Mineral Products",CCS,0.8391
+Others,CCS,0.0148
+Other Manufacturing,CCS,0.0744
+Mining and Quarrying,CCS,0.0313
+Metal Products,CCS,0.9239
+Maintenance and Repair,CCS,0.0272
+Hotels and Restaurants,CCS,0.0489
+Food & Beverages,CCS,0.0031
+Fishing,CCS,0.0013
+Financial Intermediation and Business Activities,CCS,1.0511
+"Electricity, Gas and Water",CCS,0.2298
+Electrical and Machinery,CCS,6.0074
+"Education, Health and Other Services",CCS,0.6995
+Construction,CCS,2.8699
+Agriculture,CCS,0.0836
+Wood and Paper,Buildings,0.8842
+Wholesale Trade,Buildings,3.0517
+Transport Equipment,Buildings,0.2702
+Transport,Buildings,1.8566
+Textiles and Wearing Apparel,Buildings,0.0098
+Retail Trade,Buildings,0.9335
+Recycling,Buildings,0.0099
+Re-export & Re-import,Buildings,0
+Public Administration,Buildings,0.0746
+Private Households,Buildings,0
+Post and Telecommunications,Buildings,2.0803
+"Petroleum, Chemical and Non-Metallic Mineral Products",Buildings,2.5186
+Others,Buildings,0.0405
+Other Manufacturing,Buildings,0.2643
+Mining and Quarrying,Buildings,0.1259
+Metal Products,Buildings,3.2038
+Maintenance and Repair,Buildings,0.0803
+Hotels and Restaurants,Buildings,0.1482
+Food & Beverages,Buildings,0.0102
+Fishing,Buildings,0.0043
+Financial Intermediation and Business Activities,Buildings,3.1855
+"Electricity, Gas and Water",Buildings,0.7845
+Electrical and Machinery,Buildings,11.6095
+"Education, Health and Other Services",Buildings,0.6144
+Construction,Buildings,14.2936
+Agriculture,Buildings,0.5449

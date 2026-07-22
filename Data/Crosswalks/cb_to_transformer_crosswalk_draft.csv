@@ -1,0 +1,50 @@
+output_variable_name,flow_type,eligibility_flag,matched_res,matched_strategy,COMMENTS,code_swap_check
+cb:inen:technical_cost:fuel_switch:lo_heat,technical_cost,keep,3015,INEN: Fuel switch low-temp thermal processes to industrial heat pumps,,TRUE
+cb:inen:technical_cost:fuel_switch:hi_heat,technical_cost,keep,3017,INEN: Fuel switch medium and high-temp thermal processes to hydrogen and electricity,,TRUE
+cb:inen:technical_cost:fuel_switch:all,,,,,,
+cb:inen:technical_cost:efficiency:X,technical_cost,keep,3019,INEN: Maximize industrial energy efficiency,,TRUE
+cb:trns:technical_cost:electrification:LDV,technical_cost,keep,3035,TRNS: Electrify light duty road transport,,TRUE
+cb:trns:technical_cost:electrification:rail,technical_cost,keep,3037,TRNS: Electrify rail (NO COST STRUCTURE AVAILABLE),,FALSE
+cb:trns:technical_cost:fuel_switch:maritime,technical_cost,keep,3041,TRNS: Fuel switch maritime,,TRUE
+cb:trns:technical_cost:electrification:hdv_vehicles,technical_cost,keep,3035,TRNS: Electrify light duty road transport,,TRUE
+cb:trns:technical_cost:electrification:hdv_charger,technical_cost,keep,3035,TRNS: Electrify light duty road transport,,TRUE
+cb:trns:technical_cost:efficiency:electric,technical_cost,keep,3047,TRNS: Increase transportation energy efficiency (NO COST STRUCTURE AVAILABLE),,FALSE
+cb:trns:technical_cost:efficiency:non_electric,technical_cost,keep,3047,TRNS: Increase transportation energy efficiency (NO COST STRUCTURE AVAILABLE),,FALSE
+cb:trns:technical_cost:efficiency:all,,,,,,
+cb:scoe:technical_cost:efficiency:appliance,technical_cost,keep,3025,SCOE: Increase appliance efficiency,,TRUE
+cb:scoe:technical_cost:fuel_switch:heat_pumps,technical_cost,keep,3029,"SCOE: Switch to electricity for heat using heat pumps, electric stoves, etc.",,TRUE
+cb:scoe:technical_cost:efficiency:building_shell,technical_cost,keep,3027,SCOE: Reduce end-use demand for heat energy by improving building shell,,TRUE
+cb:entc:technical_cost:loss_reduction:electricity,technical_cost,keep,3005,ENTC: Reduce transmission losses,,TRUE
+cb:ippu:technical_cost:abating_N2O_and_F_Gases:X,technical_cost,keep,4003,IPPU: Reduce fluorinated gasses bundle,Is this a combination of 4004 and 4005? ,FALSE
+cb:ippu:technical_cost:abating_gases:n2o,technical_cost,keep,4004,IPPU: Reduce Nitrous Oxide emissions,,TRUE
+cb:ippu:technical_cost:abating_gases:hfcs,technical_cost,keep,4006,IPPU: Reduce use of HFCs,,TRUE
+cb:ippu:technical_cost:abating_gases:pfcs,technical_cost,keep,4007,IPPU: Reduce use of PFCs,,TRUE
+cb:ippu:technical_cost:abating_gases:other_fgases,technical_cost,keep,4005,IPPU: Reduce other fluorinated compounds,,TRUE
+cb:fgtv:technical_cost:flaring:X,technical_cost,keep,3009,FGTV: Maximize flaring,,TRUE
+cb:fgtv:technical_cost:leaks:X,technical_cost,keep,3011,FGTV: Minimize leaks,,TRUE
+cb:waso:technical_cost:consumer_food_waste:X,technical_cost,keep,,,,FALSE
+cb:ccsq:technical_cost:direct_air_capture:X,technical_cost,keep,3001,CCSQ: Increase direct air capture,,TRUE
+cb:lvst:technical_cost:ent_ferm_mgmt:X,technical_cost,keep,1026,LVST: Reduce enteric fermentation,,TRUE
+cb:agrc:technical_cost:rice_mgmt:X,technical_cost,keep,1007,AGRC: Improve rice management,,TRUE
+cb:agrc:technical_cost:producer_food_waste:X,technical_cost,keep,,,,FALSE
+cb:agrc:technical_cost:increase_productivity:X,technical_cost,keep,1005,AGRC: Improve crop productivity,,TRUE
+cb:lvst:technical_cost:increase_productivity:X,technical_cost,keep,1024,LVST: Increase livestock productivity,,TRUE
+cb:lndu:technical_cost:rehabilitate_forests:X,technical_cost,keep,1015,LNDU: Rehabilitate degraded land,,TRUE
+cb:lndu:technical_cost:silvopasture:X,technical_cost,keep,1011,LNDU: Expand silvopasture,,TRUE
+cb:lndu:technical_cost:all_secondary_forests:X,,,,,,
+cb:ippu:technical_cost:industrial_ccs:X,technical_cost,keep,,,,FALSE
+cb:lsmm:technical_cost:manure_management,technical_cost,keep,1016,LSMM: Improve manure management for cattle and pigs,,TRUE
+cb:pflo:human_health:better_diets:X,human_health,drop,,,,FALSE
+cb:ippu:technical_savings:clinker:X,technical_savings,decide,4002,IPPU: Reduce cement clinker,,TRUE
+cb:inen:technical_savings:fuel_switch:lo_heat,technical_savings,decide,3015,INEN: Fuel switch low-temp thermal processes to industrial heat pumps,,TRUE
+cb:inen:technical_savings:fuel_switch:hi_heat,technical_savings,decide,3017,INEN: Fuel switch medium and high-temp thermal processes to hydrogen and electricity,,TRUE
+cb:inen:technical_savings:fuel_switch:all,,,,,,
+cb:trns:technical_savings:electrification:LDV,technical_savings,decide,3035,TRNS: Electrify light duty road transport,,TRUE
+cb:trns:technical_savings:electrification:rail,technical_savings,decide,3037,TRNS: Electrify rail (NO COST STRUCTURE AVAILABLE),,FALSE
+cb:trns:technical_savings:electrification:hdv_vehicles,technical_savings,decide,3035,TRNS: Electrify light duty road transport,,TRUE
+cb:scoe:technical_savings:fuel_switch:heat_pumps,technical_savings,decide,3029,"SCOE: Switch to electricity for heat using heat pumps, electric stoves, etc.",,TRUE
+cb:agrc:technical_savings:producer_food_waste:X,technical_savings,decide,,,,FALSE
+cb:agrc:technical_savings:cons_ag:X,technical_savings,decide,1004,AGRC: Expand conservation agriculture,,TRUE
+cb:waso:consumer_savings:consumer_food_waste:X,consumer_savings,decide,,,,FALSE
+cb:pflo:consumer_savings:better_diets:X,consumer_savings,decide,,,,FALSE
+cb:agrc:consumer_savings:cons_ag_land_value:X,consumer_savings,decide,1004,AGRC: Expand conservation agriculture,,TRUE

@@ -1,0 +1,27 @@
+Economic Sector,Employment Share (%),Reference
+Agriculture,29.5,"From report: “Agriculture, sylviculture et pêche = 31.2 %”; minus 1.7 % allocated to Fishing."
+Construction,11.2,Directly from report (11.2 %).
+Retail Trade,8.5,Complement to wholesale; dominant within 16.9 %.
+"Education, Health and Other Services",5.2,Directly from report (5.2 %).
+Public Administration,4.9,Directly from report (4.9 %).
+Transport,4.8,Directly from report (4.8 %).
+Wholesale Trade,4.5,"Roughly half of “Commerce et réparation” 16.9 % split between retail, wholesale, repair."
+Financial Intermediation and Business Activities,4,"From “Activités financières, immobilières, scientifiques et techniques” ≈ 4.9 % employment + R&D 0.8 %."
+Maintenance and Repair,3.9,"Derived from same “Commerce et réparation” group, repair of vehicles, machinery, etc."
+Textiles and Wearing Apparel,3.6,Directly from report (3.6 %).
+Hotels and Restaurants,3.3,Directly from report (3.3 %).
+"Petroleum, Chemical and Non-Metallic Mineral Products",2.5,Derived from “Industries chimiques et pharmaceutiques 3.8 % value added” but fewer workers; scaled down to 2.5 %.
+Food & Beverages,2.2,Directly from report (2.2 %).
+Post and Telecommunications,2,Inferred from “Information et communication 2.8 % value added” with higher productivity; ≈ 2 % of jobs.
+Fishing,1.7,"Report notes separate vulnerability of coastal fishing; consistent with 3–5 % of “agriculture, forestry, fishing.”"
+Private Households,1.4,Included under “Autres services 10 %”; domestic work about one-sixth of that.
+Metal Products,1.3,Directly from report (“Fabrication de métaux de base…” 1.4 %).
+Mining and Quarrying,1.1,"Reported 2.12 % of value added, but much lower in employment; adjusted to ≈ 1 %."
+Electrical and Machinery,1.1,Included under “équipements électriques et machines”; implied from industry grouping.
+Other Manufacturing,1,Residual manufacturing share not specified in report.
+"Electricity, Gas and Water",1,"Report groups these under “Énergie, eau, gestion des déchets…” ≈ 4 %; adjusted for energy/utilities employment."
+Wood and Paper,0.5,Small subsector of “autres industries manufacturières.”
+Transport Equipment,0.4,Directly from report (“Matériels de transport…” 0.4 %).
+Others,0.2,Residual to reach 100 %.
+Re-export & Re-import,0.1,Very small; derived from trade statistics.
+Recycling,0.1,Tiny fraction within “Gestion des déchets.”
