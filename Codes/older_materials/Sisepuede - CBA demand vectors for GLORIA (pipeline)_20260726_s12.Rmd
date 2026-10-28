@@ -1,0 +1,580 @@
+---
+title: "CBA-scaled GLORIA demand vectors and domestic employment (Paper 3 pipeline)"
+author: "Fernando Esteves"
+date: "2026-07-25"
+output: html_document
+---
+
+<!--
+===============================================================================
+WHAT THIS DOCUMENT DOES  (read this before running)
+===============================================================================
+This is the DEMAND-SIDE script of the CBA -> employment pipeline. It turns the
+cost-benefit (CBA) output into signed GLORIA-product demand vectors, then
+multiplies them by the pre-computed employment matrix L to get domestic jobs.
+
+It replaces the old "$1M-per-strategy" scaffold
+("Sisepuede - Transformation demand vectors for GLORIA.Rmd"). Three upgrades:
+
+  1. VALUES ARE CBA DOLLARS, NOT $1M. Each transformation's demand is
+     multiplier x delta(physical quantity between scenario and BAU runs),
+     split into a COST stream (+) and a SAVINGS stream (-). See Section 4.
+  2. JOBS COME FROM THE L MATRIX, NOT FROM RE-RUNNING MINDSET. We built L once
+     in Python (EXTRACT_L_MATRIX.py). Here we just do jobs = L %*% f in R.
+     L already encodes the Leontief inverse, 2019 employment coefficients, and
+     the import-origin split; it returns DOMESTIC jobs only. See Section 6.
+  3. ELECTRICITY MIX IS DYNAMIC & SCENARIO-BASED (per-year), not the static
+     2019 IEA mix used in the old code. See Section 3. (Optional; see flags.)
+
+DESIGN CHOICE (agreed): the cost structure is treated as a BILL OF MATERIALS in
+FINAL-DEMAND space -- "$x is spent buying product g" -- and L was built to match
+that. We do NOT route it through MINDSET's capital-formation converter (that
+step is for "who invests" vectors and would double-process a bill of materials).
+
+-------------------------------------------------------------------------------
+PIPELINE MAP (which section produces what)
+-------------------------------------------------------------------------------
+  S1  Setup + paths ....................... libraries, file locations
+  S2  Cost structures (Eora26 x strategy) .. the sector weights per transformation
+  S3  Dynamic electricity mix [OPTIONAL] ... per-year grid composition (scenario)
+  S4  CBA dollar scaling .................... multiplier x delta -> signed $ per strategy
+  S5  Eora26 -> GLORIA (120 products) ....... spread each sector weight to products
+  S6  Employment ........................... jobs = L %*% f  (domestic)
+  S7  Export + diagnostics
+
+-------------------------------------------------------------------------------
+FILES STILL NEEDED FROM FERNANDO  (script runs without them; sections skip)
+-------------------------------------------------------------------------------
+  [PENDING-1] COST-STRUCTURE MASTER. Two candidates exist on disk:
+        (a) Data/.../ATTRIBUTE_STRATEGY_transformations_vectors.xlsx  (spine-native, OLD)
+        (b) Data/Cost Structure/Transformations - Cost Structure vectors (SSP CBA).xlsx (NEW, 18 sheets)
+      Set COST_MASTER below to whichever is authoritative. Default = (a).
+  [PENDING-2] STRATEGY RE-KEY CROSSWALK: Fernando's finished
+        old strategy_id  <->  new strategy_code / output_variable_name  map.
+      Set REKEY_FILE + its key columns in S4 when ready. Until then, S4 joins
+      the CBA lines to strategies on the subsector token as a STOPGAP and flags it.
+
+Everything else needed already exists (paths verified 2026-07-25):
+  - L matrix .................. MINDSET_module-main/SSP - Results/L_matrix_MAR.csv
+  - GLORIA-Eora26 crosswalk ... Data/Crosswalks/GLORIA-Eora26 - Crosswalk.xlsx
+  - GLORIA product numbers .... Data/SSP - Supporting Files/Gloria - Product list number.xlsx
+  - CBA transformation costs .. Data/Edmundo/transformation_cost.csv
+  - Physical quantities ....... Data/CBA/.../decomposed_ssp_output.csv  (wide; read with care)
+===============================================================================
+-->
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(openxlsx)
+library(stringr)
+library(ggplot2)
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# S1. Setup and file locations
+
+All paths are RELATIVE to the repo root, so the script is portable across
+machines that have the three repos synced. Edit only this block if files move.
+
+```{r paths}
+# ---- Repo root -------------------------------------------------------------
+# Set once. Everything else hangs off this. Adjust if your working dir differs.
+REPO <- "Repos/SSP-employment_estimates"
+MINDSET <- file.path(REPO, "MINDSET_module-main")
+
+# ---- Scope (v1 = Morocco only; loop-ready) ---------------------------------
+COUNTRY_ISO     <- "MAR"
+COUNTRY_NAME    <- "Morocco"
+COUNTRY_NAME_LC <- "morocco"   # region label as it appears in decomposed_ssp_output.csv
+
+# ---- Inputs that EXIST (verified) ------------------------------------------
+L_MATRIX_FILE   <- file.path(MINDSET, "SSP - Results", paste0("L_matrix_", COUNTRY_ISO, ".csv"))
+CROSSWALK_FILE  <- file.path(REPO, "Data/Crosswalks/GLORIA-Eora26 - Crosswalk.xlsx")
+PRODUCT_NUM_FILE<- file.path(REPO, "Data/SSP - Supporting Files/Gloria - Product list number.xlsx")
+# AUTHORITATIVE CBA source = transformation_costs tab of cb_config_params.xlsx
+# (in the ssp_morocco repo). Edmundo/transformation_cost.csv is a STALE export
+# missing clinker/manure(x3)/biogas/gas_recovery; the rekey was built on this xlsx.
+SSP_MOROCCO   <- "Repos/ssp_morocco"
+CBA_COST_FILE <- file.path(SSP_MOROCCO,
+                  "ssp_modeling/cost-benefits/cb_config_files/cb_config_params.xlsx")
+CBA_COST_SHEET <- "transformation_costs"
+DECOMP_FILE     <- file.path(REPO, "Data/CBA/sisepuede_results/sisepuede_results_sisepuede_run_2026-07-16/decomposed_ssp_output.csv")
+
+# ---- COST_MASTER: authoritative = NEW SSP CBA file (PENDING-1 RESOLVED) -----
+# Some strategy columns here sum to <1 or 0 BY DESIGN: they are completed by the
+# per-year electricity mix (S3) or by a source column, via the S2 supplement step.
+COST_MASTER <- file.path(REPO, "Data/Cost Structure",
+                         "Transformations - Cost Structure vectors (SSP CBA).xlsx")
+
+# ---- REKEY crosswalk: CBA output_variable_name -> strategy_id (PENDING-2 RESOLVED)
+# Built by Fernando; joins the authoritative cb_config_params.xlsx with zero misses.
+REKEY_FILE <- file.path(REPO, "Data/Crosswalks/CBA_to_transformation_crosswalk_claude.csv")
+REKEY_OVN_COL <- "output_variable_name"   # key on the CBA side
+REKEY_ID_COL  <- "strategy_id_new"        # -> matches cost_struct$strategy_id
+
+# ---- CBA run ids (from Session 7) ------------------------------------------
+RUN_BAU      <- "72072"   # baseline
+RUN_SCENARIO <- "73073"   # policy scenario
+
+# ---- Output ----------------------------------------------------------------
+OUT_DIR <- file.path(MINDSET, "GLORIA_template/Scenarios")
+if (!dir.exists(OUT_DIR)) dir.create(OUT_DIR, recursive = TRUE)
+
+# ---- Small helper: does a file exist? (used to skip pending sections) ------
+have <- function(p) !is.na(p) && file.exists(p)
+
+cat("File availability:\n")
+for (f in c(L_MATRIX_FILE, CROSSWALK_FILE, PRODUCT_NUM_FILE, CBA_COST_FILE,
+            DECOMP_FILE, COST_MASTER)) {
+  cat(sprintf("  [%s] %s\n", ifelse(have(f), "OK  ", "MISS"), f))
+}
+cat(sprintf("  [%s] REKEY_FILE (PENDING-2)\n", ifelse(have(REKEY_FILE), "OK  ", "MISS")))
+```
+
+# S2. Cost structures (Eora26 sector x strategy)
+
+**What this is.** For each transformation (strategy), a vector of weights over
+Eora26 sectors that sums to 1: "of each dollar this transformation spends, what
+fraction is bought from each sector." This is the object [PENDING-1] provides.
+
+We read it into a tidy long table `cost_struct`:
+`strategy_id | Sector (Eora26) | weight`, weights summing to 1 per strategy.
+
+> IMPORTANT — DO NOT RENORMALIZE HERE. Some strategy columns in the master sum
+> to <1 or exactly 0 BY DESIGN: they are completed by the per-year electricity
+> mix (S3) or by a source column (e.g. Grid Upgrades, Industrial EE) in the S2b
+> supplement step. Renormalizing now would erase the gap the supplement fills.
+> Final renormalization happens ONCE, at the end of S2b, after supplementing.
+>
+> We therefore produce two objects here:
+>   master_long   : the FULL long master (every column, incl. source columns like
+>                   "Grid Upgrades") — needed by the S2b replace-with-source rule.
+>   cost_struct0  : the raw numeric-id strategy columns only (may sum != 1).
+
+```{r cost-structures}
+if (have(COST_MASTER)) {
+  sheets <- excel_sheets(COST_MASTER)
+  read_one <- function(sh) { df <- read_excel(COST_MASTER, sheet = sh); df$.__sheet <- sh; df }
+  raw_list <- lapply(sheets, read_one)
+
+  # Each sheet: first column is the Eora26 Sector, the rest are value columns
+  # (numeric strategy ids AND named source columns like "Coal", "Grid Upgrades").
+  to_long <- function(df) {
+    sector_col <- names(df)[1]
+    df %>%
+      rename(Sector = all_of(sector_col)) %>%
+      select(-any_of(".__sheet")) %>%
+      mutate(across(-Sector, as.numeric)) %>%
+      pivot_longer(-Sector, names_to = "col", values_to = "weight") %>%
+      mutate(weight = ifelse(is.na(weight), 0, weight))
+  }
+  master_long <- bind_rows(lapply(raw_list, to_long)) %>%
+    filter(!is.na(Sector)) %>%
+    group_by(col, Sector) %>%                 # a column may appear on >1 sheet
+    summarise(weight = sum(weight), .groups = "drop")
+
+  # raw strategy structures = numeric-id columns only, NOT renormalized
+  cost_struct0 <- master_long %>%
+    filter(grepl("^[0-9]+$", col)) %>%
+    rename(strategy_id = col)
+
+  s0 <- cost_struct0 %>% group_by(strategy_id) %>% summarise(s = sum(weight), .groups = "drop")
+  cat(sprintf("cost_struct0 (raw): %d strategies; %d sum to <0.999 (to be supplemented in S2b)\n",
+              nrow(s0), sum(s0$s < 0.999)))
+} else {
+  master_long <- NULL; cost_struct0 <- NULL
+  cat("[SKIP S2] COST_MASTER not found. Set COST_MASTER in S1.\n")
+}
+```
+
+# S3. Dynamic electricity mix  [OPTIONAL — needs one wide CSV]
+
+**Why.** When a transformation demands (or saves) *electricity*, the sectors it
+hits depend on the grid mix. The old code froze this at the 2019 IEA mix. We
+replace it with the SCENARIO's actual per-year generation by technology, so the
+electricity portion of a cost structure tracks the decarbonising grid.
+
+**Source.** `nemomod_entc_annual_production_by_technology_pp_*` columns inside
+the wide `decomposed_ssp_output.csv` (run `RUN_SCENARIO`, region = Morocco).
+That file has ~4,100 columns; base-R read segfaults on this machine
+(see checkpoint). We therefore read only the columns we need, via a name filter.
+
+> STATUS: this section is structured but LEFT INERT by default (`RUN_S3 <- FALSE`)
+> because it feeds an enhancement, not the core jobs number. Turn it on once you
+> and Fernando confirm the exact technology-column names and the source->Eora26
+> generation-sector map (Session 7 rename map). The core pipeline (S4-S6) runs
+> without it; electricity then falls back to whatever the cost structure carries.
+
+This step RUNS BY DEFAULT now (`RUN_S3 <- TRUE`): the supplement in S2 needs it.
+It builds `elec_by_year`: for each `time_period`, a vector of Eora26-sector
+weights (summing to 1) = the year's generation mix applied to the per-source
+cost structures on the `Synthetic_ind_energy` tab of COST_MASTER.
+
+```{r dynamic-electricity}
+RUN_S3 <- TRUE
+
+# scenario technology token -> Synthetic_ind_energy source column (verified map)
+tech2src <- c(coal="Coal", coal_ccs="Coal", gas="Oil and Gas", gas_ccs="Oil and Gas",
+              oil="Oil and Gas", hydropower="Hydro", solar="Solar", wind="Wind",
+              geothermal="Geothermal", nuclear="Nuclear", biomass="Bioenergy",
+              biogas="Bioenergy")   # ocean, waste_incineration -> no target (dropped)
+
+elec_by_year <- NULL   # filled below; consumed by S2
+elec_avg     <- NULL   # year-averaged fallback (used if a period is missing)
+
+if (RUN_S3 && have(DECOMP_FILE) && have(COST_MASTER)) {
+  # --- per-source cost structures from the master's Synthetic_ind_energy tab ---
+  sie <- read_excel(COST_MASTER, sheet = "Synthetic_ind_energy")
+  names(sie)[1] <- "Sector"
+  src_struct <- sie %>%
+    pivot_longer(-Sector, names_to = "source", values_to = "w") %>%
+    mutate(w = ifelse(is.na(w), 0, w)) %>%
+    filter(source %in% unname(tech2src))     # keep generation sources only
+
+  # --- per-year generation shares from the scenario run (73073) ----------------
+  hdr <- names(read.csv(DECOMP_FILE, nrows = 0, check.names = FALSE))
+  tech_cols <- grep("nemomod_entc_annual_production_by_technology_pp", hdr, value = TRUE)
+  id_cols   <- intersect(c("primary_id", "region", "time_period"), hdr)
+  gen <- read.csv(DECOMP_FILE, check.names = FALSE)[, c(id_cols, tech_cols)]
+  gen <- gen[gen$region == COUNTRY_NAME_LC & gen$primary_id == as.integer(RUN_SCENARIO), ]
+
+  # long: period x tech share -> map to source -> renormalize (after dropping unmatched)
+  gen_by_src <- gen %>%
+    select(time_period, all_of(tech_cols)) %>%
+    pivot_longer(-time_period, names_to = "tech", values_to = "gen") %>%
+    mutate(tech = sub(".*_pp_", "", tech)) %>%
+    filter(tech %in% names(tech2src)) %>%
+    mutate(source = tech2src[tech]) %>%
+    group_by(time_period, source) %>% summarise(gen = sum(gen), .groups = "drop")
+
+  # share = source generation / TOTAL generation THAT YEAR. Denominator computed
+  # via an explicit per-year join (group_by %>% mutate proved unreliable here and
+  # divided by the grand total across all years instead of the year's total).
+  yr_total <- gen_by_src %>% group_by(time_period) %>%
+    summarise(gen_tot = sum(gen), .groups = "drop")
+  shares <- gen_by_src %>% left_join(yr_total, by = "time_period") %>%
+    mutate(share = ifelse(gen_tot > 0, gen / gen_tot, 0)) %>%
+    select(time_period, source, share)
+
+  # per-year Eora26 electricity vector = sum_source share * source_struct
+  elec_by_year <- shares %>%
+    inner_join(src_struct, by = "source", relationship = "many-to-many") %>%
+    group_by(time_period, Sector) %>%
+    summarise(elec_w = sum(share * w), .groups = "drop")
+
+  # year-averaged fallback (single vector) — mirrors the old static BAU_Electricity slot
+  elec_avg <- elec_by_year %>% group_by(Sector) %>%
+    summarise(elec_w = mean(elec_w), .groups = "drop") %>%
+    mutate(elec_w = elec_w / sum(elec_w))
+
+  yr_sums <- elec_by_year %>% group_by(time_period) %>% summarise(s = sum(elec_w), .groups = "drop")
+  cat(sprintf("[S3] elec_by_year: %d periods; per-year sum range [%.4f, %.4f]\n",
+              nrow(yr_sums), min(yr_sums$s), max(yr_sums$s)))
+} else {
+  cat("[SKIP S3] needs DECOMP_FILE + COST_MASTER. Electricity supplement in S2 will be skipped.\n")
+}
+```
+
+# S2b. Supplement + finalize cost structures (per year)
+
+**Why this step exists.** Several strategy columns in the master are intentionally
+incomplete; they are completed here per Fernando's supplement spec:
+
+  - ELEC-ADD (`base + coef * Electricity`):
+      3000 +0.12, 3010 +0.50, 3012 +0.10, 3018 +0.10, 3019 +0.44, 4000 +0.29
+  - REPLACE with the whole electricity vector: 3013
+  - REPLACE with a named source column: 3002 = "Grid Upgrades", 3008 = "Industrial EE"
+
+Electricity is the **per-year** scenario mix from S3, so a supplemented strategy's
+structure changes year to year (the grid decarbonises). Strategies not in the
+spec pass through unchanged. Every strategy is renormalized to sum 1 at the end.
+Output `cost_struct` carries a `time_period` column; non-supplemented strategies
+are constant across periods (kept per-year for a uniform downstream join).
+
+```{r cost-structures-finalize}
+if (!is.null(cost_struct0)) {
+
+  # --- supplement spec (from Fernando's code line; 0.44** read as 0.44*) -------
+  elec_add    <- c("3000"=0.12, "3010"=0.50, "3012"=0.10, "3018"=0.10, "3019"=0.44, "4000"=0.29)
+  replace_elec<- c("3013")
+  replace_src <- c("3002"="Grid Upgrades", "3008"="Industrial EE")
+
+  have_elec <- !is.null(elec_by_year)
+  if (!have_elec)
+    cat("[WARN S2b] No electricity vectors from S3; ELEC-ADD/REPLACE-ELEC strategies will be under-filled.\n")
+
+  # periods to expand over (from S3; fallback to a single NA period if S3 inert)
+  periods <- if (have_elec) sort(unique(elec_by_year$time_period)) else NA_integer_
+
+  all_ids <- sort(unique(cost_struct0$strategy_id))
+
+  # helper: electricity vector for a given period (per-year, else year-avg fallback)
+  elec_vec <- function(tp) {
+    if (!have_elec) return(tibble(Sector = character(), elec_w = numeric()))
+    v <- elec_by_year %>% filter(time_period == tp)
+    if (nrow(v) == 0) v <- elec_avg %>% mutate(time_period = tp)
+    v %>% select(Sector, elec_w)
+  }
+
+  build_one <- function(id, tp) {
+    base <- cost_struct0 %>% filter(strategy_id == id) %>% select(Sector, weight)
+    if (id %in% names(elec_add)) {
+      ev <- elec_vec(tp)
+      out <- full_join(base, ev, by = "Sector") %>%
+        mutate(weight = ifelse(is.na(weight), 0, weight),
+               elec_w = ifelse(is.na(elec_w), 0, elec_w),
+               w = weight + elec_add[[id]] * elec_w) %>% select(Sector, w)
+    } else if (id %in% replace_elec) {
+      out <- elec_vec(tp) %>% transmute(Sector, w = elec_w)
+    } else if (id %in% names(replace_src)) {
+      # source column lives in the FULL master (may be a non-generation column)
+      out <- master_long %>% filter(col == replace_src[[id]]) %>%
+        group_by(Sector) %>% summarise(w = sum(weight), .groups = "drop")
+    } else {
+      out <- base %>% rename(w = weight)      # pass-through, unchanged
+    }
+    out %>% mutate(strategy_id = id, time_period = tp)
+  }
+
+  grid <- expand.grid(strategy_id = all_ids, time_period = periods,
+                      stringsAsFactors = FALSE)
+  cost_struct <- bind_rows(Map(build_one, grid$strategy_id, grid$time_period)) %>%
+    group_by(strategy_id, time_period) %>%
+    mutate(s = sum(w), weight = ifelse(s > 0, w / s, 0)) %>%   # renormalize ONCE, here
+    ungroup() %>% select(strategy_id, time_period, Sector, weight)
+
+  chk <- cost_struct %>% group_by(strategy_id, time_period) %>%
+    summarise(s = sum(weight), .groups = "drop")
+  nzero <- chk %>% filter(s < 1e-9) %>% distinct(strategy_id) %>% nrow()
+  cat(sprintf("cost_struct (final): %d strategies x %d periods; sum!=1 (excl zero): %d; zero-structure: %d\n",
+              n_distinct(cost_struct$strategy_id), length(periods),
+              sum(chk$s > 1e-9 & abs(chk$s - 1) > 1e-6), nzero))
+} else {
+  cost_struct <- NULL
+  cat("[SKIP S2b] cost_struct0 missing (S2 did not run).\n")
+}
+```
+
+# S4. CBA dollar scaling (signed cost and savings streams)
+
+**The rule (Session 7).** Each CBA line is
+`$ = multiplier x [ var(RUN_SCENARIO) - var(RUN_BAU) ]` per year — the multiplier
+applies to the **delta** of the difference_variable, not its level. Two streams:
+
+  - `technical_cost`   -> POSITIVE demand (spending)
+  - `technical_savings`-> NEGATIVE demand (already stored negative in the file)
+
+They are kept SEPARATE (different cost structures), then summed downstream:
+net = cost + savings. We report gross(+), gross(-), and net side by side.
+Savings are one-sided (no re-spending modeled) -> net jobs are a LOWER BOUND.
+
+```{r cba-scaling}
+if (have(CBA_COST_FILE)) {
+  cba <- read_excel(CBA_COST_FILE, sheet = CBA_COST_SHEET) %>% as.data.frame()
+  # Keep only included lines if an `include` flag is present.
+  if ("include" %in% names(cba)) cba <- cba %>% filter(include %in% c(TRUE, "TRUE", 1))
+
+  # Classify each line by its output_variable_name token (Session 3 rule).
+  cba <- cba %>%
+    mutate(
+      flow = case_when(
+        str_detect(output_variable_name, "technical_cost")    ~ "cost",
+        str_detect(output_variable_name, "technical_savings") ~ "savings",
+        TRUE                                                   ~ "other"
+      ),
+      # subsector token = 2nd token of output_variable_name (e.g. cb:inen:... -> inen)
+      subsector = str_split_fixed(output_variable_name, ":", 3)[, 2]
+    )
+
+  cat("CBA lines by flow type:\n"); print(table(cba$flow))
+
+  # --- Physical delta: multiplier x (scenario - BAU) --------------------------
+  # PENDING DATA STEP: the per-year physical quantity of `difference_variable`
+  # for RUN_SCENARIO and RUN_BAU lives in decomposed_ssp_output.csv. Wiring that
+  # join needs the physical-variable -> column map confirmed with Fernando
+  # (the INEN worked example). Until then we expose the formula and leave `delta`
+  # as NA so nothing downstream silently uses a wrong number.
+  cba <- cba %>% mutate(delta = NA_real_,             # <- fill from decomposed run
+                        cba_dollars = multiplier * delta)  # signed $ (savings multiplier<0)
+
+  cat("\n[NOTE S4] `delta` is NA pending the physical-quantity join",
+      "(decomposed_ssp_output.csv). Formula is in place; fill `delta` to activate.\n")
+} else {
+  cba <- NULL
+  cat("[SKIP S4] CBA cost file not found.\n")
+}
+```
+
+```{r rekey}
+# Re-key CBA output_variable_name -> strategy_id used by cost_struct (PENDING-2 done).
+if (!is.null(cba) && have(REKEY_FILE)) {
+  rekey <- read.csv(REKEY_FILE, stringsAsFactors = FALSE) %>%
+    select(all_of(c(REKEY_OVN_COL, REKEY_ID_COL))) %>%
+    rename(output_variable_name = all_of(REKEY_OVN_COL),
+           strategy_id = all_of(REKEY_ID_COL)) %>%
+    mutate(strategy_id = ifelse(is.na(strategy_id) | strategy_id == "", NA,
+                                as.character(as.integer(strategy_id))))
+  cba <- cba %>% left_join(rekey, by = "output_variable_name")
+
+  matched <- cba %>% filter(!is.na(strategy_id)) %>% nrow()
+  unmatched <- cba %>% filter(is.na(strategy_id)) %>% pull(output_variable_name)
+  cat(sprintf("[S4 rekey] %d/%d CBA lines carry a strategy_id.\n", matched, nrow(cba)))
+  # Blank strategy_id = savings + `:all` composites (handled outside this cost join).
+  if (length(unmatched) > 0) {
+    cat("  Lines with no strategy_id (savings / :all composites, expected):\n")
+    print(unmatched)
+  }
+} else {
+  cat("[SKIP S4 rekey] needs cba (S4) + REKEY_FILE.\n")
+}
+```
+
+# S5. Eora26 -> GLORIA (120 products)
+
+Each Eora26 sector maps to one or more of the 120 GLORIA products. Following the
+established convention, a sector's weight is **split evenly** across its GLORIA
+products (no basis to favour one). Multi-sector products then sum. Result: a
+120-product weight vector per strategy, still summing to 1.
+
+```{r eora-to-gloria}
+if (have(CROSSWALK_FILE) && have(PRODUCT_NUM_FILE) && !is.null(cost_struct)) {
+
+  # Crosswalk sheet "Eora26 - GLORIA": rows = GLORIA products, cols = Eora26 sectors,
+  # cell = 1 if linked. Pivot to long (Product, Sector) pairs.
+  cw <- read_excel(CROSSWALK_FILE, sheet = "Eora26 - GLORIA")
+  product_col <- names(cw)[1]
+  cw_long <- cw %>%
+    pivot_longer(-all_of(product_col), names_to = "Sector", values_to = "linked") %>%
+    filter(linked == 1) %>%
+    select(-linked) %>%
+    rename(Product = all_of(product_col))
+
+  # products per sector -> even split denominator
+  ppc <- cw_long %>% count(Sector, name = "n_products")
+
+  # GLORIA product code lookup (Lfd_Nr = the code MINDSET expects)
+  prod_num <- read.xlsx(PRODUCT_NUM_FILE)   # cols: Lfd_Nr, Sector_names
+
+  # DATA CHECK: which Eora26 sectors carry weight but have NO GLORIA product?
+  # Their weight would silently disappear in the join. Known cases in the OLD
+  # master: "Wholesale Trade", "Retail Trade", "Re-export & Re-import" (trade
+  # margins the crosswalk sheet does not map). Surface them so the leakage is a
+  # documented choice, not a hidden bug. If any transformation puts real weight
+  # on these, add crosswalk rows or reassign before trusting its jobs number.
+  unmatched <- setdiff(unique(cost_struct$Sector), unique(cw_long$Sector))
+  if (length(unmatched) > 0) {
+    cat("[WARN S5] Eora26 sectors with no GLORIA product (weight will drop):\n")
+    print(unmatched)
+    leaked <- cost_struct %>% filter(Sector %in% unmatched, weight > 0) %>%
+      group_by(strategy_id) %>% summarise(lost = sum(weight), .groups = "drop") %>%
+      filter(lost > 1e-6)
+    if (nrow(leaked) > 0) {
+      cat("  Strategies losing weight to unmapped sectors:\n"); print(as.data.frame(leaked))
+    } else {
+      cat("  (No strategy puts weight on an unmapped sector -> no weight actually lost.)\n")
+    }
+  }
+
+  # cost_struct is keyed by (strategy_id, time_period, Sector). Carry time_period
+  # through so the GLORIA vectors stay per-year (electricity mix decarbonises).
+  gloria_vectors <- cost_struct %>%
+    # many-to-many is EXPECTED: one Eora26 sector -> several GLORIA products.
+    left_join(cw_long, by = "Sector", relationship = "many-to-many") %>%
+    left_join(ppc,     by = "Sector") %>%
+    mutate(value_product = ifelse(is.na(n_products), 0, weight / n_products)) %>%
+    group_by(strategy_id, time_period, Product) %>%
+    summarise(value_product = sum(value_product), .groups = "drop") %>%
+    filter(!is.na(Product)) %>%
+    left_join(prod_num, by = c("Product" = "Sector_names")) %>%
+    rename(product_code = Lfd_Nr)
+
+  # Validation: each (strategy, year) GLORIA vector sums to ~1 (below 1 = weight
+  # lost to unmapped sectors; 0 = strategy has no cost structure).
+  chk <- gloria_vectors %>% group_by(strategy_id, time_period) %>%
+    summarise(s = sum(value_product), .groups = "drop")
+  cat(sprintf("GLORIA vectors: %d strategies x %d periods; weight-sum range [%.4f, %.4f]\n",
+              n_distinct(gloria_vectors$strategy_id), n_distinct(gloria_vectors$time_period),
+              min(chk$s), max(chk$s)))
+} else {
+  gloria_vectors <- NULL
+  cat("[SKIP S5] needs crosswalk + product numbers + cost_struct (S2).\n")
+}
+```
+
+# S6. Employment: jobs = L %*% f  (domestic only)
+
+**The payoff step.** `L` is the 120x120 matrix built by `EXTRACT_L_MATRIX.py`:
+`L[i, p]` = domestic jobs in product `i` per $1 of final demand booked to
+product `p`. It already contains the Leontief inverse, employment coefficients,
+and the import-origin split, and returns DOMESTIC jobs only. So once we have a
+signed 120-product dollar vector `f` for a transformation, jobs are one
+matrix product — MINDSET never runs again.
+
+```{r load-L}
+if (have(L_MATRIX_FILE)) {
+  # row.names = output product code; columns = final-demand product code.
+  L <- as.matrix(read.csv(L_MATRIX_FILE, row.names = 1, check.names = FALSE))
+  cat(sprintf("L loaded: %d x %d. Domestic jobs per $1 (col-sum) range [%.4g, %.4g]\n",
+              nrow(L), ncol(L), min(colSums(L)), max(colSums(L))))
+} else {
+  L <- NULL
+  cat("[SKIP S6] L matrix not found. Run EXTRACT_L_MATRIX.py first.\n")
+}
+```
+
+```{r jobs, eval = FALSE}
+# ACTIVATES once S4 `delta` is filled and S5 vectors exist.
+# Build f (length 120, ordered by product_code) per strategy and per flow, then:
+#
+#   dollars_by_product = value_product * cba_dollars   (per strategy, per flow)
+#   f = tapply(dollars_by_product, product_code, sum)  # collapse to 120-vector
+#   f = f[ as.character(1:120) ]; f[is.na(f)] <- 0
+#   jobs_vec = L %*% f                                 # 120 domestic-job entries
+#
+# Report per strategy: gross_cost = sum(L %*% f_cost),
+#                       gross_savings = sum(L %*% f_savings)  (<= 0),
+#                       net = gross_cost + gross_savings.
+# Keep the three side by side (job displacement is a FINDING, not to be hidden).
+cat("[S6 jobs] inert until S4 delta + S5 vectors are live.\n")
+```
+
+# S7. Export and diagnostics
+
+Two products, both optional until upstream is live:
+  1. The signed GLORIA demand vectors (for inspection / Path-B cross-check
+     against MINDSET's BATCH script, in the existing `Strategy_<id>_<ISO>.xlsx`
+     "Investment by" format).
+  2. The employment table (gross+/gross-/net by product and by strategy).
+
+```{r export, eval = FALSE}
+# Example export of one strategy's demand vector in MINDSET's expected format.
+# (Enable once gloria_vectors and cba_dollars are populated.)
+# subset_df: columns  Country | Country ISO* | Sector investing | Sector investing code* | Value* | Type*
+#   Value* = signed CBA $ (x1000 if you keep the old scaling convention)
+#   Type*  = "abs-b"
+# openxlsx::write.xlsx(subset_df,
+#   file = file.path(OUT_DIR, paste0("Strategy_", strat, "_", COUNTRY_ISO, ".xlsx")),
+#   sheetName = "Investment by")
+cat("[S7] export inert until vectors are live.\n")
+```
+
+<!--
+===============================================================================
+HANDOFF NOTES
+- To go live end to end you need exactly two things from Fernando:
+    (PENDING-1) confirm COST_MASTER (S1)  ->  unlocks S2, S5.
+    (PENDING-2) the re-key crosswalk (S1) ->  unlocks the S4 rekey chunk,
+                which lets CBA $ join cost_struct by strategy_id.
+  Plus one data-wiring step we own: fill S4 `delta` from decomposed_ssp_output.csv
+  once the INEN worked example confirms the physical-variable -> column mapping.
+- S3 (dynamic electricity) is an enhancement; core jobs run without it.
+- L is already final and country-agnostic to cost structures; regenerate it only
+  if labour intensity or import shares change (an RDM dimension), via
+  EXTRACT_L_MATRIX.py with a different TARGET_ISO or coefficients.
+===============================================================================
+-->
+```

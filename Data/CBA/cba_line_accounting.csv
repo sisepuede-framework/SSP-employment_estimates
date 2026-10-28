@@ -1,0 +1,56 @@
+output_variable_name,disposition,total_dollars,reason
+cb:agrc:consumer_savings:cons_ag_land_value:X,live,1170706596.5,
+cb:agrc:technical_cost:producer_food_waste:X,live,-9394140.815999998,
+cb:agrc:technical_cost:rice_mgmt:X,live,-4613384.044020831,
+cb:agrc:technical_savings:cons_ag:X,live,-137139915.59,
+cb:agrc:technical_savings:producer_food_waste:X,live,-2472142320.0,
+cb:ccsq:technical_cost:direct_air_capture:X,live,-73712.231079762,
+cb:entc:savings_opex:electricity:opex,live,-4078105752.211999,
+cb:fgtv:technical_cost:flaring:X,live,-181723.9079999997,
+cb:fgtv:technical_cost:leaks:X,live,-181723.9079999997,
+cb:inen:technical_cost:efficiency:X,live,-12506282674.149998,
+cb:inen:technical_cost:fuel_switch:all,live,-226375668.53488344,
+cb:inen:technical_cost:fuel_switch:hi_heat,live,-3476746583.4137,
+cb:inen:technical_cost:fuel_switch:lo_heat,live,-139522754.10470474,
+cb:inen:technical_savings:fuel_switch:all,live,208604795.004822,
+cb:inen:technical_savings:fuel_switch:hi_heat,live,208604795.004822,
+cb:inen:technical_savings:fuel_switch:lo_heat,live,208604795.004822,
+cb:ippu:technical_cost:abating_gases:n2o,live,-24317815.069187127,
+cb:ippu:technical_cost:abating_gases:pfcs,live,-17346992.683904655,
+cb:ippu:technical_cost:clinker:X,live,-1754672423.0261905,
+cb:lndu:technical_cost:all_secondary_forests:X,live,-65354777404.000015,
+cb:lndu:technical_cost:silvopasture:X,live,-735241245.7950001,
+cb:lsmm:technical_cost:manure_management_cattle_pigs,live,-316023767.625,
+cb:lsmm:technical_cost:manure_management_other,live,-33550163.99895833,
+cb:lsmm:technical_cost:manure_management_poultry,live,-587985439.63875,
+cb:lvst:technical_cost:ent_ferm_mgmt:X,live,-3876679128.615385,
+cb:scoe:technical_cost:efficiency:appliance,live,-21974804392.05,
+cb:scoe:technical_cost:efficiency:building_shell,live,-10987402196.025,
+cb:scoe:technical_cost:fuel_switch:heat_pumps,live,-197618503.4613471,
+cb:scoe:technical_savings:fuel_switch:heat_pumps,live,407266374.73265994,
+cb:trns:technical_cost:efficiency:electric,live,-4392212476.696,
+cb:trns:technical_cost:electrification:hdv_charger,live,-55757152.11976059,
+cb:trns:technical_cost:electrification:hdv_vehicles,live,-36416329.92510369,
+cb:trns:technical_cost:electrification:LDV,live,-4343638590.953973,
+cb:trns:technical_cost:electrification:rail,live,-59038300.886399895,
+cb:trns:technical_cost:fuel_switch:maritime,live,-32059936.847367,
+cb:trns:technical_savings:electrification:hdv_vehicles,live,17341109.488144614,
+cb:trns:technical_savings:electrification:LDV,live,11783456469.996,
+cb:trns:technical_savings:electrification:rail,live,-1329317.7878844878,
+cb:waso:technical_cost:biogas_capture,live,-242249878.63499996,
+cb:fgtv:technical_cost:gas_recovery:X,live,-219583.05549999967,
+cb:fgtv:gas_recovery_savings:X:X,live,333160.49799999944,
+cb:ippu:technical_cost:abating_gases:other_fgases,visible_zero,0.0,"computed ~0 across all periods [cb_fraction_change] (kept visible, option b)"
+cb:lsmm:technical_cost:biogas_capture,visible_zero,0.0,"computed ~0 across all periods [cb_difference_between_two_strategies] (kept visible, option b)"
+cb:trns:technical_cost:efficiency:all,visible_zero,0.0,"computed ~0 across all periods [cb_fraction_change] (kept visible, option b)"
+cb:trns:technical_cost:efficiency:non_electric,visible_zero,0.0,"computed ~0 across all periods [cb_fraction_change] (kept visible, option b)"
+cb:agrc:technical_cost:increase_productivity:X,excluded_config_bug,,"MISSING COUNTRY DATA: agrc_lvst_productivity_costgdp has NO MAR row (cost_frac is iso-keyed, merges on region). Engine yields nothing for Morocco. Verified S20."
+cb:entc:technical_cost:loss_reduction:electricity,excluded_config_bug,,"MISSING COUNTRY DATA: entc_reduce_losses_cost_file has NO MAR row (annual_investment_USD is iso-keyed, merges on region). Engine yields nothing for Morocco. Verified S20."
+cb:ippu:technical_cost:industrial_ccs:X,excluded_config_bug,,"KEPT EXCLUDED (Fernando's decision, Session 23 2026-07-28): this line is BOTH an external-table line and an annual_change case. Its cb_function is cb_ippu_inen_ccs, which (verified from cb_calculate.py:1876) reads CCS fraction vars x production x the ippu_ccs_cost_factors cache and NEVER applies annual_change -> the 'set annual_change=1' fix does not even bite. Implementing it would require the external cache path; deferred as a current repo limitation."
+cb:lvst:technical_cost:increase_productivity:X,excluded_config_bug,,"MISSING COUNTRY DATA: agrc_lvst_productivity_costgdp has NO MAR row (cost_frac is iso-keyed, merges on region). Engine yields nothing for Morocco. Verified S20."
+cb:lndu:technical_cost:rehabilitate_forests:X,include_false,,include==FALSE in config
+cb:ippu:technical_cost:abating_N2O_and_F_Gases:X,deferred_external_table,,needs external cache table [cb_ippu_florinated_gases]
+cb:pflo:consumer_savings:better_diets:X,deferred_external_table,,needs external cache table [cb_pflo_healthier_diets]
+cb:pflo:human_health:better_diets:X,deferred_external_table,,needs external cache table [cb_pflo_healthier_diets]
+cb:waso:consumer_savings:consumer_food_waste:X,deferred_external_table,,needs external cache table [cb_waso_reduce_consumer_facing_food_waste]
+cb:waso:technical_cost:consumer_food_waste:X,deferred_external_table,,needs external cache table [cb_waso_reduce_consumer_facing_food_waste]

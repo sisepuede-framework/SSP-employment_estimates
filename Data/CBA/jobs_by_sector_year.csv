@@ -1,0 +1,628 @@
+sector,year,jobs
+Accommodation and food service activities,2018,0.034893976749144226
+Accommodation and food service activities,2019,0.31752288122272376
+Accommodation and food service activities,2020,-0.09995724724081682
+Accommodation and food service activities,2021,-0.9921828528810759
+Accommodation and food service activities,2022,-3.4288828529673507
+Accommodation and food service activities,2023,-6.630585704892157
+Accommodation and food service activities,2024,-6.353137836127772
+Accommodation and food service activities,2025,-1.903001096095959
+Accommodation and food service activities,2026,18.83138272044725
+Accommodation and food service activities,2027,42.79683237975176
+Accommodation and food service activities,2028,76.8086479307586
+Accommodation and food service activities,2029,126.85210684490886
+Accommodation and food service activities,2030,176.6495348298724
+Accommodation and food service activities,2031,196.26842281369994
+Accommodation and food service activities,2032,230.26308764766915
+Accommodation and food service activities,2033,270.21429354877426
+Accommodation and food service activities,2034,314.4217621231443
+Accommodation and food service activities,2035,366.2644395590499
+Accommodation and food service activities,2036,415.93256229922116
+Accommodation and food service activities,2037,475.83492252457626
+Accommodation and food service activities,2038,528.8978093406581
+Accommodation and food service activities,2039,565.2521874872733
+Accommodation and food service activities,2040,590.8887138465678
+Accommodation and food service activities,2041,612.5095625795541
+Accommodation and food service activities,2042,631.1056595037971
+Accommodation and food service activities,2043,649.8007721387137
+Accommodation and food service activities,2044,677.5601890899414
+Accommodation and food service activities,2045,694.7202575143049
+Accommodation and food service activities,2046,713.7299736667243
+Accommodation and food service activities,2047,727.3477596098472
+Accommodation and food service activities,2048,737.0067360050207
+Accommodation and food service activities,2049,746.2492317089475
+Accommodation and food service activities,2050,757.0433919005477
+Administrative and support services,2018,0.019868288207158642
+Administrative and support services,2019,0.20113721743528531
+Administrative and support services,2020,-0.0853182146315005
+Administrative and support services,2021,-0.7831832222368899
+Administrative and support services,2022,-2.0814575370510098
+Administrative and support services,2023,-4.163778657253588
+Administrative and support services,2024,7.204829198244006
+Administrative and support services,2025,28.086187606569254
+Administrative and support services,2026,97.39705706525551
+Administrative and support services,2027,169.68157803187532
+Administrative and support services,2028,254.96703564554494
+Administrative and support services,2029,348.1343090529744
+Administrative and support services,2030,439.8449303210596
+Administrative and support services,2031,517.194113333928
+Administrative and support services,2032,603.2043459014458
+Administrative and support services,2033,704.3872295449415
+Administrative and support services,2034,810.0377815931024
+Administrative and support services,2035,924.0994428880655
+Administrative and support services,2036,1036.4593893538968
+Administrative and support services,2037,1155.6318454430518
+Administrative and support services,2038,1271.912078714392
+Administrative and support services,2039,1379.7840148720065
+Administrative and support services,2040,1482.4509012811834
+Administrative and support services,2041,1583.9120135618828
+Administrative and support services,2042,1684.8860422098116
+Administrative and support services,2043,1787.125243262518
+Administrative and support services,2044,1895.3817186849817
+Administrative and support services,2045,1999.3770792778832
+Administrative and support services,2046,2105.6866057905486
+Administrative and support services,2047,2210.5624905314266
+Administrative and support services,2048,2314.75861900491
+Administrative and support services,2049,2419.6446951441385
+Administrative and support services,2050,2526.6452275787906
+"Agriculture, forestry and fishing",2018,-0.016874483361523106
+"Agriculture, forestry and fishing",2019,0.11273261184378747
+"Agriculture, forestry and fishing",2020,-0.0578504350539543
+"Agriculture, forestry and fishing",2021,-0.8399687132275063
+"Agriculture, forestry and fishing",2022,33.677763768966244
+"Agriculture, forestry and fishing",2023,57.95921219627857
+"Agriculture, forestry and fishing",2024,86.36971585214029
+"Agriculture, forestry and fishing",2025,189.94461317914727
+"Agriculture, forestry and fishing",2026,293.7654936325824
+"Agriculture, forestry and fishing",2027,405.22196092262607
+"Agriculture, forestry and fishing",2028,512.9584776506888
+"Agriculture, forestry and fishing",2029,618.1128574716287
+"Agriculture, forestry and fishing",2030,740.1621548342862
+"Agriculture, forestry and fishing",2031,857.3068350259298
+"Agriculture, forestry and fishing",2032,979.4357134937334
+"Agriculture, forestry and fishing",2033,1103.3940719460966
+"Agriculture, forestry and fishing",2034,1229.6655703815056
+"Agriculture, forestry and fishing",2035,1358.0260284956187
+"Agriculture, forestry and fishing",2036,1482.1547828309617
+"Agriculture, forestry and fishing",2037,1607.8929849358083
+"Agriculture, forestry and fishing",2038,1730.763314445099
+"Agriculture, forestry and fishing",2039,1849.852192839152
+"Agriculture, forestry and fishing",2040,1966.6978963937147
+"Agriculture, forestry and fishing",2041,2083.9385324514965
+"Agriculture, forestry and fishing",2042,2202.220351994855
+"Agriculture, forestry and fishing",2043,2321.8857441382356
+"Agriculture, forestry and fishing",2044,2444.676718027905
+"Agriculture, forestry and fishing",2045,2565.6713288356773
+"Agriculture, forestry and fishing",2046,2687.7297694007034
+"Agriculture, forestry and fishing",2047,2808.3648178655462
+"Agriculture, forestry and fishing",2048,2927.466036091092
+"Agriculture, forestry and fishing",2049,3042.512678807054
+"Agriculture, forestry and fishing",2050,3186.3909884490163
+"Arts, entertainment and recreation",2018,0.007732753983654185
+"Arts, entertainment and recreation",2019,0.07977927270617041
+"Arts, entertainment and recreation",2020,-0.026152254199640807
+"Arts, entertainment and recreation",2021,-0.3462528568726939
+"Arts, entertainment and recreation",2022,-1.356674543173107
+"Arts, entertainment and recreation",2023,-3.0138945933699492
+"Arts, entertainment and recreation",2024,-3.931325278282885
+"Arts, entertainment and recreation",2025,-3.617342213876691
+"Arts, entertainment and recreation",2026,-1.8223623373114395
+"Arts, entertainment and recreation",2027,2.1420017649415115
+"Arts, entertainment and recreation",2028,7.114669095499866
+"Arts, entertainment and recreation",2029,13.504886638747552
+"Arts, entertainment and recreation",2030,19.21784036445214
+"Arts, entertainment and recreation",2031,20.344352015148473
+"Arts, entertainment and recreation",2032,23.955742889687983
+"Arts, entertainment and recreation",2033,27.84324779771672
+"Arts, entertainment and recreation",2034,32.504922700333594
+"Arts, entertainment and recreation",2035,39.565395529144844
+"Arts, entertainment and recreation",2036,43.056783817655266
+"Arts, entertainment and recreation",2037,48.10878364457708
+"Arts, entertainment and recreation",2038,52.3547543795203
+"Arts, entertainment and recreation",2039,54.480810224394986
+"Arts, entertainment and recreation",2040,55.25405383053292
+"Arts, entertainment and recreation",2041,55.66051577126853
+"Arts, entertainment and recreation",2042,55.68477595923556
+"Arts, entertainment and recreation",2043,55.78992904091011
+"Arts, entertainment and recreation",2044,57.63722241538953
+"Arts, entertainment and recreation",2045,57.58238281435352
+"Arts, entertainment and recreation",2046,57.85134441611211
+"Arts, entertainment and recreation",2047,57.06161762864436
+"Arts, entertainment and recreation",2048,55.47778337953537
+"Arts, entertainment and recreation",2049,53.7783754749587
+"Arts, entertainment and recreation",2050,52.30410289889719
+Construction,2018,0.07123685934035033
+Construction,2019,0.9840374364092233
+Construction,2020,-0.7693439515706333
+Construction,2021,-6.357741874734647
+Construction,2022,-22.8135245966716
+Construction,2023,-43.95855230572032
+Construction,2024,-43.526885749431536
+Construction,2025,-20.051651370100654
+Construction,2026,195.17564142918053
+Construction,2027,429.5374898046192
+Construction,2028,745.834195553153
+Construction,2029,1235.0516969696691
+Construction,2030,1822.3662030618343
+Construction,2031,2097.8576138206267
+Construction,2032,2547.822443258322
+Construction,2033,3143.1544164533093
+Construction,2034,3963.4558300297836
+Construction,2035,5189.780753501959
+Construction,2036,6787.321516959054
+Construction,2037,8699.482962666065
+Construction,2038,10339.389961338304
+Construction,2039,11413.765975191534
+Construction,2040,12070.990584398192
+Construction,2041,12521.836959323038
+Construction,2042,12865.675154882765
+Construction,2043,13180.989981846786
+Construction,2044,13586.59876649557
+Construction,2045,13831.437160683805
+Construction,2046,14091.356643174056
+Construction,2047,14296.897082630941
+Construction,2048,14463.851988856573
+Construction,2049,14633.81717007143
+Construction,2050,14824.15029549401
+Education,2018,0.006566648142822841
+Education,2019,0.07316390445402511
+Education,2020,-0.027483165646577417
+Education,2021,-0.35009878889738055
+Education,2022,-1.1078872587474236
+Education,2023,-2.574182866589551
+Education,2024,-3.0999951416201568
+Education,2025,-1.8364469748829826
+Education,2026,2.0038648260231557
+Education,2027,8.069570487210015
+Education,2028,15.53544384811342
+Education,2029,25.42293595552975
+Education,2030,35.31896762996186
+Education,2031,38.94707793035685
+Education,2032,45.852449398980404
+Education,2033,54.55176532319713
+Education,2034,64.67910622803828
+Education,2035,78.4086763185181
+Education,2036,89.37049884376846
+Education,2037,102.9806584851947
+Education,2038,114.84979301517703
+Education,2039,122.61825827257121
+Education,2040,127.62791088761911
+Education,2041,131.62518012489383
+Education,2042,134.8824159222287
+Education,2043,138.1632128052168
+Education,2044,143.7211641005745
+Education,2045,146.64209603659765
+Education,2046,150.00208781501817
+Education,2047,152.0049074800237
+Education,2048,153.00057072038848
+Education,2049,153.8575924757245
+Education,2050,155.23777269979217
+"Electricity, gas, steam and air conditioning supply",2018,0.06759165852691557
+"Electricity, gas, steam and air conditioning supply",2019,0.591669085415485
+"Electricity, gas, steam and air conditioning supply",2020,-0.15201047335258297
+"Electricity, gas, steam and air conditioning supply",2021,-1.6143322123689603
+"Electricity, gas, steam and air conditioning supply",2022,-5.420406258134726
+"Electricity, gas, steam and air conditioning supply",2023,-10.100065819065176
+"Electricity, gas, steam and air conditioning supply",2024,-12.177196313494575
+"Electricity, gas, steam and air conditioning supply",2025,-8.138020865087341
+"Electricity, gas, steam and air conditioning supply",2026,7.928180637568292
+"Electricity, gas, steam and air conditioning supply",2027,29.349328887016398
+"Electricity, gas, steam and air conditioning supply",2028,61.0504864306659
+"Electricity, gas, steam and air conditioning supply",2029,103.84320835230129
+"Electricity, gas, steam and air conditioning supply",2030,150.76323303140376
+"Electricity, gas, steam and air conditioning supply",2031,174.18359693274678
+"Electricity, gas, steam and air conditioning supply",2032,211.355509044727
+"Electricity, gas, steam and air conditioning supply",2033,248.14587303100365
+"Electricity, gas, steam and air conditioning supply",2034,291.89162993629293
+"Electricity, gas, steam and air conditioning supply",2035,353.69177499210167
+"Electricity, gas, steam and air conditioning supply",2036,409.1133853179522
+"Electricity, gas, steam and air conditioning supply",2037,475.2118890321279
+"Electricity, gas, steam and air conditioning supply",2038,532.3300490452077
+"Electricity, gas, steam and air conditioning supply",2039,569.7626744066941
+"Electricity, gas, steam and air conditioning supply",2040,593.8024239975283
+"Electricity, gas, steam and air conditioning supply",2041,611.957599068424
+"Electricity, gas, steam and air conditioning supply",2042,626.1637798904243
+"Electricity, gas, steam and air conditioning supply",2043,639.6418117213078
+"Electricity, gas, steam and air conditioning supply",2044,660.2547309667996
+"Electricity, gas, steam and air conditioning supply",2045,670.4164277565404
+"Electricity, gas, steam and air conditioning supply",2046,681.4446003552125
+"Electricity, gas, steam and air conditioning supply",2047,687.146283012309
+"Electricity, gas, steam and air conditioning supply",2048,688.7606274794501
+"Electricity, gas, steam and air conditioning supply",2049,692.1094982770475
+"Electricity, gas, steam and air conditioning supply",2050,696.9340043201156
+Financial and insurance activities,2018,0.04073737964693115
+Financial and insurance activities,2019,0.3937568812323626
+Financial and insurance activities,2020,-0.15214154808393035
+Financial and insurance activities,2021,-1.432988725305633
+Financial and insurance activities,2022,-4.705245502985991
+Financial and insurance activities,2023,-9.111188364851063
+Financial and insurance activities,2024,-5.152238022770048
+Financial and insurance activities,2025,6.876785076427276
+Financial and insurance activities,2026,59.16462275833686
+Financial and insurance activities,2027,116.06329470583064
+Financial and insurance activities,2028,189.07626696152673
+Financial and insurance activities,2029,284.51935079286835
+Financial and insurance activities,2030,386.3970024630028
+Financial and insurance activities,2031,446.3117456699262
+Financial and insurance activities,2032,529.5145098287306
+Financial and insurance activities,2033,630.4800062400743
+Financial and insurance activities,2034,752.5698222469955
+Financial and insurance activities,2035,913.7924083685917
+Financial and insurance activities,2036,1101.516086445077
+Financial and insurance activities,2037,1320.4860316487107
+Financial and insurance activities,2038,1513.8904206407783
+Financial and insurance activities,2039,1652.5807418145334
+Financial and insurance activities,2040,1751.8926818593602
+Financial and insurance activities,2041,1832.6638496212167
+Financial and insurance activities,2042,1903.4209317540183
+Financial and insurance activities,2043,1972.2688599791338
+Financial and insurance activities,2044,2053.930756713505
+Financial and insurance activities,2045,2116.8771933348953
+Financial and insurance activities,2046,2182.4358414438025
+Financial and insurance activities,2047,2240.8284962826015
+Financial and insurance activities,2048,2294.1592098566543
+Financial and insurance activities,2049,2347.9677662836048
+Financial and insurance activities,2050,2404.832408568267
+Human health and social work activities,2018,0.003579612586042557
+Human health and social work activities,2019,0.043496292919129334
+Human health and social work activities,2020,-0.01742152327359756
+Human health and social work activities,2021,-0.23973858813700444
+Human health and social work activities,2022,-0.8399145533796307
+Human health and social work activities,2023,-1.9813371736124252
+Human health and social work activities,2024,-2.5805505214215962
+Human health and social work activities,2025,-2.099310198731987
+Human health and social work activities,2026,-0.7197083785800241
+Human health and social work activities,2027,2.361134899861892
+Human health and social work activities,2028,5.917279225918057
+Human health and social work activities,2029,10.266802544188177
+Human health and social work activities,2030,14.391692245093408
+Human health and social work activities,2031,15.484992360559128
+Human health and social work activities,2032,18.268483515759254
+Human health and social work activities,2033,21.64406481168351
+Human health and social work activities,2034,25.762229219329093
+Human health and social work activities,2035,32.08878697922988
+Human health and social work activities,2036,35.860175924452655
+Human health and social work activities,2037,40.919659617563994
+Human health and social work activities,2038,45.228688680271084
+Human health and social work activities,2039,47.71494241453698
+Human health and social work activities,2040,48.97301235050256
+Human health and social work activities,2041,49.83550961963886
+Human health and social work activities,2042,50.37094190114279
+Human health and social work activities,2043,50.94439401997506
+Human health and social work activities,2044,52.76039385728008
+Human health and social work activities,2045,53.19113970639716
+Human health and social work activities,2046,53.8523022200666
+Human health and social work activities,2047,53.76731401711041
+Human health and social work activities,2048,53.12332431966873
+Human health and social work activities,2049,52.388412402958124
+Human health and social work activities,2050,51.90036055851345
+Information and communication,2018,0.1055347917823056
+Information and communication,2019,1.304750414547221
+Information and communication,2020,-0.9090818235163853
+Information and communication,2021,-7.519246064057281
+Information and communication,2022,-26.672893334274725
+Information and communication,2023,-50.78795065394404
+Information and communication,2024,-46.29131773765113
+Information and communication,2025,-12.57489863223642
+Information and communication,2026,149.45187494002624
+Information and communication,2027,338.62934234124765
+Information and communication,2028,626.7891128039875
+Information and communication,2029,1103.0072955389198
+Information and communication,2030,1579.62530293977
+Information and communication,2031,1720.183082185141
+Information and communication,2032,2000.955550191323
+Information and communication,2033,2326.6614343266992
+Information and communication,2034,2645.8387368991066
+Information and communication,2035,2940.273967286626
+Information and communication,2036,3094.853572901522
+Information and communication,2037,3302.058000972857
+Information and communication,2038,3504.15789032124
+Information and communication,2039,3652.1967162191568
+Information and communication,2040,3784.874081598675
+Information and communication,2041,3930.5643777082514
+Information and communication,2042,4070.6824283399287
+Information and communication,2043,4224.951802809044
+Information and communication,2044,4485.626715172026
+Information and communication,2045,4646.491285359911
+Information and communication,2046,4832.141905639622
+Information and communication,2047,4958.979411475094
+Information and communication,2048,5042.653094332785
+Information and communication,2049,5121.240691432689
+Information and communication,2050,5214.9467248913725
+Manufacturing,2018,1.0908584386194347
+Manufacturing,2019,8.668395513324748
+Manufacturing,2020,-0.993287913168836
+Manufacturing,2021,-14.857062195106739
+Manufacturing,2022,-52.862989140310624
+Manufacturing,2023,-103.45751395189089
+Manufacturing,2024,-133.11339367341498
+Manufacturing,2025,-107.84141824396873
+Manufacturing,2026,19.47320888753628
+Manufacturing,2027,186.20740834146656
+Manufacturing,2028,428.7719471375679
+Manufacturing,2029,727.5764407753778
+Manufacturing,2030,954.7085064535981
+Manufacturing,2031,1025.273564420489
+Manufacturing,2032,1199.9074267420071
+Manufacturing,2033,1407.4416278673702
+Manufacturing,2034,1661.1070605223401
+Manufacturing,2035,2015.237426322693
+Manufacturing,2036,2454.732126671391
+Manufacturing,2037,2977.69571554626
+Manufacturing,2038,3400.9923829313248
+Manufacturing,2039,3631.7510256881415
+Manufacturing,2040,3720.729900670581
+Manufacturing,2041,3735.9684289875113
+Manufacturing,2042,3706.507296866683
+Manufacturing,2043,3659.1162042050355
+Manufacturing,2044,3640.8390699640236
+Manufacturing,2045,3553.033349894928
+Manufacturing,2046,3463.615068707714
+Manufacturing,2047,3342.5831424041885
+Manufacturing,2048,3196.9726574127208
+Manufacturing,2049,3042.456518875153
+Manufacturing,2050,2894.664348007493
+Mining and quarrying,2018,0.3164658972062218
+Mining and quarrying,2019,4.272015370282551
+Mining and quarrying,2020,-3.251127355362922
+Mining and quarrying,2021,-26.948430689877352
+Mining and quarrying,2022,-103.6338056933607
+Mining and quarrying,2023,-199.30252348152163
+Mining and quarrying,2024,-268.7964075568481
+Mining and quarrying,2025,-287.8941738826
+Mining and quarrying,2026,-234.53266642995806
+Mining and quarrying,2027,-117.69092251293176
+Mining and quarrying,2028,85.42709164180268
+Mining and quarrying,2029,258.2998107802098
+Mining and quarrying,2030,220.92001835679636
+Mining and quarrying,2031,126.71881281606322
+Mining and quarrying,2032,108.35925159123198
+Mining and quarrying,2033,99.22696549454453
+Mining and quarrying,2034,93.38782202837369
+Mining and quarrying,2035,91.57219833623047
+Mining and quarrying,2036,112.56271648481803
+Mining and quarrying,2037,137.9066654349344
+Mining and quarrying,2038,159.27433720315267
+Mining and quarrying,2039,172.428034011703
+Mining and quarrying,2040,179.58922272247673
+Mining and quarrying,2041,183.78388091825008
+Mining and quarrying,2042,186.3069947161294
+Mining and quarrying,2043,188.32666283645452
+Mining and quarrying,2044,191.87743462569907
+Mining and quarrying,2045,192.61723436693782
+Mining and quarrying,2046,193.50758721428323
+Mining and quarrying,2047,193.23518139993934
+Mining and quarrying,2048,192.0889199389495
+Mining and quarrying,2049,190.802576419097
+Mining and quarrying,2050,189.82328039434736
+Other service activities,2018,0
+Other service activities,2019,0
+Other service activities,2020,0
+Other service activities,2021,0
+Other service activities,2022,0
+Other service activities,2023,0
+Other service activities,2024,0
+Other service activities,2025,0
+Other service activities,2026,0
+Other service activities,2027,0
+Other service activities,2028,0
+Other service activities,2029,0
+Other service activities,2030,0
+Other service activities,2031,0
+Other service activities,2032,0
+Other service activities,2033,0
+Other service activities,2034,0
+Other service activities,2035,0
+Other service activities,2036,0
+Other service activities,2037,0
+Other service activities,2038,0
+Other service activities,2039,0
+Other service activities,2040,0
+Other service activities,2041,0
+Other service activities,2042,0
+Other service activities,2043,0
+Other service activities,2044,0
+Other service activities,2045,0
+Other service activities,2046,0
+Other service activities,2047,0
+Other service activities,2048,0
+Other service activities,2049,0
+Other service activities,2050,0
+"Professional, scientific and technical activities",2018,0.0750925014658145
+"Professional, scientific and technical activities",2019,0.7001860111008245
+"Professional, scientific and technical activities",2020,-0.2367605139229759
+"Professional, scientific and technical activities",2021,-2.3061779181029447
+"Professional, scientific and technical activities",2022,-7.534637890762307
+"Professional, scientific and technical activities",2023,-14.717118838385804
+"Professional, scientific and technical activities",2024,-4.626111441410289
+"Professional, scientific and technical activities",2025,20.47626648528909
+"Professional, scientific and technical activities",2026,113.66121516084164
+"Professional, scientific and technical activities",2027,214.33359236065053
+"Professional, scientific and technical activities",2028,340.2991222594309
+"Professional, scientific and technical activities",2029,491.74921827763086
+"Professional, scientific and technical activities",2030,640.4761994524949
+"Professional, scientific and technical activities",2031,739.690957579523
+"Professional, scientific and technical activities",2032,865.9925331157071
+"Professional, scientific and technical activities",2033,1007.4564581065862
+"Professional, scientific and technical activities",2034,1163.068770373913
+"Professional, scientific and technical activities",2035,1344.9755008575983
+"Professional, scientific and technical activities",2036,1533.5950745253065
+"Professional, scientific and technical activities",2037,1746.2161509918237
+"Professional, scientific and technical activities",2038,1941.981728591886
+"Professional, scientific and technical activities",2039,2098.7065099371052
+"Professional, scientific and technical activities",2040,2228.8807189428276
+"Professional, scientific and technical activities",2041,2348.1366905157965
+"Professional, scientific and technical activities",2042,2460.8685596646606
+"Professional, scientific and technical activities",2043,2573.6950531971597
+"Professional, scientific and technical activities",2044,2702.298614275132
+"Professional, scientific and technical activities",2045,2812.686440822281
+"Professional, scientific and technical activities",2046,2926.9314771880854
+"Professional, scientific and technical activities",2047,3033.2155214515747
+"Professional, scientific and technical activities",2048,3133.956087310278
+"Professional, scientific and technical activities",2049,3234.7277743917807
+"Professional, scientific and technical activities",2050,3339.2075845573545
+Public administration and defence; compulsory social security,2018,0.02297535414835237
+Public administration and defence; compulsory social security,2019,0.21142496758136436
+Public administration and defence; compulsory social security,2020,-0.06946776586465875
+Public administration and defence; compulsory social security,2021,-0.6837064448486596
+Public administration and defence; compulsory social security,2022,-2.472231029863986
+Public administration and defence; compulsory social security,2023,-4.7749837775218245
+Public administration and defence; compulsory social security,2024,-5.887153442614313
+Public administration and defence; compulsory social security,2025,-4.706846583610191
+Public administration and defence; compulsory social security,2026,2.4888747978610977
+Public administration and defence; compulsory social security,2027,11.674885793727816
+Public administration and defence; compulsory social security,2028,25.608299623673005
+Public administration and defence; compulsory social security,2029,45.755326810279854
+Public administration and defence; compulsory social security,2030,64.05263693802797
+Public administration and defence; compulsory social security,2031,69.33062630460383
+Public administration and defence; compulsory social security,2032,81.36347112477085
+Public administration and defence; compulsory social security,2033,94.51564707831007
+Public administration and defence; compulsory social security,2034,110.4912232365294
+Public administration and defence; compulsory social security,2035,134.0568347602462
+Public administration and defence; compulsory social security,2036,152.69371519002172
+Public administration and defence; compulsory social security,2037,176.25166082460194
+Public administration and defence; compulsory social security,2038,196.34260322144556
+Public administration and defence; compulsory social security,2039,208.1624253150816
+Public administration and defence; compulsory social security,2040,214.59951274462787
+Public administration and defence; compulsory social security,2041,218.91052316172744
+Public administration and defence; compulsory social security,2042,221.62278567798518
+Public administration and defence; compulsory social security,2043,224.24439731630105
+Public administration and defence; compulsory social security,2044,231.0443827736752
+Public administration and defence; compulsory social security,2045,232.65114827387453
+Public administration and defence; compulsory social security,2046,235.00507567156157
+Public administration and defence; compulsory social security,2047,234.66936370750335
+Public administration and defence; compulsory social security,2048,232.32226364971586
+Public administration and defence; compulsory social security,2049,229.72038383224975
+Public administration and defence; compulsory social security,2050,227.76381004126574
+Real estate activities,2018,0.017144103683085832
+Real estate activities,2019,0.16449909827735534
+Real estate activities,2020,-0.059231493146892494
+Real estate activities,2021,-0.5655335565353153
+Real estate activities,2022,-1.4592869191264626
+Real estate activities,2023,-2.9298274226718575
+Real estate activities,2024,5.640863280380613
+Real estate activities,2025,21.284703403884553
+Real estate activities,2026,73.99630828821849
+Real estate activities,2027,128.88590450154268
+Real estate activities,2028,193.73744369013644
+Real estate activities,2029,265.5746693096459
+Real estate activities,2030,337.4174246479993
+Real estate activities,2031,396.7779352942443
+Real estate activities,2032,463.56735261358375
+Real estate activities,2033,544.8926676752874
+Real estate activities,2034,631.0954198733
+Real estate activities,2035,726.46301399797
+Real estate activities,2036,823.5831389933464
+Real estate activities,2037,927.9896156747088
+Real estate activities,2038,1028.103816347427
+Real estate activities,2039,1117.6779968185685
+Real estate activities,2040,1200.1781598284697
+Real estate activities,2041,1280.155401818484
+Real estate activities,2042,1358.9413762257961
+Real estate activities,2043,1438.4155105748182
+Real estate activities,2044,1522.8788419706982
+Real estate activities,2045,1603.110687447269
+Real estate activities,2046,1685.149280755098
+Real estate activities,2047,1765.8159094566486
+Real estate activities,2048,1845.7707734279452
+Real estate activities,2049,1926.2840251371945
+Real estate activities,2050,2008.538706519247
+Transportation and storage,2018,0.21363410793370252
+Transportation and storage,2019,2.5526115328869774
+Transportation and storage,2020,-1.6332168326949188
+Transportation and storage,2021,-13.777929145497936
+Transportation and storage,2022,-51.07921579388505
+Transportation and storage,2023,-98.11170084576737
+Transportation and storage,2024,-122.94482215865375
+Transportation and storage,2025,-112.84456111045232
+Transportation and storage,2026,-7.3069318810327335
+Transportation and storage,2027,137.6045210726402
+Transportation and storage,2028,384.37841427493015
+Transportation and storage,2029,778.22717848019
+Transportation and storage,2030,1118.1903126379339
+Transportation and storage,2031,1158.2189939362866
+Transportation and storage,2032,1336.927470504105
+Transportation and storage,2033,1319.1013216577755
+Transportation and storage,2034,1288.9335540388438
+Transportation and storage,2035,1239.4716882720766
+Transportation and storage,2036,1068.9601324798145
+Transportation and storage,2037,937.2444063538321
+Transportation and storage,2038,781.7280131372569
+Transportation and storage,2039,554.8858843985889
+Transportation and storage,2040,292.7746083124907
+Transportation and storage,2041,23.333579001970772
+Transportation and storage,2042,-266.43121681921644
+Transportation and storage,2043,-558.1870779503536
+Transportation and storage,2044,-772.1286580371801
+Transportation and storage,2045,-1086.0763239296996
+Transportation and storage,2046,-1391.8139800547287
+Transportation and storage,2047,-1760.4131545102264
+Transportation and storage,2048,-2178.161049697328
+Transportation and storage,2049,-2611.635200296263
+Transportation and storage,2050,-3042.710571751215
+"Water supply; sewerage, waste management and remediation activities",2018,9.109530303268728e-4
+"Water supply; sewerage, waste management and remediation activities",2019,0.009550464697924834
+"Water supply; sewerage, waste management and remediation activities",2020,-0.0047038445444925825
+"Water supply; sewerage, waste management and remediation activities",2021,-0.042050452463442564
+"Water supply; sewerage, waste management and remediation activities",2022,-0.1365963676617142
+"Water supply; sewerage, waste management and remediation activities",2023,-0.2377684161027283
+"Water supply; sewerage, waste management and remediation activities",2024,-0.27899552835402963
+"Water supply; sewerage, waste management and remediation activities",2025,-0.1643050982910229
+"Water supply; sewerage, waste management and remediation activities",2026,0.1708596214228879
+"Water supply; sewerage, waste management and remediation activities",2027,0.6724933568339034
+"Water supply; sewerage, waste management and remediation activities",2028,1.4471213040995152
+"Water supply; sewerage, waste management and remediation activities",2029,2.4961719714202295
+"Water supply; sewerage, waste management and remediation activities",2030,3.9349806172835313
+"Water supply; sewerage, waste management and remediation activities",2031,4.837256660893664
+"Water supply; sewerage, waste management and remediation activities",2032,6.055538366151877
+"Water supply; sewerage, waste management and remediation activities",2033,7.272886028444964
+"Water supply; sewerage, waste management and remediation activities",2034,8.61412994770568
+"Water supply; sewerage, waste management and remediation activities",2035,10.478476903953068
+"Water supply; sewerage, waste management and remediation activities",2036,11.598040568807809
+"Water supply; sewerage, waste management and remediation activities",2037,12.87379769117754
+"Water supply; sewerage, waste management and remediation activities",2038,14.049965572707233
+"Water supply; sewerage, waste management and remediation activities",2039,14.964478794604625
+"Water supply; sewerage, waste management and remediation activities",2040,15.733620486173875
+"Water supply; sewerage, waste management and remediation activities",2041,16.466961090038588
+"Water supply; sewerage, waste management and remediation activities",2042,17.15235599329798
+"Water supply; sewerage, waste management and remediation activities",2043,17.846171152693813
+"Water supply; sewerage, waste management and remediation activities",2044,18.748322691726916
+"Water supply; sewerage, waste management and remediation activities",2045,19.388854258066768
+"Water supply; sewerage, waste management and remediation activities",2046,20.05653925790879
+"Water supply; sewerage, waste management and remediation activities",2047,20.56933816704094
+"Water supply; sewerage, waste management and remediation activities",2048,20.961345398152982
+"Water supply; sewerage, waste management and remediation activities",2049,21.479335713110874
+"Water supply; sewerage, waste management and remediation activities",2050,22.037806607820762
+Wholesale and retail trade; repair of motor vehicles,2018,0.40261697782141437
+Wholesale and retail trade; repair of motor vehicles,2019,3.543475284164443
+Wholesale and retail trade; repair of motor vehicles,2020,-0.9155980215086764
+Wholesale and retail trade; repair of motor vehicles,2021,-9.712482494026078
+Wholesale and retail trade; repair of motor vehicles,2022,-31.771908551317594
+Wholesale and retail trade; repair of motor vehicles,2023,-62.22591043550097
+Wholesale and retail trade; repair of motor vehicles,2024,-72.19930781920986
+Wholesale and retail trade; repair of motor vehicles,2025,-42.70122498067516
+Wholesale and retail trade; repair of motor vehicles,2026,117.30774289630446
+Wholesale and retail trade; repair of motor vehicles,2027,305.0696432284168
+Wholesale and retail trade; repair of motor vehicles,2028,567.0298525955131
+Wholesale and retail trade; repair of motor vehicles,2029,939.7154580688805
+Wholesale and retail trade; repair of motor vehicles,2030,1324.0844995818893
+Wholesale and retail trade; repair of motor vehicles,2031,1484.5859436795552
+Wholesale and retail trade; repair of motor vehicles,2032,1772.2180494506454
+Wholesale and retail trade; repair of motor vehicles,2033,2094.3098388517506
+Wholesale and retail trade; repair of motor vehicles,2034,2526.1514801877347
+Wholesale and retail trade; repair of motor vehicles,2035,3164.251970123733
+Wholesale and retail trade; repair of motor vehicles,2036,3960.1812019559493
+Wholesale and retail trade; repair of motor vehicles,2037,4921.328207843996
+Wholesale and retail trade; repair of motor vehicles,2038,5734.279007639231
+Wholesale and retail trade; repair of motor vehicles,2039,6239.56773971261
+Wholesale and retail trade; repair of motor vehicles,2040,6520.846090542566
+Wholesale and retail trade; repair of motor vehicles,2041,6692.198566744742
+Wholesale and retail trade; repair of motor vehicles,2042,6802.327775558338
+Wholesale and retail trade; repair of motor vehicles,2043,6895.291462572652
+Wholesale and retail trade; repair of motor vehicles,2044,7047.998027613064
+Wholesale and retail trade; repair of motor vehicles,2045,7096.416311199167
+Wholesale and retail trade; repair of motor vehicles,2046,7152.412654327781
+Wholesale and retail trade; repair of motor vehicles,2047,7166.254534032198
+Wholesale and retail trade; repair of motor vehicles,2048,7148.831043099399
+Wholesale and retail trade; repair of motor vehicles,2049,7127.875993038167
+Wholesale and retail trade; repair of motor vehicles,2050,7120.684484345066

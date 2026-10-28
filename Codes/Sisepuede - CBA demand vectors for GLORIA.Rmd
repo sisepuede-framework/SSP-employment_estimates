@@ -54,7 +54,8 @@ In this script, we focus on **7 countries** (BGR, BLZ, EGY, LBY, MAR, MEX, UGA).
 
 countries <- c("BGR","BLZ","EGY","LBY","MAR","MEX","UGA")
 
-transf_sheets <- c("Synthetic_ind_energy","AGRC","CCSQ","EN","ENTC","FGTV","FRST","INEN","LNDU","LSMM","LVST","IPPU","SCOE","TRNS","TRWW","WALI","WASO")
+transf_sheets <- c("Synthetic_ind_energy","AGRC","CCSQ","ENTC","FGTV","FRST","INEN","LNDU","LSMM","LVST",
+                   "IPPU","PFLO","SCOE","TRNS","TRWW","WALI","WASO")
 
 for(i in 1:7){
 
@@ -137,40 +138,19 @@ eval(parse(text = paste0("synthetic_ind_",countries[i]," <- synthetic_ind_",coun
 eval(parse(text = paste0("cost_str_",countries[i]," <- merge(cost_str_",countries[i],",synthetic_ind_",countries[i],",by='Sector',all.x = T)")))
 
 eval(parse(text = paste0("cost_str_",countries[i]," <- cost_str_",countries[i]," %>%  mutate(across(where(is.numeric), function(x) round(x,digits = 2))) %>%
-  mutate(`3001`=`3001`+0.12*BAU_Electricity_",countries[i],",
-                                        `3002`=`3002`+0.12*Renewable_Energy,
-                                        `3059`= `Energy Efficiency`,
-                                        `3060`= 0.5*Renewable_Energy+0.5*`Energy Efficiency`,
-                                        `3061`= 0.7*BAU_Electricity_",countries[i],"+0.3*Hydrogen,
-                                        `3062`=0.7*Renewable_Energy+0.3*`Green Hydrogen`,
-                                        `3003`=0.95*Renewable_Energy+0.05*BAU_Electricity_",countries[i],",
-                                        `3005`=`Grid Upgrades`,
-                                        `3006`=0.5*Renewable_Energy+0.5*`Grid Upgrades`,
-                                        `3010`= `3010`+0.3*Renewable_Energy,
-                                        `3012`= `3010`,
-                                        `3015`=`3015`+0.50*BAU_Electricity_",countries[i],",
-                                        `3016`= `3016`+0.50*Renewable_Energy,
-                                        `3017`=`3015`,
-                                        `3018`=`3016`,
-                                        `3019`=`Industrial EE`,
-                                        `3020`=0.51*Renewable_Energy+0.51*`Industrial EE`,
-                                        `3021`=`Industrial EE`,
-                                        `3022`=0.51*Renewable_Energy+0.51*`Industrial EE`,
-                                        `4002`=`4002`+0.21*BAU_Electricity_",countries[i],"+0.08*Coal,
-                                        `3025`=`3025`+0.1*BAU_Electricity_",countries[i],",
-                                        `3026`=`3026`+0.1*Renewable_Energy,
-                                        `3028`=`3027`*0.8+0.2*Renewable_Energy,
-                                        `3029`=BAU_Electricity_",countries[i],",
-                                        `3030`=Renewable_Energy,
-                                        `3035`=`3035`+0.1*BAU_Electricity_",countries[i],",
-                                        `3036`=`3036`+0.1*Renewable_Energy,
-                                        `3039`=`3039`+0.16*BAU_Electricity_",countries[i],",
-                                        `3040`=`3040`+0.16*Renewable_Energy,
-                                        `3041`=`3041`+0.44*Hydrogen,
-                                        `3042`=`3042`+0.44*`Green Hydrogen`,
-                                        `3043`=`3039`,
-                                        `3044`=`3040`,
-                                        `2014`= `2014`+0.103*BAU_Electricity_",countries[i],") %>% 
+  mutate(`3000`=`3000`+0.12*BAU_Electricity_",countries[i],",
+                                      `3005`=0.95*Renewable_Energy+0.05*BAU_Electricity_",countries[i],",
+                                      `3002`=`Grid Upgrades`,
+                                      `3010`=`3010`+0.50*BAU_Electricity_",countries[i],",
+                                      `3008`=`Industrial EE`,
+                                      `3009`=`Industrial EE`,
+                                      `4000`=`4000`+0.21*BAU_Electricity_",countries[i],"+0.08*Coal,
+                                      `3012`=`3012`+0.1*BAU_Electricity_",countries[i],",
+                                      `3013`=BAU_Electricity_",countries[i],",
+                                      `3018`=`3018`+0.1*BAU_Electricity_",countries[i],",
+                                      `3019`=`3019`+0.44*Hydrogen,
+                                      `3043`=`3020`,
+                                      `2014`= `2010`+0.103*BAU_Electricity_",countries[i],") %>% 
         
         select(-Bioenergy,-Solar,-Wind,-Hydro,-Nuclear,-`Oil and Gas`,-Coal,-Geothermal,-`Grid Upgrades`,-Weatherization,-Renewable_Energy,-`Energy Efficiency`,-`Fossil Fuels`,-`Industrial EE`,-Hydrogen,-`Green Hydrogen`,-`BAU_Electricity_",countries[i],"`) %>%
   
@@ -196,25 +176,33 @@ rm(list = setdiff(ls(),c("wd","cost_str_LBY","cost_str_BGR","cost_str_BLZ","cost
 cost <- c("cost_str_LBY", "cost_str_BGR", "cost_str_BLZ","cost_str_EGY", 
           "cost_str_MAR", "cost_str_MEX","cost_str_UGA")
 
-export_dir <- "Data/Cost Structure"
 
-for(i in seq_along(cost)){
 
-  obj_name <- cost[i]
-  obj <- get(obj_name)
-  
-  file_name <- paste0(obj_name,".xlsx")
-  file_path <- file.path(export_dir,file_name)
-  
-openxlsx::write.xlsx(obj, file = file_path)
-}
+# export_dir <- "Data/Cost Structure/CBA"
+# 
+# for(i in seq_along(cost)){
+# 
+#   obj_name <- cost[i]
+#   obj <- get(obj_name)
+#   
+#   file_name <- paste0(obj_name,"_cba.xlsx")
+#   file_path <- file.path(export_dir,file_name)
+#   
+# openxlsx::write.xlsx(obj, file = file_path)
+# }
 
 ```
 
+## Integrate CBA output 
+
+Running an example for Morocco based on SSP run for the country.
+
+```{r cba}
 
 
 
 
+```
 
 ## A.3 Load Crosswalk Matrix
 

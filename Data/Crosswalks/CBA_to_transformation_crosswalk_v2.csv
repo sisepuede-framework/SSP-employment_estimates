@@ -1,0 +1,41 @@
+output_variable_name,strategy_id_new,strategy_code_new,flow,variant_group,variant_role,notes
+cb:inen:technical_cost:fuel_switch:lo_heat,3010,INEN:SHIFT_FUEL_HEAT,cost,inen_fs_heat,component,
+cb:inen:technical_cost:fuel_switch:hi_heat,3010,INEN:SHIFT_FUEL_HEAT,cost,inen_fs_heat,component,
+cb:inen:technical_cost:fuel_switch:all,all_inen_fs_heat,INEN:SHIFT_FUEL_HEAT,cost,inen_fs_heat,aggregate,"synthetic :all = renormalized avg of lo/hi component vectors (both are 3010, so equals 3010 structure); mutually exclusive with components"
+cb:inen:technical_cost:efficiency:X,3008,INEN:INC_EFFICIENCY_ENERGY,cost,,standalone,
+cb:trns:technical_cost:electrification:LDV,3018,TRNS:SHIFT_FUEL_LIGHT_DUTY,cost,,standalone,
+cb:trns:technical_cost:electrification:rail,3021,TRNS:SHIFT_FUEL_RAIL,cost,,standalone,
+cb:trns:technical_cost:fuel_switch:maritime,3019,TRNS:SHIFT_FUEL_MARITIME,cost,,standalone,
+cb:trns:technical_cost:electrification:hdv_vehicles,3018,TRNS:SHIFT_FUEL_LIGHT_DUTY,cost,,standalone,
+cb:trns:technical_cost:electrification:hdv_charger,3018,TRNS:SHIFT_FUEL_LIGHT_DUTY,cost,,standalone,
+cb:trns:technical_cost:efficiency:electric,3015,TRNS:INC_EFFICIENCY_ELECTRIC,cost,trns_eff,component,
+cb:trns:technical_cost:efficiency:non_electric,3015,TRNS:INC_EFFICIENCY_ELECTRIC,cost,trns_eff,component,
+cb:trns:technical_cost:efficiency:all,all_trns_eff,TRNS:INC_EFFICIENCY_ELECTRIC,cost,trns_eff,aggregate,"synthetic :all = renormalized avg of electric/non_electric component vectors (both are 3015); mutually exclusive with components"
+cb:scoe:technical_cost:efficiency:appliance,3012,SCOE:INC_EFFICIENCY_APPLIANCE,cost,,standalone,
+cb:scoe:technical_cost:fuel_switch:heat_pumps,3013,SCOE:SHIFT_FUEL_HEAT,cost,,standalone,
+cb:scoe:technical_cost:efficiency:building_shell,3011,SCOE:DEC_DEMAND_HEAT,cost,,standalone,
+cb:entc:technical_cost:loss_reduction:electricity,3002,ENTC:DEC_LOSSES,cost,,standalone,
+cb:ippu:technical_cost:abating_N2O_and_F_Gases:X,all_ippu_fgas,IPPU:DEC_N2O_AND_F_GASES,cost,ippu_fgas,aggregate,"synthetic :all = renormalized avg of the four abating_gases vectors (4003 n2o, 4002 hfcs, 4005 pfcs, 4004 other_fgases); mutually exclusive with components"
+cb:ippu:technical_cost:abating_gases:n2o,4003,IPPU:DEC_N2O,cost,ippu_fgas,component,
+cb:ippu:technical_cost:abating_gases:hfcs,4002,IPPU:DEC_HFCS,cost,ippu_fgas,component,
+cb:ippu:technical_cost:abating_gases:pfcs,4005,IPPU:DEC_PFCS,cost,ippu_fgas,component,
+cb:ippu:technical_cost:abating_gases:other_fgases,4004,IPPU:DEC_OTHER_FCS,cost,ippu_fgas,component,
+cb:fgtv:technical_cost:flaring:X,3007,FGTV:INC_FLARE,cost,,standalone,
+cb:fgtv:technical_cost:leaks:X,3006,FGTV:DEC_LEAKS,cost,,standalone,
+cb:ccsq:technical_cost:direct_air_capture:X,3000,CCSQ:INC_CAPTURE,cost,,standalone,
+cb:lvst:technical_cost:ent_ferm_mgmt:X,1016,LVST:DEC_ENTERIC_FERMENTATION,cost,,standalone,
+cb:agrc:technical_cost:rice_mgmt:X,1000,AGRC:DEC_CH4_RICE,cost,,standalone,
+cb:agrc:technical_cost:increase_productivity:X,1004,AGRC:INC_PRODUCTIVITY,cost,,standalone,
+cb:lvst:technical_cost:increase_productivity:X,1018,LVST:INC_PRODUCTIVITY,cost,,standalone,
+cb:lndu:technical_cost:silvopasture:X,1010,LNDU:INC_SILVOPASTURE,cost,,standalone,
+cb:ippu:technical_cost:industrial_ccs:X,6001,PFLO:INC_IND_CCS,cost,,standalone,
+cb:lsmm:technical_cost:manure_management,1013,LSMM:INC_MANAGEMENT_CATTLE_PIGS,cost,,standalone,
+cb:ippu:technical_savings:clinker:X,4000,IPPU:DEC_CLINKER,savings,,standalone,"savings vector = NEGATIVE demand on avoided cement / non-metallic mineral PRODUCTION (own output), NOT strategy 4000's machinery cost structure"
+cb:inen:technical_savings:fuel_switch:lo_heat,3010,INEN:SHIFT_FUEL_HEAT,savings,inen_fs_heat,component,"savings vector = NEGATIVE demand on displaced fossil-fuel supply (Petroleum/Chemical & Non-Metallic, Mining); NOT the 3010 cost structure"
+cb:inen:technical_savings:fuel_switch:hi_heat,3010,INEN:SHIFT_FUEL_HEAT,savings,inen_fs_heat,component,"savings vector = NEGATIVE demand on displaced fossil-fuel supply; NOT the 3010 cost structure"
+cb:inen:technical_savings:fuel_switch:all,all_inen_fs_heat,INEN:SHIFT_FUEL_HEAT,savings,inen_fs_heat,aggregate,"synthetic :all savings = avg of lo/hi savings vectors; displaced fossil-fuel supply; mutually exclusive with components"
+cb:trns:technical_savings:electrification:LDV,3018,TRNS:SHIFT_FUEL_LIGHT_DUTY,savings,,standalone,"savings vector = NEGATIVE demand on displaced liquid-fuel supply (Petroleum/Chemical); NOT the 3018 cost structure"
+cb:trns:technical_savings:electrification:rail,3021,TRNS:SHIFT_FUEL_RAIL,savings,,standalone,"savings vector = NEGATIVE demand on displaced liquid-fuel supply; NOT the 3021 cost structure"
+cb:trns:technical_savings:electrification:hdv_vehicles,3018,TRNS:SHIFT_FUEL_LIGHT_DUTY,savings,,standalone,"savings vector = NEGATIVE demand on displaced liquid-fuel supply; NOT the 3018 cost structure"
+cb:scoe:technical_savings:fuel_switch:heat_pumps,3013,SCOE:SHIFT_FUEL_HEAT,savings,,standalone,"savings vector = NEGATIVE demand on displaced fossil-fuel supply; NOT the 3013 cost structure"
+cb:agrc:technical_savings:cons_ag:X,1003,AGRC:INC_CONSERVATION_AGRICULTURE,savings,,standalone,"savings vector = NEGATIVE demand spread evenly over selected GLORIA agricultural + chemical (fertilizer/pesticide) goods; assumed split, no better basis"
